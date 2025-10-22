@@ -6,8 +6,8 @@ module "kube-namespace" {
 }
 
 ## Persistant storage
-module "kube-storage" {
-  source = "./modules/kube-storage"
+module "kube-storage-azure" {
+  source = "./modules/kube-storage/azure"
 
   tenant_name = var.tenant_name
 
@@ -16,6 +16,20 @@ module "kube-storage" {
   zz_azure_aks_rg_name = var.zz_azure_aks_rg_name
   zz_azure_aks_rg_region = var.zz_azure_aks_rg_region
 }
+
+# ## Persistant storage
+# module "kube-storage-aws" {
+#   source = "./modules/kube-storage/aws"
+
+#   tenant_name = var.tenant_name
+# }
+
+# ## Persistant storage
+# module "kube-storage-gcp" {
+#   source = "./modules/kube-storage/gcp"
+
+#   tenant_name = var.tenant_name
+# }
 
 
 # ## Config: Keycloak realm
