@@ -1,0 +1,158 @@
+replicaCount: ${API_REPLICAS}
+api:
+  version: ${API_VERSION_PATH}
+  multiTenant: ${MULTI_TENANT}
+  servletContextPath: /
+  tlsTruststore:
+    enabled: false
+
+image:
+  repository: ghcr.io/cosmo-tech/cosmotech-api
+  tag: ${API_VERSION}
+argo:
+  imageCredentials:
+    password: ${ACR_LOGIN_PASSWORD}
+    registry: ${ACR_LOGIN_SERVER}
+    username: ${ACR_LOGIN_USERNAME}
+  storage:
+    class:
+      install: false
+config:
+  spring:
+    servlet:
+      multipart:
+        max-file-size: ${MAX_FILE_SIZE}
+        max-request-size: ${MAX_REQUEST_SIZE}
+  api:
+    serviceMonitor:
+      enabled: ${MONITORING_ENABLED}
+      namespace: ${MONITORING_NAMESPACE}
+  logging:
+    level:
+      com.cosmotech: DEBUG
+      web: WARN
+      org.springframework: WARN
+      com.redis: WARN
+  server:
+    error:
+      include-stacktrace: always
+  csm:
+    platform:
+      containerRegistry:
+        scheme: https
+        host: ${ACR_LOGIN_SERVER}
+        password: ${ACR_LOGIN_PASSWORD}
+        username: ${ACR_LOGIN_USERNAME}
+      identityProvider: ${IDENTITY_PROVIDER}
+      namespace: ${NAMESPACE}
+      loki:
+        baseUrl: http://loki.${MONITORING_NAMESPACE}.svc.cluster.local:3100
+      argo:
+        base-uri: "http://${ARGO_RELEASE_NAME}-server.${NAMESPACE}.svc.cluster.local:2746"
+        workflows:
+          namespace: ${NAMESPACE}
+          service-account-name: ${ARGO_SERVICE_ACCOUNT}
+      s3:
+        endpointUrl: ${S3_ENDPOINT_URL}
+        bucketName: ${S3_BUCKET_NAME}
+        accessKeyId: ${S3_ACCESS_KEY_ID}
+        secretAccessKey: ${S3_SECRET_ACCESS_KEY}
+      authorization:
+        allowedApiKeyConsumers: ${ALLOWED_API_KEY_CONSUMERS}
+        allowed-tenants: ${NAMESPACE}
+      azure:
+        appIdUri: ${APP_ID_URI}
+        containerRegistries:
+          solutions: ${ACR_LOGIN_SERVER}
+        credentials:
+          clientId: ${CLIENT_ID}
+          clientSecret: ${CLIENT_SECRET}
+          customer:
+            clientId: ${NETWORK_ADT_CLIENTID}
+            clientSecret: ${NETWORK_ADT_PASSWORD}
+            tenantId: ${TENANT_ID}
+          tenantId: ${TENANT_ID}
+        dataWarehouseCluster:
+          baseUri: ${ADX_URI}
+          options:
+            ingestionUri: ${ADX_INGESTION_URI}
+        eventBus:
+          baseUri: ${EVENTBUS_URI}
+        storage:
+          account-key: ${STORAGE_ACCOUNT_KEY}
+          account-name: ${STORAGE_ACCOUNT_NAME}
+      databases:
+        resources:
+          host: "cosmotechredis-${NAMESPACE}-master.${NAMESPACE}.svc.cluster.local"
+          port: ${REDIS_PORT}
+          username: "default"
+          password: ${REDIS_PASSWORD}
+          tls:
+            enabled: false
+            bundle: ""
+          run:
+            defaultPageSize: 200
+          runner:
+            defaultPageSize: 200
+        data:
+          host: "${POSTGRESQL_RELEASE_NAME}.${NAMESPACE}.svc.cluster.local"
+          port: 5432
+          database: ${POSTGRESQL_DATABASE}
+          reader:
+            username: ${POSTGRESQL_READER_USERNAME}
+            password: ${POSTGRESQL_READER_PASSWORD}
+          writer:
+            username: ${POSTGRESQL_WRITER_USERNAME}
+            password: ${POSTGRESQL_WRITER_PASSWORD}
+          admin:
+            username: ${POSTGRESQL_ADMIN_USERNAME}
+            password: ${POSTGRESQL_ADMIN_PASSWORD}
+      upload:
+        authorized-mime-types:
+          workspace: ${AUTHORIZED_MIME_TYPES}
+ingress:
+  enabled: ${COSMOTECH_API_INGRESS_ENABLED}
+  annotations:
+    cert-manager.io/cluster-issuer: ${TLS_SECRET_NAME}
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.org/client-max-body-size: "0"
+  hosts:
+    - host: ${COSMOTECH_API_DNS_NAME}
+  tls:
+    - secretName: ${TLS_SECRET_NAME}
+      hosts: ["${COSMOTECH_API_DNS_NAME}"]
+
+resources:
+  # Recommended in production environments
+  limits:
+    #   cpu: 100m
+    memory: 2048Mi
+  requests:
+    #   cpu: 100m
+    memory: 1024Mi
+
+tolerations:
+- key: "vendor"
+  operator: "Equal"
+  value: "cosmotech"
+  effect: "NoSchedule"
+
+nodeSelector:
+  "cosmotech.com/tier": "services"
+
+podSecurityContext:
+  seccompProfile:
+    type: "RuntimeDefault"
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
