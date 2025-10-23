@@ -1,28 +1,16 @@
-locals {
-  main_name = "tenant-${var.tenant}"
-}
-
-variable "kubernetes_context" {
-  description = "Kubernetes context (= the cluster) where to perform installation"
-  type        = string
-}
-
 variable "tenant" {
-  description = "Cosmo Tech tenant name"
+  type = string
+}
+
+variable "resource" {
+  description = "Name of the resource that needs the persistent storage"
   type        = string
 }
 
-variable "cloud_provider" {
-  description = "Cloud provider name where the deployment takes place"
-  type        = string
-
-  validation {
-    condition     = contains(["kob", "azure", "aws", "gcp"], var.cloud_provider)
-    error_message = "Valid values for 'cloud_provider' are: \n- kob\n- azure\n- aws\n- gcp"
-  }
+variable "size" {
+  description = "Size of the disk/pv/pvc"
+  type        = number
 }
-
-
 
 variable "zz_azure_subscription_id" {
   description = "[temporary] Azure subscription ID"
@@ -43,4 +31,3 @@ variable "zz_azure_aks_rg_region" {
   description = "[temporary] Azure of resource group of the AKS cluster (region)"
   type        = string
 }
-

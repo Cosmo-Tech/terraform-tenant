@@ -1,5 +1,4 @@
 ![Static Badge](https://img.shields.io/badge/Cosmo%20Tech-%23FFB039?style=for-the-badge)
-![Static Badge](https://img.shields.io/badge/AWS-%23ED7100?style=for-the-badge)
 
 # Cosmo Tech tenant
 
