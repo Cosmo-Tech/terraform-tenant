@@ -3,7 +3,7 @@ variable "tenant" {
 }
 
 variable "resource" {
-  description = "Name of the resource that needs the persistant storage"
+  description = "Name of the resource that needs the persistent storage"
   type        = string
 }
 

@@ -1,11 +1,21 @@
-## Namespace
+## namespace
 module "kube-namespace" {
   source = "./modules/kube-namespace"
 
   tenant = var.tenant
 }
 
-## Persistant storage Redis
+# ## (config) Keycloak realm
+# module "config-keycloak-realm" {
+#   source = "./modules/config-keycloak-realm"
+# }
+
+# ## (config) Grafana dashboard
+# module "config-grafana-dashboard" {
+#   source = "./modules/config-grafana-dashboard"
+# }
+
+## (persistent storage) Redis
 module "kube-storage-azure-redis" {
   source = "./modules/kube-storage/azure"
 
@@ -21,7 +31,7 @@ module "kube-storage-azure-redis" {
   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
 }
 
-## Persistant storage PostgreSQL
+## (persistent storage) PostgreSQL
 module "kube-storage-azure-postgresql" {
   source = "./modules/kube-storage/azure"
 
@@ -37,7 +47,7 @@ module "kube-storage-azure-postgresql" {
   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
 }
 
-## Persistant storage SeaweedFS
+## (persistent storage) SeaweedFS
 module "kube-storage-azure-seaweedfs" {
   source = "./modules/kube-storage/azure"
 
@@ -53,7 +63,7 @@ module "kube-storage-azure-seaweedfs" {
   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
 }
 
-## Persistant storage Harbor
+## (persistent storage) Harbor
 module "kube-storage-azure-harbor" {
   source = "./modules/kube-storage/azure"
 
@@ -69,68 +79,58 @@ module "kube-storage-azure-harbor" {
   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
 }
 
-# ## Config: Keycloak realm
-# module "config-keycloak-realm" {
-#   source = "./modules/config-keycloak-realm"
-
-# }
-
-# ## Config: Grafana dashboard
-# module "config-grafana-dashboard" {
-#   source = "./modules/config-grafana-dashboard"
-
-# }
-
-# ## Helm Chart Cosmo Tech API
+# ## (Helm Chart) Cosmo Tech API
 # module "chart-cosmotech-api" {
 #   source = "./modules/chart-cosmotech-api"
 
 #   tenant = module.kube-namespace.tenant
 # }
 
-# ## Helm Chart Redis
+# ## (Helm Chart) Redis
 # module "chart-redis" {
 #   source = "./modules/chart-redis"
 
 #   tenant = module.kube-namespace.tenant
-  # pvc    = module.kube-storage-azure-redis.pvc
+#   pvc    = module.kube-storage-azure-redis[0].pvc
 # }
 
-# ## Helm Chart Argo Workflows
+# ## (Helm Chart) Argo Workflows
 # module "chart-argo" {
 #   source = "./modules/chart-argo"
 
 #   tenant = module.kube-namespace.tenant
 # }
 
-## Helm Chart PostgreSQL
+## (Helm Chart) PostgreSQL
 module "chart-postgresql" {
   source = "./modules/chart-postgresql"
 
-  tenant = module.kube-namespace.tenant
-  pvc    = module.kube-storage-azure-postgresql[0].pvc
+  tenant            = module.kube-namespace.tenant
+  size              = module.kube-storage-azure-postgresql[0].size
+  pvc               = module.kube-storage-azure-postgresql[0].pvc
+  pvc_storage_class = module.kube-storage-azure-postgresql[0].pvc_storage_class
 }
 
-# ## Helm Chart SeaweedFS
+# ## (Helm Chart) SeaweedFS
 # module "seaweedfs" {
 #   source = "./modules/seaweedfs"
 
 #   tenant = module.kube-namespace.tenant
-  # pvc    = module.kube-storage-azure-seaweedfs.pvc
+#   pvc    = module.kube-storage-azure-seaweedfs[0].pvc
 # }
 
-# ## Helm Chart RabbitMQ
+# ## (Helm Chart) RabbitMQ
 # module "rabbitmq" {
 #   source = "./modules/rabbitmq"
 
 #   tenant = module.kube-namespace.tenant
 # }
 
-# ## Helm Chart Harbor
+# ## (Helm Chart) Harbor
 # module "harbor" {
 #   source = "./modules/harbor"
 
 #   tenant = module.kube-namespace.tenant
-  # pvc    = module.kube-storage-azure-harbor.pvc
+#   pvc    = module.kube-storage-azure-harbor[0].pvc
 # }
 

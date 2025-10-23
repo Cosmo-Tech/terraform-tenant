@@ -3,10 +3,10 @@ image:
   repository: bitnamilegacy/postgresql
 auth:
   enablePostgresUser: true
-  database: ${POSTGRESQL_DATABASE}
+  database: do_not_use
   existingSecret: ${POSTGRESQL_SECRET_NAME}
-  secretKeys:
-    adminPasswordKey: cosmotech-postgresql
+  # secretKeys:
+  #   adminPasswordKey: postgres-password
 primary:
   containerSecurityContext:
     enabled: true
@@ -33,12 +33,12 @@ primary:
   persistence:
     enabled: true
     size: ${PERSISTENCE_SIZE}
-    existingClaim: ${POSTGRESQL_EXISTING_PVC_NAME}
-    storageClass: ${POSTGRESQL_STORAGE_CLASS_NAME}
-  initdb:
-    user: postgres
-    password: ${POSTGRESQL_PASSWORD}
-    scriptsSecret: ${POSTGRESQL_INITDB_SECRET}
+    existingClaim: ${PERSISTENCE_PVC}
+    storageClass: ${PERSISTENCE_STORAGE_CLASS}
+  # initdb:
+  #   user: postgres
+  #   password: POSTGRESQL_PASSWORD}
+  #   scriptsSecret: POSTGRESQL_INITDB_SECRET}
   resources:
     requests:
       memory: "64Mi"
@@ -56,7 +56,7 @@ metrics:
     allowPrivilegeEscalation: false
   # serviceMonitor:
   #   enabled: true
-  #   namespace: ${MONITORING_NAMESPACE}
+  #   namespace: MONITORING_NAMESPACE}
   #   interval: 30s
   #   scrapeTimeout: 10s
   resources:

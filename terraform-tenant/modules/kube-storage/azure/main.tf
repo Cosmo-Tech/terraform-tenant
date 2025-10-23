@@ -46,7 +46,7 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
   }
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = "cosmotech-retain"
+    storage_class_name = kubernetes_persistent_volume.pv.spec[0].storage_class_name
     resources {
       requests = {
         storage = "${kubernetes_persistent_volume.pv.spec[0].capacity.storage}"

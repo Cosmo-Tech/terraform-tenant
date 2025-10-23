@@ -12,23 +12,20 @@ resource "random_password" "password" {
   min_special = 5
 }
 
+# resource "kubernetes_secret" "postgresql" {
+#   metadata {
+#     name      = "cosmotech-postgresql"
+#     namespace = kubernetes_namespace.tenant.metadata[0].name
+#   }
 
-resource "kubernetes_secret" "postgresql" {
-  metadata {
-    name      = "cosmotech-postgresql"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
+#   data = {
+#     "todo1" = random_password.password.result
+#     "todo2" = random_password.password.result
+#     "todo3" = random_password.password.result
+#   }
 
-  data = {
-    "todo1" = random_password.password.result
-    "todo2" = random_password.password.result
-    "todo3" = random_password.password.result
-  }
-
-  type = "Opaque"
-}
-
-
+#   type = "Opaque"
+# }
 
 resource "kubernetes_secret" "seaweedfs" {
   metadata {
@@ -45,7 +42,6 @@ resource "kubernetes_secret" "seaweedfs" {
   type = "Opaque"
 }
 
-
 resource "kubernetes_secret" "argo" {
   metadata {
     name      = "cosmotech-argo"
@@ -60,7 +56,6 @@ resource "kubernetes_secret" "argo" {
 
   type = "Opaque"
 }
-
 
 resource "kubernetes_secret" "rabbitmq" {
   metadata {
@@ -77,8 +72,6 @@ resource "kubernetes_secret" "rabbitmq" {
   type = "Opaque"
 }
 
-
-
 resource "kubernetes_secret" "redis" {
   metadata {
     name      = "cosmotech-redis"
@@ -93,7 +86,6 @@ resource "kubernetes_secret" "redis" {
 
   type = "Opaque"
 }
-
 
 resource "kubernetes_secret" "harbor" {
   metadata {
@@ -110,7 +102,6 @@ resource "kubernetes_secret" "harbor" {
   type = "Opaque"
 }
 
-
 resource "kubernetes_secret" "keycloak" {
   metadata {
     name      = "cosmotech-keycloak"
@@ -126,8 +117,6 @@ resource "kubernetes_secret" "keycloak" {
   type = "Opaque"
 }
 
-
-
 resource "kubernetes_secret" "babylon" {
   metadata {
     name      = "cosmotech-babylon"
@@ -140,6 +129,20 @@ resource "kubernetes_secret" "babylon" {
     "grant_type" : "client_credentials",
     "scope" : "openid",
     "url" : "https://KEYCLOAK_URL/keycloak/realms/TENANT/protocol/openid-connect/token"
+  }
+
+  type = "Opaque"
+}
+
+resource "kubernetes_secret" "terraform_module_tag" {
+  metadata {
+    name      = "cosmotech-terraform-module-tag"
+    namespace = kubernetes_namespace.tenant.metadata[0].name
+  }
+
+  data = {
+    "module" : "terraform-tenant",
+    "tag" : "todo",
   }
 
   type = "Opaque"
