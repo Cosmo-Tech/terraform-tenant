@@ -13,7 +13,7 @@ terraform {
     #   version = "2.2.0"
     # }
     azurerm = {
-      source = "hashicorp/azurerm"
+      source  = "hashicorp/azurerm"
       version = "~> 4.49.0"
     }
   }
@@ -26,7 +26,7 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes = {
-    config_path = "~/.kube/config"
+    config_path    = "~/.kube/config"
     config_context = var.kubernetes_context
   }
 }

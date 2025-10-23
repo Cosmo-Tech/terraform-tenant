@@ -1,1 +1,1 @@
-tenant_name = "test"
+tenant = "test"

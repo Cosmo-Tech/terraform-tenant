@@ -1,8 +1,8 @@
 locals {
-  main_name = "tenant-${var.tenant_name}"
+  main_name = "tenant-${var.tenant}"
 }
 
-variable "tenant_name" {
+variable "tenant" {
   description = "Cosmo Tech tenant name"
   type        = string
 }

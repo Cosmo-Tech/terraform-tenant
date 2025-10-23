@@ -2,35 +2,72 @@
 module "kube-namespace" {
   source = "./modules/kube-namespace"
 
-  tenant_name = var.tenant_name
+  tenant = var.tenant
 }
 
-## Persistant storage
-module "kube-storage-azure" {
+## Persistant storage Redis
+module "kube-storage-azure-redis" {
   source = "./modules/kube-storage/azure"
 
-  tenant_name = var.tenant_name
+  count = var.cloud_provider == "azure" ? 1 : 0
+
+  tenant   = module.kube-namespace.tenant
+  resource = "redis"
+  size     = 8
 
   zz_azure_subscription_id = var.zz_azure_subscription_id
   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-  zz_azure_aks_rg_name = var.zz_azure_aks_rg_name
-  zz_azure_aks_rg_region = var.zz_azure_aks_rg_region
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
 }
 
-# ## Persistant storage
-# module "kube-storage-aws" {
-#   source = "./modules/kube-storage/aws"
+## Persistant storage PostgreSQL
+module "kube-storage-azure-postgresql" {
+  source = "./modules/kube-storage/azure"
 
-#   tenant_name = var.tenant_name
-# }
+  count = var.cloud_provider == "azure" ? 1 : 0
 
-# ## Persistant storage
-# module "kube-storage-gcp" {
-#   source = "./modules/kube-storage/gcp"
+  tenant   = module.kube-namespace.tenant
+  resource = "postgresql"
+  size     = 8
 
-#   tenant_name = var.tenant_name
-# }
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
 
+## Persistant storage SeaweedFS
+module "kube-storage-azure-seaweedfs" {
+  source = "./modules/kube-storage/azure"
+
+  count = var.cloud_provider == "azure" ? 1 : 0
+
+  tenant   = module.kube-namespace.tenant
+  resource = "seaweedfs"
+  size     = 8
+
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
+
+## Persistant storage Harbor
+module "kube-storage-azure-harbor" {
+  source = "./modules/kube-storage/azure"
+
+  count = var.cloud_provider == "azure" ? 1 : 0
+
+  tenant   = module.kube-namespace.tenant
+  resource = "harbor"
+  size     = 8
+
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
 
 # ## Config: Keycloak realm
 # module "config-keycloak-realm" {
@@ -38,72 +75,62 @@ module "kube-storage-azure" {
 
 # }
 
-
 # ## Config: Grafana dashboard
 # module "config-grafana-dashboard" {
 #   source = "./modules/config-grafana-dashboard"
 
 # }
 
-
-# ## Helm Chart: Cosmo Tech API
+# ## Helm Chart Cosmo Tech API
 # module "chart-cosmotech-api" {
 #   source = "./modules/chart-cosmotech-api"
 
-#   tenant_name = module.namespace.tenant_namespace
+#   tenant = module.kube-namespace.tenant
 # }
 
-
-# ## Helm Chart: Redis
+# ## Helm Chart Redis
 # module "chart-redis" {
 #   source = "./modules/chart-redis"
 
-#   tenant_name = module.namespace.tenant_namespace
+#   tenant = module.kube-namespace.tenant
+  # pvc    = module.kube-storage-azure-redis.pvc
 # }
 
-
-# ## Helm Chart: Argo Workflows
+# ## Helm Chart Argo Workflows
 # module "chart-argo" {
 #   source = "./modules/chart-argo"
 
-#   tenant_name = module.namespace.tenant_namespace
+#   tenant = module.kube-namespace.tenant
 # }
 
-
-## Helm Chart: PostgreSQL
+## Helm Chart PostgreSQL
 module "chart-postgresql" {
   source = "./modules/chart-postgresql"
 
-  tenant_namespace = module.namespace.tenant_namespace
-
-  # zz_azure_subscription_id = var.zz_azure_subscription_id
-  # zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-  # zz_azure_aks_rg_name = var.zz_azure_aks_rg_name
-  # zz_azure_aks_rg_region = var.zz_azure_aks_rg_region
+  tenant = module.kube-namespace.tenant
+  pvc    = module.kube-storage-azure-postgresql[0].pvc
 }
 
-
-# ## Helm Chart: SeaweedFS
+# ## Helm Chart SeaweedFS
 # module "seaweedfs" {
 #   source = "./modules/seaweedfs"
 
-#   tenant_name = module.namespace.tenant_namespace
+#   tenant = module.kube-namespace.tenant
+  # pvc    = module.kube-storage-azure-seaweedfs.pvc
 # }
 
-
-# ## Helm Chart: RabbitMQ
+# ## Helm Chart RabbitMQ
 # module "rabbitmq" {
 #   source = "./modules/rabbitmq"
 
-#   tenant_name = module.namespace.tenant_namespace
+#   tenant = module.kube-namespace.tenant
 # }
 
-
-# ## Helm Chart: Harbor
+# ## Helm Chart Harbor
 # module "harbor" {
 #   source = "./modules/harbor"
 
-#   tenant_name = module.namespace.tenant_namespace
+#   tenant = module.kube-namespace.tenant
+  # pvc    = module.kube-storage-azure-harbor.pvc
 # }
-
 

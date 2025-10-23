@@ -1,36 +1,33 @@
-variable "tenant_namespace" {
+variable "tenant" {
+  type = string
+}
+
+variable "resource" {
+  description = "Name of the resource that needs the persistant storage"
   type        = string
 }
 
-
-
+variable "size" {
+  description = "Size of the disk/pv/pvc"
+  type        = number
+}
 
 variable "zz_azure_subscription_id" {
   description = "[temporary] Azure subscription ID"
-  type = string
+  type        = string
 }
 
 variable "zz_azure_entra_tenant_id" {
   description = "[temporary] Azure Entra tenant ID"
-  type = string
+  type        = string
 }
 
 variable "zz_azure_aks_rg_name" {
   description = "[temporary] Azure resource group of the AKS cluster (name)"
-  type = string
+  type        = string
 }
 
 variable "zz_azure_aks_rg_region" {
   description = "[temporary] Azure of resource group of the AKS cluster (region)"
-  type = string
-}
-
-
-variable "storage" {
-  description = "Generic persistant storage specifications"
-
-  type = map(object({
-    associated_resource        = string
-    size         = string
-  }))
+  type        = string
 }

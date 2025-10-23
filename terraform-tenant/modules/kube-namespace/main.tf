@@ -5,10 +5,10 @@ resource "kubernetes_namespace" "tenant" {
 }
 
 resource "random_password" "password" {
-  length           = 40
-  min_lower = 5
-  min_upper = 5
-  min_numeric = 5 
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
   min_special = 5
 }
 
@@ -19,13 +19,13 @@ resource "kubernetes_secret" "postgresql" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
 }
 
 
@@ -36,13 +36,13 @@ resource "kubernetes_secret" "seaweedfs" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
 }
 
 
@@ -52,13 +52,13 @@ resource "kubernetes_secret" "argo" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
 }
 
 
@@ -68,13 +68,13 @@ resource "kubernetes_secret" "rabbitmq" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
 }
 
 
@@ -85,13 +85,13 @@ resource "kubernetes_secret" "redis" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
 }
 
 
@@ -101,13 +101,13 @@ resource "kubernetes_secret" "harbor" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
 }
 
 
@@ -117,13 +117,32 @@ resource "kubernetes_secret" "keycloak" {
     namespace = kubernetes_namespace.tenant.metadata[0].name
   }
 
- data = {
+  data = {
     "todo1" = random_password.password.result
     "todo2" = random_password.password.result
     "todo3" = random_password.password.result
   }
 
- type = "Opaque"
+  type = "Opaque"
+}
+
+
+
+resource "kubernetes_secret" "babylon" {
+  metadata {
+    name      = "cosmotech-babylon"
+    namespace = kubernetes_namespace.tenant.metadata[0].name
+  }
+
+  data = {
+    "client_id" : "cosmotech-babylon-client",
+    "client_secret" : random_password.password.result,
+    "grant_type" : "client_credentials",
+    "scope" : "openid",
+    "url" : "https://KEYCLOAK_URL/keycloak/realms/TENANT/protocol/openid-connect/token"
+  }
+
+  type = "Opaque"
 }
 
 

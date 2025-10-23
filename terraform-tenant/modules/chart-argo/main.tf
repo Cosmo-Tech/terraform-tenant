@@ -11,7 +11,7 @@ locals {
     "ARGO_POSTGRESQL_USER"        = "var.postgres_argo_user"
     "ARGO_POSTGRESQL_SECRET_NAME" = "var.argo_postgresql_secret_name"
   }
-  service_account = "${var.tenant_name}-argo-service-account"
+  service_account = "${var.tenant}-argo-service-account"
 }
 
 
@@ -19,12 +19,12 @@ locals {
 resource "helm_release" "argo_workflows" {
 
 
-  namespace    = var.tenant_name
+  namespace = var.tenant
 
   name       = "argo-workflows"
   repository = "https://charts.bitnami.com/bitnami"
-  chart       = "argo-workflows"
-  version     = "9.1.6"
+  chart      = "argo-workflows"
+  version    = "9.1.6"
 
   reset_values = true
 
@@ -33,6 +33,6 @@ resource "helm_release" "argo_workflows" {
   ]
 
   depends_on = [
-    var.tenant_name,
+    var.tenant,
   ]
 }

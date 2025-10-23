@@ -7,12 +7,12 @@ locals {
 resource "helm_release" "cosmotech_api" {
 
 
-  namespace    = var.tenant_name
+  namespace = var.tenant
 
   name       = "argo-workflows"
   repository = "https://charts.bitnami.com/bitnami"
-  chart       = "argo-workflows"
-  version     = "9.1.6"
+  chart      = "argo-workflows"
+  version    = "9.1.6"
 
   reset_values = true
 
@@ -21,14 +21,6 @@ resource "helm_release" "cosmotech_api" {
   ]
 
   depends_on = [
-    var.tenant_name,
+    var.tenant,
   ]
-}
-
-
-data "kubernetes_secret" "network_client_password" {
-  metadata {
-    name      = "network-client-secret"
-    namespace = "default"
-  }
 }
