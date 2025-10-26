@@ -3,24 +3,26 @@ image:
   repository: bitnamilegacy/postgresql
 auth:
   enablePostgresUser: true
-  database: do_not_use
-  existingSecret: ${POSTGRESQL_SECRET_NAME}
-  # secretKeys:
-  #   adminPasswordKey: postgres-password
+  database: postgres
+  existingSecret: ${POSTGRESQL_SECRET_CONFIG}
+  secretKeys:
+    adminPasswordKey: postgres-password
 primary:
-  containerSecurityContext:
-    enabled: true
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-    capabilities:
-      drop:
-        - ALL
-    allowPrivilegeEscalation: false
-  podSecurityContext:
-    enabled: true
-    seccompProfile:
-      type: RuntimeDefault
+  # containerSecurityContext:
+  #   enabled: true
+  #   runAsNonRoot: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  #   capabilities:
+  #     drop:
+  #       - ALL
+  #   allowPrivilegeEscalation: false
+  # podSecurityContext:
+  #   enabled: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  # networkPolicy:
+  #   enabled: false
   podLabels:
     "networking/traffic-allowed": "yes"
   tolerations:
@@ -36,9 +38,7 @@ primary:
     existingClaim: ${PERSISTENCE_PVC}
     storageClass: ${PERSISTENCE_STORAGE_CLASS}
   # initdb:
-  #   user: postgres
-  #   password: POSTGRESQL_PASSWORD}
-  #   scriptsSecret: POSTGRESQL_INITDB_SECRET}
+  #   scriptsSecret: POSTGRESQL_SECRET_INITDB}
   resources:
     requests:
       memory: "64Mi"
@@ -48,17 +48,19 @@ primary:
       cpu: "1"
 metrics:
   enabled: true
-  containerSecurityContext:
-    enabled: true
-    capabilities:
-      drop:
-        - ALL
-    allowPrivilegeEscalation: false
+  # containerSecurityContext:
+  #   enabled: true
+  #   capabilities:
+  #     drop:
+  #       - ALL
+  #   allowPrivilegeEscalation: false
   # serviceMonitor:
   #   enabled: true
   #   namespace: MONITORING_NAMESPACE}
   #   interval: 30s
   #   scrapeTimeout: 10s
+  image:
+    repository: bitnamilegacy/postgres-exporter
   resources:
     requests:
       memory: "64Mi"
@@ -66,6 +68,48 @@ metrics:
     limits:
       memory: "256Mi"
       cpu: "1"
-  image:
-    repository: bitnamilegacy/postgres-exporter
+# extraDeploy:
+#   - |
+#     apiVersion: batch/v1
+#     kind: Job
+#     metadata:
+#       name: postgresql-initdb
+#       namespace: tenant-test1
+#     spec:
+#       template:
+#         spec:
+#           restartPolicy: OnFailure
+#           nodeSelector:
+#             cosmotech.com/tier: services
+#           tolerations:
+#           - key: "vendor"
+#             operator: "Equal"
+#             value: "cosmotech"
+#             effect: "NoSchedule"
+#           containers:
+#             - name: postgresql-initdb
+#               image: alpine:stable
+#               command:
+#                 - /bin/sh
+#               args:
+#                 - -exc
+#                 - |
+#                   apk add postgresql
+#                   export PGPASSWORD='POSTGRESQL_PASSWORD}'
+#                   HOST='postgresql-0.tenant-test1.svc.cluster.local'
+#                   echo $PGPASSWORD
+#                   echo $HOST
+#                   psql -U postgres -h $HOST
+#                   psql -c "
+#                     CREATE ROLE seaweedfs WITH LOGIN PASSWORD 'seaweedfs';
+#                     CREATE DATABASE seaweedfs WITH OWNER seaweedfs;
+#                     \connect seaweedfs seaweedfs;
+#                     CREATE TABLE IF NOT EXISTS filemeta (
+#                       dirhash     BIGINT,
+#                       name        VARCHAR(65535),
+#                       directory   VARCHAR(65535),
+#                       meta        bytea,
+#                       PRIMARY KEY (dirhash, name)
+#                     );
+#                   "
 

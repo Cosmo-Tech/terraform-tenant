@@ -16,6 +16,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.49.0"
     }
+    # postgresql = {
+    #   source = "cyrilgdn/postgresql"
+    #   version = "~> 1.26.0"
+    # }
   }
 }
 
@@ -33,8 +37,9 @@ provider "helm" {
 
 provider "azurerm" {
   features {}
-  # subscription_id = "a24b131f-bd0b-42e8-872a-bded9b91ab74"
-  # tenant_id       = "e413b834-8be8-4822-a370-be619545cb49"
   subscription_id = var.zz_azure_subscription_id
   tenant_id       = var.zz_azure_entra_tenant_id
 }
+
+
+# provider "postgresql" {}

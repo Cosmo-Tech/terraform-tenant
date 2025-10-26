@@ -22,6 +22,8 @@ resource "kubernetes_persistent_volume" "pv" {
     }
     access_modes       = ["ReadWriteOnce"]
     storage_class_name = "cosmotech-retain"
+    # access_modes       = ["${var.access_mode}"]
+    # storage_class_name = var.storage_class
     persistent_volume_source {
       azure_disk {
         caching_mode  = "None"
@@ -45,7 +47,7 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
     name      = "pvc-${var.tenant}-${var.resource}"
   }
   spec {
-    access_modes       = ["ReadWriteOnce"]
+    access_modes       = kubernetes_persistent_volume.pv.spec[0].access_modes
     storage_class_name = kubernetes_persistent_volume.pv.spec[0].storage_class_name
     resources {
       requests = {

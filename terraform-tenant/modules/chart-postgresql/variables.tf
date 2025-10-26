@@ -2,6 +2,10 @@ variable "tenant" {
   type = string
 }
 
+variable "release" {
+  type = string
+}
+
 variable "pvc" {
   type = string
 }

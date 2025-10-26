@@ -6,7 +6,7 @@
 
 
 # Stop script if missing dependency
-required_commands="terraform aws jq"
+required_commands="terraform aws jq psql"
 for command in $required_commands; do
 	if [ -z "$(command -v $command)" ]; then
 		echo "error: required command not found: \e[91m$command\e[97m"
@@ -25,7 +25,7 @@ done
 # }
 
 # # Clear old data
-rm -rf terraform-tenant/.terraform*
+# rm -rf terraform-tenant/.terraform*
 
 # Deploy
 terraform -chdir=terraform-tenant init
