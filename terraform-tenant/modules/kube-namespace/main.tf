@@ -43,20 +43,20 @@ resource "kubernetes_secret" "rabbitmq" {
   type = "Opaque"
 }
 
-resource "kubernetes_secret" "redis" {
-  metadata {
-    name      = "cosmotech-redis"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
+# resource "kubernetes_secret" "redis" {
+#   metadata {
+#     name      = "cosmotech-redis"
+#     namespace = kubernetes_namespace.tenant.metadata[0].name
+#   }
 
-  data = {
-    "todo1" = random_password.password.result
-    "todo2" = random_password.password.result
-    "todo3" = random_password.password.result
-  }
+#   data = {
+#     "todo1" = random_password.password.result
+#     "todo2" = random_password.password.result
+#     "todo3" = random_password.password.result
+#   }
 
-  type = "Opaque"
-}
+#   type = "Opaque"
+# }
 
 resource "kubernetes_secret" "harbor" {
   metadata {

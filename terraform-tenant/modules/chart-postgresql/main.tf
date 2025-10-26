@@ -30,8 +30,8 @@ resource "kubernetes_secret" "postgresql-config" {
   type = "Opaque"
 
   metadata {
-    name      = "postgresql-config"
     namespace = var.tenant
+    name      = "postgresql-config"
   }
 
   data = {
@@ -59,8 +59,8 @@ resource "kubernetes_secret" "postgresql-seaweedfs" {
   type = "Opaque"
 
   metadata {
-    name      = "postgresql-seaweedfs"
     namespace = var.tenant
+    name      = "postgresql-seaweedfs"
   }
 
   data = {
@@ -76,9 +76,7 @@ resource "helm_release" "postgresql" {
   name       = var.release
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
-  # version    = "18.1.1"
-  version = "16.7.27"
-  # version = "11.6.12"
+  version    = "16.7.27"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
@@ -102,8 +100,8 @@ resource "helm_release" "postgresql" {
 #   See https://guillaume.fenollar.fr/blog/kubernetes-dns-options-ndots-glibc-musl/ for more details
 resource "kubernetes_job" "initdb" {
   metadata {
-    name      = "postgresql-initdb"
     namespace = var.tenant
+    name      = "postgresql-initdb"
   }
   spec {
     template {

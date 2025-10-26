@@ -43,7 +43,7 @@ module "kube-storage-azure-seaweedfs-master" {
 
   tenant   = module.kube-namespace.tenant
   resource = "seaweedfs-master"
-  size     = 8
+  size     = 32
 
   zz_azure_subscription_id = var.zz_azure_subscription_id
   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
@@ -60,7 +60,7 @@ module "kube-storage-azure-seaweedfs-volume" {
 
   tenant   = module.kube-namespace.tenant
   resource = "seaweedfs-volume"
-  size     = 8
+  size     = 32
 
   zz_azure_subscription_id = var.zz_azure_subscription_id
   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
@@ -86,21 +86,37 @@ module "kube-storage-azure-seaweedfs-volume" {
 # }
 
 
-# ## (persistent storage) Redis
-# module "kube-storage-azure-redis" {
-#   source = "./modules/kube-storage/azure"
+## (persistent storage) Redis master
+module "kube-storage-azure-redis-master" {
+  source = "./modules/kube-storage/azure"
 
-#   count = var.cloud_provider == "azure" ? 1 : 0
+  count = var.cloud_provider == "azure" ? 1 : 0
 
-#   tenant   = module.kube-namespace.tenant
-#   resource = "redis"
-#   size     = 8
+  tenant   = module.kube-namespace.tenant
+  resource = "redis-master"
+  size     = 32
 
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
+
+## (persistent storage) Redis replica
+module "kube-storage-azure-redis-replica" {
+  source = "./modules/kube-storage/azure"
+
+  count = var.cloud_provider == "azure" ? 1 : 0
+
+  tenant   = module.kube-namespace.tenant
+  resource = "redis-replica"
+  size     = 32
+
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
 
 
 # ## (Helm Chart) Cosmo Tech API
@@ -111,13 +127,21 @@ module "kube-storage-azure-seaweedfs-volume" {
 # }
 
 
-# ## (Helm Chart) Redis
-# module "chart-redis" {
-#   source = "./modules/chart-redis"
+## (Helm Chart) Redis
+module "chart-redis" {
+  source = "./modules/chart-redis"
 
-#   tenant = module.kube-namespace.tenant
-#   pvc    = module.kube-storage-azure-redis[0].pvc
-# }
+  release = "redis"
+  tenant  = module.kube-namespace.tenant
+
+  size_master              = module.kube-storage-azure-redis-master[0].size
+  pvc_master               = module.kube-storage-azure-redis-master[0].pvc
+  pvc_master_storage_class = module.kube-storage-azure-redis-master[0].pvc_storage_class
+
+  size_replica              = module.kube-storage-azure-redis-replica[0].size
+  pvc_replica               = module.kube-storage-azure-redis-replica[0].pvc
+  pvc_replica_storage_class = module.kube-storage-azure-redis-replica[0].pvc_storage_class
+}
 
 
 # ## (Helm Chart) Argo Workflows
@@ -160,7 +184,7 @@ module "chart-seaweedfs" {
   database_host             = module.chart-postgresql.database_host
   database_port             = module.chart-postgresql.database_port
   database_seaweedfs_name   = module.chart-postgresql.database_seaweedfs_name
-  database_seaweedfs_user = module.chart-postgresql.database_seaweedfs_user
+  database_seaweedfs_user   = module.chart-postgresql.database_seaweedfs_user
   database_seaweedfs_secret = module.chart-postgresql.database_seaweedfs_secret
 }
 

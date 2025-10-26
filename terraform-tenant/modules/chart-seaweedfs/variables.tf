@@ -6,11 +6,11 @@ variable "release" {
   type = string
 }
 
-variable "pvc_master" {
+variable "size_master" {
   type = string
 }
 
-variable "size_master" {
+variable "pvc_master" {
   type = string
 }
 
@@ -22,11 +22,11 @@ variable "pvc_master_access_modes" {
   type = string
 }
 
-variable "pvc_volume" {
+variable "size_volume" {
   type = string
 }
 
-variable "size_volume" {
+variable "pvc_volume" {
   type = string
 }
 
