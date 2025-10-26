@@ -42,7 +42,15 @@ variable "database_host" {
   type = string
 }
 
+variable "database_port" {
+  type = string
+}
+
 variable "database_seaweedfs_name" {
+  type = string
+}
+
+variable "database_seaweedfs_user" {
   type = string
 }
 

@@ -28,9 +28,9 @@ externalDatabase:
   enabled: true
   store: postgresql
   host: "${DATABASE_HOST}"
-  port: 5432
+  port: ${DATABASE_PORT}
   database: "${DATABASE_NAME}"
-  user: postgres
+  user: "${DATABASE_USER}"
   existingSecret: "${DATABASE_SECRET}"
   # initDatabaseJob:
   #   enabled: true
@@ -60,6 +60,8 @@ filer:
       operator: "Equal"
       value: "cosmotech"
       effect: "NoSchedule"
+  podLabels:
+    "networking/traffic-allowed": "yes"
 s3:
   enabled: true
   nodeSelector:

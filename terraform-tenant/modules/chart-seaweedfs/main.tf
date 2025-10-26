@@ -9,7 +9,9 @@ locals {
     "PERSISTENCE_VOLUME_STORAGE_CLASS" = var.pvc_volume_storage_class
     "PERSISTENCE_VOLUME_ACCESS_MODES"  = var.pvc_volume_access_modes
     "DATABASE_HOST"                    = var.database_host
+    "DATABASE_PORT"                    = var.database_port
     "DATABASE_NAME"                    = var.database_seaweedfs_name
+    "DATABASE_USER"                    = var.database_seaweedfs_user
     "DATABASE_SECRET"                  = var.database_seaweedfs_secret
     "S3_INIT_BUCKETS"                  = ["argo-workflows", "cosmotech-api"]
     "FILER_ENDPOINT"                   = "http://${var.release}-filer.${var.tenant}.svc.cluster.local:8888"

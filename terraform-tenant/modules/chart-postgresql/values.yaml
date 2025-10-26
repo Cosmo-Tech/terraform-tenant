@@ -8,21 +8,19 @@ auth:
   secretKeys:
     adminPasswordKey: postgres-password
 primary:
-  # containerSecurityContext:
-  #   enabled: true
-  #   runAsNonRoot: true
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   capabilities:
-  #     drop:
-  #       - ALL
-  #   allowPrivilegeEscalation: false
-  # podSecurityContext:
-  #   enabled: true
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  # networkPolicy:
-  #   enabled: false
+  containerSecurityContext:
+    enabled: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+    allowPrivilegeEscalation: false
+  podSecurityContext:
+    enabled: true
+    seccompProfile:
+      type: RuntimeDefault
   podLabels:
     "networking/traffic-allowed": "yes"
   tolerations:
@@ -37,8 +35,6 @@ primary:
     size: ${PERSISTENCE_SIZE}
     existingClaim: ${PERSISTENCE_PVC}
     storageClass: ${PERSISTENCE_STORAGE_CLASS}
-  # initdb:
-  #   scriptsSecret: POSTGRESQL_SECRET_INITDB}
   resources:
     requests:
       memory: "64Mi"
@@ -68,48 +64,3 @@ metrics:
     limits:
       memory: "256Mi"
       cpu: "1"
-# extraDeploy:
-#   - |
-#     apiVersion: batch/v1
-#     kind: Job
-#     metadata:
-#       name: postgresql-initdb
-#       namespace: tenant-test1
-#     spec:
-#       template:
-#         spec:
-#           restartPolicy: OnFailure
-#           nodeSelector:
-#             cosmotech.com/tier: services
-#           tolerations:
-#           - key: "vendor"
-#             operator: "Equal"
-#             value: "cosmotech"
-#             effect: "NoSchedule"
-#           containers:
-#             - name: postgresql-initdb
-#               image: alpine:stable
-#               command:
-#                 - /bin/sh
-#               args:
-#                 - -exc
-#                 - |
-#                   apk add postgresql
-#                   export PGPASSWORD='POSTGRESQL_PASSWORD}'
-#                   HOST='postgresql-0.tenant-test1.svc.cluster.local'
-#                   echo $PGPASSWORD
-#                   echo $HOST
-#                   psql -U postgres -h $HOST
-#                   psql -c "
-#                     CREATE ROLE seaweedfs WITH LOGIN PASSWORD 'seaweedfs';
-#                     CREATE DATABASE seaweedfs WITH OWNER seaweedfs;
-#                     \connect seaweedfs seaweedfs;
-#                     CREATE TABLE IF NOT EXISTS filemeta (
-#                       dirhash     BIGINT,
-#                       name        VARCHAR(65535),
-#                       directory   VARCHAR(65535),
-#                       meta        bytea,
-#                       PRIMARY KEY (dirhash, name)
-#                     );
-#                   "
-

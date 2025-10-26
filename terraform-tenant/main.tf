@@ -35,38 +35,38 @@ module "kube-storage-azure-postgresql" {
 }
 
 
-# ## (persistent storage) SeaweedFS
-# module "kube-storage-azure-seaweedfs-master" {
-#   source = "./modules/kube-storage/azure"
+## (persistent storage) SeaweedFS
+module "kube-storage-azure-seaweedfs-master" {
+  source = "./modules/kube-storage/azure"
 
-#   count = var.cloud_provider == "azure" ? 1 : 0
+  count = var.cloud_provider == "azure" ? 1 : 0
 
-#   tenant   = module.kube-namespace.tenant
-#   resource = "seaweedfs-master"
-#   size     = 8
+  tenant   = module.kube-namespace.tenant
+  resource = "seaweedfs-master"
+  size     = 8
 
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
 
 
-# ## (persistent storage) SeaweedFS
-# module "kube-storage-azure-seaweedfs-volume" {
-#   source = "./modules/kube-storage/azure"
+## (persistent storage) SeaweedFS
+module "kube-storage-azure-seaweedfs-volume" {
+  source = "./modules/kube-storage/azure"
 
-#   count = var.cloud_provider == "azure" ? 1 : 0
+  count = var.cloud_provider == "azure" ? 1 : 0
 
-#   tenant   = module.kube-namespace.tenant
-#   resource = "seaweedfs-volume"
-#   size     = 8
+  tenant   = module.kube-namespace.tenant
+  resource = "seaweedfs-volume"
+  size     = 8
 
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
 
 
 # ## (persistent storage) Harbor
@@ -140,27 +140,29 @@ module "chart-postgresql" {
 }
 
 
-# ## (Helm Chart) SeaweedFS
-# module "chart-seaweedfs" {
-#   source = "./modules/chart-seaweedfs"
+## (Helm Chart) SeaweedFS
+module "chart-seaweedfs" {
+  source = "./modules/chart-seaweedfs"
 
-#   release = "seaweedfs"
-#   tenant  = module.kube-namespace.tenant
+  release = "seaweedfs"
+  tenant  = module.kube-namespace.tenant
 
-#   size_master              = module.kube-storage-azure-seaweedfs-master[0].size
-#   pvc_master               = module.kube-storage-azure-seaweedfs-master[0].pvc
-#   pvc_master_access_modes  = module.kube-storage-azure-seaweedfs-master[0].pvc_access_modes
-#   pvc_master_storage_class = module.kube-storage-azure-seaweedfs-master[0].pvc_storage_class
+  size_master              = module.kube-storage-azure-seaweedfs-master[0].size
+  pvc_master               = module.kube-storage-azure-seaweedfs-master[0].pvc
+  pvc_master_access_modes  = module.kube-storage-azure-seaweedfs-master[0].pvc_access_modes
+  pvc_master_storage_class = module.kube-storage-azure-seaweedfs-master[0].pvc_storage_class
 
-#   size_volume              = module.kube-storage-azure-seaweedfs-volume[0].size
-#   pvc_volume               = module.kube-storage-azure-seaweedfs-volume[0].pvc
-#   pvc_volume_access_modes  = module.kube-storage-azure-seaweedfs-volume[0].pvc_access_modes
-#   pvc_volume_storage_class = module.kube-storage-azure-seaweedfs-volume[0].pvc_storage_class
+  size_volume              = module.kube-storage-azure-seaweedfs-volume[0].size
+  pvc_volume               = module.kube-storage-azure-seaweedfs-volume[0].pvc
+  pvc_volume_access_modes  = module.kube-storage-azure-seaweedfs-volume[0].pvc_access_modes
+  pvc_volume_storage_class = module.kube-storage-azure-seaweedfs-volume[0].pvc_storage_class
 
-#   database_host             = module.chart-postgresql.database_host
-#   database_seaweedfs_name   = module.chart-postgresql.database_seaweedfs_name
-#   database_seaweedfs_secret = module.chart-postgresql.database_seaweedfs_secret
-# }
+  database_host             = module.chart-postgresql.database_host
+  database_port             = module.chart-postgresql.database_port
+  database_seaweedfs_name   = module.chart-postgresql.database_seaweedfs_name
+  database_seaweedfs_user = module.chart-postgresql.database_seaweedfs_user
+  database_seaweedfs_secret = module.chart-postgresql.database_seaweedfs_secret
+}
 
 
 # ## (Helm Chart) RabbitMQ

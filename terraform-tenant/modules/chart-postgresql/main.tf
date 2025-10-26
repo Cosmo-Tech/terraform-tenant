@@ -5,17 +5,6 @@ locals {
     "PERSISTENCE_STORAGE_CLASS" = var.pvc_storage_class
     "POSTGRESQL_SECRET_CONFIG"  = kubernetes_secret.postgresql-config.metadata[0].name
   }
-  #   "POSTGRESQL_PASSWORD"  = kubernetes_secret.postgresql-config.data.postgres-password
-  # }
-  #   "POSTGRESQL_SECRET_INITDB"  = kubernetes_secret.postgresql-initdb.metadata[0].name
-  # }
-
-
-  # initdb_values = {
-  #   "SEAWEEDFS_DATABASE" = kubernetes_secret.postgresql-seaweedfs.data.postgresql-database
-  #   "SEAWEEDFS_USERNAME" = kubernetes_secret.postgresql-seaweedfs.data.postgresql-username
-  #   "SEAWEEDFS_PASSWORD" = kubernetes_secret.postgresql-seaweedfs.data.postgresql-password
-  # }
 
   database_host = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
   database_port = "5432"
@@ -31,7 +20,6 @@ resource "random_password" "password" {
   min_upper   = 5
   min_numeric = 5
   # min_special = 5
-
   special = false
 }
 
@@ -63,22 +51,6 @@ resource "kubernetes_secret" "postgresql-config" {
     random_password.password,
   ]
 }
-
-
-# # # Specific secret containing script to initialize PostgreSQL databases
-# # Must be a secret because it contains sensitives data
-# resource "kubernetes_secret" "postgresql-initdb" {
-#   type = "Opaque"
-
-#   metadata {
-#     name      = "postgresql-initdb"
-#     namespace = var.tenant
-#   }
-
-#   data = {
-#     "001-initdb.sql" = templatefile("${path.module}/001-initdb.sql", local.initdb_values)
-#   }
-# }
 
 
 # Specific secret containing SeadweedFS database informations
@@ -119,11 +91,15 @@ resource "helm_release" "postgresql" {
     var.tenant,
     var.pvc,
     kubernetes_secret.postgresql-config,
-    # kubernetes_secret.postgresql-initdb,
     kubernetes_secret.postgresql-seaweedfs,
   ]
 }
 
+# Goal of this Job is just to init stuff in the main PostgreSQL
+# Notes:
+#   To be sure having a working 'psql' command, the job is directly installed from an official PostgreSQL image
+#   The used image is Debian because Kubernetes DNS forces us to have DNS based on glibc & not musl (like in Alpine)
+#   See https://guillaume.fenollar.fr/blog/kubernetes-dns-options-ndots-glibc-musl/ for more details
 resource "kubernetes_job" "initdb" {
   metadata {
     name      = "postgresql-initdb"
@@ -138,40 +114,42 @@ resource "kubernetes_job" "initdb" {
       }
       spec {
         container {
-          name    = "postgresql-initdb"
-          image   = "postgres:17-trixie" # https://guillaume.fenollar.fr/blog/kubernetes-dns-options-ndots-glibc-musl/
+          name  = "postgresql-initdb"
+          image = "postgres:17-trixie"
           command = [
             "/bin/sh",
             "-c",
           ]
           args = [
             <<EOT
-              # dns doesnt work well by default in postgres image
+              # DNS doesn't work by default in postgres image
               apt update && apt install -y dnsutils 
   
               export PGPASSWORD='${kubernetes_secret.postgresql-config.data.postgres-password}'
               export PGHOST='${local.database_host}'
               export PGPORT='${local.database_port}'
 
+              # SeaweedFS init
               psql -U postgres -c "
                 CREATE ROLE ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username} WITH LOGIN PASSWORD '${kubernetes_secret.postgresql-seaweedfs.data.postgresql-password}';
               "
-
               psql -U postgres -c "
                 CREATE DATABASE ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-database} WITH OWNER ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username};
               "
-              
-              psql -U postgres -d ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username} -c "
-                CREATE TABLE IF NOT EXISTS filemeta (
-                  dirhash     BIGINT,
-                  name        VARCHAR(65535),
-                  directory   VARCHAR(65535),
-                  meta        bytea,
-                  PRIMARY KEY (dirhash, name)
-                );
-              "
+                # Set seaweedfs password to create table
+                export PGPASSWORD='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-password}'
+                psql -U ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username} -d ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-database} -c "
+                  CREATE TABLE IF NOT EXISTS filemeta (
+                    dirhash     BIGINT,
+                    name        VARCHAR(65535),
+                    directory   VARCHAR(65535),
+                    meta        bytea,
+                    PRIMARY KEY (dirhash, name)
+                  );
+                "
 
-              # sleep 80000000
+              # Set back the postgres password
+              # export PGPASSWORD='${kubernetes_secret.postgresql-config.data.postgres-password}'
 
               exit
             EOT
@@ -186,14 +164,12 @@ resource "kubernetes_job" "initdb" {
         node_selector = {
           "cosmotech.com/tier" = "services",
         }
-        
-        dns_policy = "ClusterFirst"
-
-
+        dns_policy     = "ClusterFirst"
         restart_policy = "Never"
       }
     }
-    backoff_limit = 0
+    backoff_limit              = 0
+    ttl_seconds_after_finished = 0
   }
   wait_for_completion = true
   timeouts {
