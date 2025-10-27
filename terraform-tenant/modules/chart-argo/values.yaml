@@ -4,6 +4,7 @@ createAggregateRoles: false
 server:
   image:
     repository: bitnamilegacy/argo-workflow-cli
+    pullPolicy: IfNotPresent
   auth:
     mode: server
   clusterWorkflowTemplates:
@@ -20,10 +21,10 @@ server:
   service:
     ports:
       http: 2746
-
 controller:
   image:
     repository: bitnamilegacy/argo-workflow-controller
+    pullPolicy: IfNotPresent
   persistence:
     archive:
       enabled: true
@@ -54,15 +55,15 @@ controller:
     artifactRepository:
       archiveLogs: true
       s3:
-        endpoint: "${S3_ENDPOINT}"
-        bucket: "${S3_BUCKET_NAME}"
+        endpoint: "S3_ENDPOINT}"
+        bucket: "S3_BUCKET_NAME}"
         insecure: true
         accessKeySecret:
-          name: "${S3_CREDENTIALS_SECRET}"
-          key: "${S3_USERNAME_KEY}"
+          name: "S3_CREDENTIALS_SECRET}"
+          key: "S3_USERNAME_KEY}"
         secretKeySecret:
-          name: "${S3_CREDENTIALS_SECRET}"
-          key: "${S3_PASSWORD_KEY}"
+          name: "S3_CREDENTIALS_SECRET}"
+          key: "S3_PASSWORD_KEY}"
     {{- if .Values.controller.telemetry.enabled }}
     telemetryConfig: {{- include "common.tplvalues.render" (dict "value" .Values.controller.telemetry "context" $) | nindent 2 }}
     {{- end }}
@@ -142,10 +143,10 @@ controller:
       operator: "Equal"
       value: "cosmotech"
       effect: "NoSchedule"
-
 executor:
   image:
     repository: bitnamilegacy/argo-workflow-exec
+    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 2
@@ -158,24 +159,20 @@ executor:
       value: 1s
     - name: WAIT_CONTAINER_STATUS_CHECK_INTERVAL
       value: 1s
-
 ingress:
   enabled: false
-
 workflows:
   serviceAccount:
-    name: ${ARGO_SERVICE_ACCOUNT}
+    name: "${SERVICE_ACCOUNT}"
     automountServiceAccountToken: true
-    
 postgresql:
   enabled: false
-
 externalDatabase:
   enabled: true
   type: "postgresql"
-  host: "${POSTGRES_RELEASE_NAME}"
-  port: "5432"
-  username: ${ARGO_POSTGRESQL_USER}
-  password: ""
-  database: ${ARGO_DATABASE}
-  existingSecret: ${ARGO_POSTGRESQL_SECRET_NAME}
+  host: "${DATABASE_HOST}"
+  port: "${DATABASE_PORT}"
+  username: "${DATABASE_USER}"
+  # password: ""
+  database: "${DATABASE_NAME}"
+  existingSecret: "${DATABASE_SECRET}"

@@ -71,6 +71,23 @@ resource "kubernetes_secret" "postgresql-seaweedfs" {
 }
 
 
+# Specific secret containing Argo Workflows database informations
+resource "kubernetes_secret" "postgresql-argo" {
+  type = "Opaque"
+
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-argo"
+  }
+
+  data = {
+    "database-name" = "argo"
+    "database-username" = "argo"
+    "database-password" = random_password.password[3].result
+  }
+}
+
+
 resource "helm_release" "postgresql" {
   namespace  = var.tenant
   name       = var.release
@@ -90,14 +107,16 @@ resource "helm_release" "postgresql" {
     var.pvc,
     kubernetes_secret.postgresql-config,
     kubernetes_secret.postgresql-seaweedfs,
+    kubernetes_secret.postgresql-argo,
   ]
 }
 
 # Goal of this Job is just to init stuff in the main PostgreSQL
 # Notes:
-#   To be sure having a working 'psql' command, the job is directly installed from an official PostgreSQL image
-#   The used image is Debian because Kubernetes DNS forces us to have DNS based on glibc & not musl (like in Alpine)
-#   See https://guillaume.fenollar.fr/blog/kubernetes-dns-options-ndots-glibc-musl/ for more details
+#   - This is done from a job to be able query PostgreSQL from its DNS ("pod.namespace.svc.cluster.local")
+#   - To be sure having a working 'psql' command, the job is directly installed from an official PostgreSQL image
+#   - The used image is Debian because Kubernetes DNS forces us to have DNS based on glibc & not musl (like in Alpine)
+#       > See https://guillaume.fenollar.fr/blog/kubernetes-dns-options-ndots-glibc-musl/ for more details
 resource "kubernetes_job" "initdb" {
   metadata {
     namespace = var.tenant
@@ -127,27 +146,49 @@ resource "kubernetes_job" "initdb" {
               export PGHOST='${local.database_host}'
               export PGPORT='${local.database_port}'
 
-              # SeaweedFS init
-              psql -U postgres -c "
-                CREATE ROLE ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username} WITH LOGIN PASSWORD '${kubernetes_secret.postgresql-seaweedfs.data.postgresql-password}';
-              "
-              psql -U postgres -c "
-                CREATE DATABASE ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-database} WITH OWNER ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username};
-              "
-                # Set seaweedfs password to create table
-                export PGPASSWORD='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-password}'
-                psql -U ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username} -d ${kubernetes_secret.postgresql-seaweedfs.data.postgresql-database} -c "
-                  CREATE TABLE IF NOT EXISTS filemeta (
-                    dirhash     BIGINT,
-                    name        VARCHAR(65535),
-                    directory   VARCHAR(65535),
-                    meta        bytea,
-                    PRIMARY KEY (dirhash, name)
-                  );
-                "
 
-              # Set back the postgres password
-              # export PGPASSWORD='${kubernetes_secret.postgresql-config.data.postgres-password}'
+              ## >>> Argo
+              argo_database='${kubernetes_secret.postgresql-argo.data.database-name}'
+              argo_username='${kubernetes_secret.postgresql-argo.data.database-username}'
+              argo_password='${kubernetes_secret.postgresql-argo.data.database-password}'
+              psql -U postgres -c "
+                CREATE ROLE $argo_username WITH LOGIN PASSWORD '$argo_password';
+              "
+              psql -U postgres -c "
+                CREATE DATABASE $argo_database WITH OWNER $argo_username;
+              "
+
+
+              ## >>> Cosmo Tech API
+              # CREATE ROLE COSMOTECH_API_READER_USERNAME} WITH LOGIN PASSWORD 'COSMOTECH_API_READER_PASSWORD}';
+              # CREATE ROLE COSMOTECH_API_WRITER_USERNAME} WITH LOGIN PASSWORD 'COSMOTECH_API_WRITER_PASSWORD}';
+              # CREATE ROLE COSMOTECH_API_ADMIN_USERNAME} WITH LOGIN PASSWORD 'COSMOTECH_API_ADMIN_PASSWORD}' CREATEDB;
+
+
+              ## >>> SeaweedFS
+              seaweedfs_database='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-database}'
+              seaweedfs_username='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username}'
+              seaweedfs_password='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-password}'
+              psql -U postgres -c "
+                CREATE ROLE $seaweedfs_username WITH LOGIN PASSWORD '$seaweedfs_password';
+              "
+              psql -U postgres -c "
+                CREATE DATABASE $seaweedfs_database WITH OWNER $seaweedfs_username;
+              "
+              
+              # Set seaweedfs password to create table
+              export PGPASSWORD="$seaweedfs_password"
+
+              psql -U $seaweedfs_username -d $seaweedfs_database -c "
+                CREATE TABLE IF NOT EXISTS filemeta (
+                  dirhash     BIGINT,
+                  name        VARCHAR(65535),
+                  directory   VARCHAR(65535),
+                  meta        bytea,
+                  PRIMARY KEY (dirhash, name)
+                );
+              "
+
 
               exit
             EOT

@@ -144,15 +144,6 @@ module "chart-redis" {
 }
 
 
-## (Helm Chart) Argo Workflows
-module "chart-argo" {
-  source = "./modules/chart-argo"
-
-  release           = "argo-workflows"
-  tenant            = module.kube-namespace.tenant
-}
-
-
 ## (Helm Chart) PostgreSQL
 module "chart-postgresql" {
   source = "./modules/chart-postgresql"
@@ -188,6 +179,22 @@ module "chart-seaweedfs" {
   database_seaweedfs_user   = module.chart-postgresql.database_seaweedfs_user
   database_seaweedfs_secret = module.chart-postgresql.database_seaweedfs_secret
 }
+
+
+## (Helm Chart) Argo Workflows
+module "chart-argo" {
+  source = "./modules/chart-argo"
+
+  release           = "argo-workflows"
+  tenant            = module.kube-namespace.tenant
+
+  database_host             = module.chart-postgresql.database_host
+  database_port             = module.chart-postgresql.database_port
+  database_name             = module.chart-postgresql.database_argo_name
+  database_user             = module.chart-postgresql.database_argo_user
+  database_secret             = module.chart-postgresql.database_argo_secret
+}
+
 
 # ## (Helm Chart) Harbor
 # module "harbor" {

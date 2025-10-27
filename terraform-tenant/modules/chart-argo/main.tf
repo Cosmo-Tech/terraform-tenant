@@ -1,11 +1,11 @@
 locals {
   chart_values = {
-    "PERSISTENCE_SIZE"          = var.size
-    "PERSISTENCE_PVC"           = var.pvc
-    "PERSISTENCE_STORAGE_CLASS" = var.pvc_storage_class
-    "RELEASE"                   = var.release
-    "SECRET_CREDENTIALS"        = kubernetes_secret.credentials.metadata[0].name
-    "SECRET_LOAD_DEFINITION"    = kubernetes_secret.load_definition.metadata[0].name
+    "DATABASE_HOST" = var.database_host
+    "DATABASE_PORT" = var.database_port
+    "DATABASE_NAME" = var.database_name
+    "DATABASE_USER" = var.database_user
+    "DATABASE_SECRET" = var.database_secret
+    "SERVICE_ACCOUNT" = var.release
   }
 }
 
@@ -21,18 +21,18 @@ resource "random_password" "password" {
 }
 
 
-resource "kubernetes_secret" "admin" {
-  metadata {
-    namespace = var.tenant
-    name      = "${var.release}-admin"
-  }
+# resource "kubernetes_secret" "secret" {
+#   metadata {
+#     namespace = var.tenant
+#     name      = "${var.release}-admin"
+#   }
 
-  data = {
-    "password" = random_password.password[0].result
-  }
+#   data = {
+#     "password" = random_password.password[0].result
+#   }
 
-  type = "Opaque"
-}
+#   type = "Opaque"
+# }
 
 
 
@@ -55,7 +55,5 @@ resource "helm_release" "argo" {
 
   depends_on = [
     var.tenant,
-    var.pvc,
-    kubernetes_secret.credentials,
   ]
 }
