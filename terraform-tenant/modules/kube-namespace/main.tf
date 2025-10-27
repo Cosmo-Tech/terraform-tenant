@@ -13,22 +13,6 @@ resource "random_password" "password" {
 }
 
 
-resource "kubernetes_secret" "argo" {
-  metadata {
-    name      = "cosmotech-argo"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
-
-  data = {
-    "todo1" = random_password.password.result
-    "todo2" = random_password.password.result
-    "todo3" = random_password.password.result
-  }
-
-  type = "Opaque"
-}
-
-
 resource "kubernetes_secret" "harbor" {
   metadata {
     name      = "cosmotech-harbor"

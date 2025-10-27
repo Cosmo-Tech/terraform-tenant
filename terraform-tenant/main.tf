@@ -185,14 +185,21 @@ module "chart-seaweedfs" {
 module "chart-argo" {
   source = "./modules/chart-argo"
 
-  release           = "argo-workflows"
-  tenant            = module.kube-namespace.tenant
+  release = "argo-workflows"
+  tenant  = module.kube-namespace.tenant
 
-  database_host             = module.chart-postgresql.database_host
-  database_port             = module.chart-postgresql.database_port
-  database_name             = module.chart-postgresql.database_argo_name
-  database_user             = module.chart-postgresql.database_argo_user
-  database_secret             = module.chart-postgresql.database_argo_secret
+  database_host   = module.chart-postgresql.database_host
+  database_port   = module.chart-postgresql.database_port
+  database_name   = module.chart-postgresql.database_argo_name
+  database_user   = module.chart-postgresql.database_argo_user
+  database_secret = module.chart-postgresql.database_argo_secret
+
+  s3_host                = module.chart-seaweedfs.s3_host
+  s3_port                = module.chart-seaweedfs.s3_port
+  s3_bucket              = module.chart-seaweedfs.s3_argo_workflows_bucket
+  s3_secret              = module.chart-seaweedfs.s3_secret
+  s3_secret_key_username = module.chart-seaweedfs.s3_secret_key_argo_workflows_username
+  s3_secret_key_password = module.chart-seaweedfs.s3_secret_key_argo_workflows_password
 }
 
 

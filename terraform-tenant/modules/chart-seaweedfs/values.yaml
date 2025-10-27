@@ -28,7 +28,7 @@ mariadb:
   enabled: false
 externalDatabase:
   enabled: true
-  store: postgresql
+  store: "postgresql"
   host: "${DATABASE_HOST}"
   port: ${DATABASE_PORT}
   database: "${DATABASE_NAME}"
@@ -73,11 +73,15 @@ s3:
       operator: "Equal"
       value: "cosmotech"
       effect: "NoSchedule"
+  service:
+    ports:
+      http: "${S3_PORT}"
   containerPorts:
-    http: 9000
+    http: "${S3_PORT}"
   auth:
     enabled: true
-    # existingSecret: S3_AUTH_SECRET}"
+    existingSecret: "${S3_SECRET}"
+    # existingSecretConfigKey: "S3_CONFIG_SECRET}"
   allowEmptyFolder: false
 extraDeploy:
   # There are no value entries to setup initial s3-buckets/http-folders

@@ -25,3 +25,27 @@ variable "database_user" {
 variable "database_secret" {
   type = string
 }
+
+variable "s3_host" {
+  type = string
+}
+
+variable "s3_port" {
+  type = string
+}
+
+variable "s3_bucket" {
+  type = string
+}
+
+variable "s3_secret" {
+  type = string
+}
+
+variable "s3_secret_key_username" {
+  type = string
+}
+
+variable "s3_secret_key_password" {
+  type = string
+}

@@ -55,15 +55,15 @@ controller:
     artifactRepository:
       archiveLogs: true
       s3:
-        endpoint: "S3_ENDPOINT}"
-        bucket: "S3_BUCKET_NAME}"
+        endpoint: "${S3_ENDPOINT}"
+        bucket: "${S3_BUCKET}"
         insecure: true
         accessKeySecret:
-          name: "S3_CREDENTIALS_SECRET}"
-          key: "S3_USERNAME_KEY}"
+          name: "${S3_SECRET}"
+          key: "${S3_SECRET_KEY_USERNAME}"
         secretKeySecret:
-          name: "S3_CREDENTIALS_SECRET}"
-          key: "S3_PASSWORD_KEY}"
+          name: "${S3_SECRET}"
+          key: "${S3_SECRET_KEY_PASSWORD}"
     {{- if .Values.controller.telemetry.enabled }}
     telemetryConfig: {{- include "common.tplvalues.render" (dict "value" .Values.controller.telemetry "context" $) | nindent 2 }}
     {{- end }}

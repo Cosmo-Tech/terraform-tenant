@@ -13,10 +13,67 @@ locals {
     "DATABASE_NAME"                    = var.database_seaweedfs_name
     "DATABASE_USER"                    = var.database_seaweedfs_user
     "DATABASE_SECRET"                  = var.database_seaweedfs_secret
-    "S3_INIT_BUCKETS"                  = ["argo-workflows", "cosmotech-api"]
+    "S3_INIT_BUCKETS"                  = ["${local.s3_argo_workflows_bucket}", "${local.s3_cosmotech_api_bucket}"]
+    "S3_SECRET"                        = kubernetes_secret.s3_secret.metadata[0].name
+    "S3_PORT"                          = local.s3_port
     "FILER_ENDPOINT"                   = "http://${var.release}-filer.${var.tenant}.svc.cluster.local:8888"
   }
 
+  s3_host = "${helm_release.seaweedfs.name}.${helm_release.seaweedfs.namespace}.svc.cluster.local"
+  s3_port = "8333"
+
+  s3_argo_workflows_bucket              = "argo_workflows"
+  s3_argo_workflows_username            = "argo_workflows"
+  s3_argo_workflows_password            = random_password.password[0].result
+  s3_secret_key_argo_workflows_username = "argo-workflows-username"
+  s3_secret_key_argo_workflows_password = "argo-workflows-password"
+
+  s3_cosmotech_api_bucket              = "cosmotech_api"
+  s3_cosmotech_api_username            = "cosmotech_api"
+  s3_cosmotech_api_password            = random_password.password[1].result
+  s3_secret_key_cosmotech_api_username = "cosmotech-api-username"
+  s3_secret_key_cosmotech_api_password = "cosmotech-api-password"
+}
+
+
+# Just generate an amount of secured passwords
+resource "random_password" "password" {
+  count = 10
+
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
+
+
+resource "kubernetes_secret" "s3_secret" {
+  metadata {
+    namespace = var.tenant
+    name      = "${var.release}-s3"
+  }
+
+  data = {
+    "${local.s3_secret_key_argo_workflows_username}" = local.s3_argo_workflows_username
+    "${local.s3_secret_key_argo_workflows_password}" = local.s3_argo_workflows_password
+    "${local.s3_secret_key_cosmotech_api_username}"  = local.s3_cosmotech_api_username
+    "${local.s3_secret_key_cosmotech_api_password}"  = local.s3_cosmotech_api_password
+    "config.json" = templatefile("${path.module}/s3_config.json", {
+      "ARGO_WORKFLOWS_USERNAME" = local.s3_argo_workflows_username
+      "ARGO_WORKFLOWS_PASSWORD" = local.s3_argo_workflows_password
+      "COSMOTECH_API_USERNAME"  = local.s3_cosmotech_api_username
+      "COSMOTECH_API_PASSWORD"  = local.s3_cosmotech_api_password
+    })
+    # "config.json" = templatefile("${path.module}/s3_config.json", {
+    #   "ARGO_WORKFLOWS_USERNAME" = "argo_workflows"
+    #   "ARGO_WORKFLOWS_PASSWORD" = random_password.password[0].result
+    #   "COSMOTECH_API_USERNAME"  = "cosmotech_api"
+    #   "COSMOTECH_API_PASSWORD"  = random_password.password[1].result
+    # })
+  }
+
+  type = "Opaque"
 }
 
 
@@ -30,9 +87,6 @@ resource "helm_release" "seaweedfs" {
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
 
-  # repository  = "oci://registry-1.docker.io/bitnamicharts"
-  # repository  = "oci://registry-1.docker.io/bitnamilegacy"
-
   reset_values = true
   replace      = true
   force_update = true
@@ -43,5 +97,6 @@ resource "helm_release" "seaweedfs" {
     var.pvc_volume,
     var.database_seaweedfs_name,
     var.database_seaweedfs_secret,
+    kubernetes_secret.s3_secret,
   ]
 }

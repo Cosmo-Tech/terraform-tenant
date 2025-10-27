@@ -81,7 +81,7 @@ resource "kubernetes_secret" "postgresql-argo" {
   }
 
   data = {
-    "database-name" = "argo"
+    "database-name"     = "argo"
     "database-username" = "argo"
     "database-password" = random_password.password[3].result
   }
