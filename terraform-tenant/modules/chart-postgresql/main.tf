@@ -88,6 +88,26 @@ resource "kubernetes_secret" "postgresql-argo" {
 }
 
 
+# Specific secret containing Cosmo Tech API database informations
+resource "kubernetes_secret" "postgresql-cosmotechapi" {
+  type = "Opaque"
+
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-cosmotechapi"
+  }
+
+  data = {
+    "username-admin"  = "cosmotech_api_admin"
+    "password-admin"  = random_password.password[4].result
+    "username-reader" = "cosmotech_api_reader"
+    "password-reader" = random_password.password[5].result
+    "username-writer" = "cosmotech_api_writer"
+    "password-writer" = random_password.password[6].result
+  }
+}
+
+
 resource "helm_release" "postgresql" {
   namespace  = var.tenant
   name       = var.release
@@ -110,6 +130,7 @@ resource "helm_release" "postgresql" {
     kubernetes_secret.postgresql-argo,
   ]
 }
+
 
 # Goal of this Job is just to init stuff in the main PostgreSQL
 # Notes:
@@ -160,9 +181,15 @@ resource "kubernetes_job" "initdb" {
 
 
               ## >>> Cosmo Tech API
-              # CREATE ROLE COSMOTECH_API_READER_USERNAME} WITH LOGIN PASSWORD 'COSMOTECH_API_READER_PASSWORD}';
-              # CREATE ROLE COSMOTECH_API_WRITER_USERNAME} WITH LOGIN PASSWORD 'COSMOTECH_API_WRITER_PASSWORD}';
-              # CREATE ROLE COSMOTECH_API_ADMIN_USERNAME} WITH LOGIN PASSWORD 'COSMOTECH_API_ADMIN_PASSWORD}' CREATEDB;
+              postgresql_username_reader='${kubernetes_secret.postgresql-cosmotechapi.data.username-reader}'
+              postgresql_password_reader='${kubernetes_secret.postgresql-cosmotechapi.data.password-reader}'
+              postgresql_username_writer='${kubernetes_secret.postgresql-cosmotechapi.data.username-writer}'
+              postgresql_password_writer='${kubernetes_secret.postgresql-cosmotechapi.data.password-writer}'
+              postgresql_username_admin='${kubernetes_secret.postgresql-cosmotechapi.data.username-admin}'
+              postgresql_password_admin='${kubernetes_secret.postgresql-cosmotechapi.data.password-admin}'
+              CREATE ROLE $postgresql_username_reader WITH LOGIN PASSWORD '$postgresql_password_reader';
+              CREATE ROLE $postgresql_username_writer WITH LOGIN PASSWORD '$postgresql_password_writer';
+              CREATE ROLE $postgresql_username_admin WITH LOGIN PASSWORD '$postgresql_password_admin' CREATEDB;
 
 
               ## >>> SeaweedFS
@@ -188,7 +215,6 @@ resource "kubernetes_job" "initdb" {
                   PRIMARY KEY (dirhash, name)
                 );
               "
-
 
               exit
             EOT

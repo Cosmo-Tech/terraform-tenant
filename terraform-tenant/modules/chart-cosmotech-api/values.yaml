@@ -1,106 +1,143 @@
 replicaCount: 1
+api:
+  version: ${API_VERSION_PATH}
+  multiTenant: true
+  servletContextPath: /
+  tlsTruststore:
+    enabled: false
 
 image:
   repository: ghcr.io/cosmo-tech/cosmotech-api
-  pullPolicy: IfNotPresent
-  tag: "latest"
-
-api:
-  servletContextPath: /
-  version: latest
-  multiTenant: true
-  probes:
-    startup:
-      initialDelaySeconds: 60
-      failureThreshold: 50
-    liveness:
-      timeoutSeconds: 10
-      failureThreshold: 5
-    readiness:
-      timeoutSeconds: 10
-      failureThreshold: 5
-  serviceMonitor:
-    enabled: true
-    namespace: "cosmotech-monitoring"
-    additionalLabels: {}
-  tlsTruststore:
-    enabled: false
-    secretName: ""
-    secretKey: ""
-    fileName: ""
-    type: "pem"
-    jksPassword: ""
-
-ingress:
-  enabled: false
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-      - path: /
-  tls: []
-
-
-argo:
-  imageCredentials:
-    password: ${ACR_LOGIN_PASSWORD}
-    registry: ${ACR_LOGIN_SERVER}
-    username: ${ACR_LOGIN_USERNAME}
-
+  # tag: API_VERSION}
+# argo:
+#   imageCredentials:
+#     password: ACR_LOGIN_PASSWORD}
+#     registry: ACR_LOGIN_SERVER}
+#     username: ACR_LOGIN_USERNAME}
+#   storage:
+#     class:
+#       install: false
 config:
+  spring:
+    servlet:
+      multipart:
+        max-file-size: "1MB"
+        max-request-size: "10MB"
+  # api:
+  #   serviceMonitor:
+  #     enabled: true
+  #     namespace: MONITORING_NAMESPACE}
   logging:
     level:
       com.cosmotech: DEBUG
       web: WARN
       org.springframework: WARN
       com.redis: WARN
+  server:
+    error:
+      include-stacktrace: always
   csm:
     platform:
+      # containerRegistry:
+      #   scheme: https
+      #   host: ACR_LOGIN_SERVER}
+      #   password: ACR_LOGIN_PASSWORD}
+      #   username: ACR_LOGIN_USERNAME}
+      # identityProvider: IDENTITY_PROVIDER}
+      namespace: ${NAMESPACE}
+      # loki:
+      #   baseUrl: http://loki.MONITORING_NAMESPACE}.svc.cluster.local:3100
       argo:
-        base-uri: "http://argo-server:2746"
+        base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
         workflows:
-          storage-class: null
-          access-modes:
-            - ReadWriteOnce
-          requests:
-            storage: 100Gi
+          namespace: ${NAMESPACE}
+          service-account-name: argo-workflows
+      s3:
+        endpointUrl: ${S3_ENDPOINT}
+        bucketName: ${S3_BUCKET}
+        accessKeyId: ${S3_USERNAME}
+        secretAccessKey: ${S3_PASSWORD}
       authorization:
-        allowed-tenants: []
-      identityProvider:
-        authorizationUrl: "changeme"
-        tokenUrl: "changeme"
-        defaultScopes:
-          openid: "OpenId Scope"
-        containerScopes:
-          changeme: "changeme"
-        serverBaseUrl: "changeme"
-        audience: "changeme"
-        identity:
-          clientId: "changeme"
-          clientSecret: "changeme"
-          tenantId: "changeme"
-        tls:
-          enabled: false
-          bundle: "changeme"
+        allowed-tenants: ${NAMESPACE}
+        allowedApiKeyConsumers:
+          - apiKey: ""
+            associatedRole: ""
+            name: ""
+            securedUris: []
+      # azure:
+      #   appIdUri: APP_ID_URI}
+      #   containerRegistries:
+      #     solutions: ACR_LOGIN_SERVER}
+      #   credentials:
+      #     clientId: CLIENT_ID}
+      #     clientSecret: CLIENT_SECRET}
+      #     customer:
+      #       clientId: NETWORK_ADT_CLIENTID}
+      #       clientSecret: NETWORK_ADT_PASSWORD}
+      #       tenantId: TENANT_ID}
+      #     tenantId: TENANT_ID}
+      #   dataWarehouseCluster:
+      #     baseUri: ADX_URI}
+      #     options:
+      #       ingestionUri: ADX_INGESTION_URI}
+      #   eventBus:
+      #     baseUri: EVENTBUS_URI}
+      #   storage:
+      #     account-key: STORAGE_ACCOUNT_KEY}
+      #     account-name: STORAGE_ACCOUNT_NAME}
       databases:
         resources:
-          host: redis.host.changeme
-          port: 6379
-          username: default
-          password: changeme
+          host: "redis-master.${NAMESPACE}.svc.cluster.local"
+          port: "${REDIS_PORT}"
+          username: "default"
+          password: "${REDIS_PASSWORD}"
           tls:
             enabled: false
-            bundle: "changeme"
+            bundle: ""
+          run:
+            defaultPageSize: 200
+          runner:
+            defaultPageSize: 200
         data:
-          host: postgresql.host.changeme
+          host: "${POSTGRESQL_DATABASE_HOST}"
           port: 5432
-          database: "cosmotech"
+          # database: "POSTGRESQL_DATABASE_NAME}"
           reader:
-            username: "changeme"
-            password: "changeme"
+            username: "${POSTGRESQL_READER_USERNAME}"
+            password: "${POSTGRESQL_READER_PASSWORD}"
           writer:
-            username: "changeme"
-            password: "changeme"
+            username: "${POSTGRESQL_WRITER_USERNAME}"
+            password: "${POSTGRESQL_WRITER_PASSWORD}"
+          admin:
+            username: "${POSTGRESQL_ADMIN_USERNAME}"
+            password: "${POSTGRESQL_ADMIN_PASSWORD}"
+      upload:
+        authorized-mime-types:
+          workspace:
+            - application/zip
+            - application/xml
+            - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+            - application/x-tika-ooxml
+            - text/csv
+            - text/plain
+            - text/x-yaml
+            - application/json
+            - application/gzip
+# ingress:
+#   enabled: true
+#   annotations:
+#     cert-manager.io/cluster-issuer: TLS_SECRET_NAME}
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/proxy-body-size: "0"
+#     nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+#     nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+#     nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+#     nginx.org/client-max-body-size: "0"
+#   hosts:
+#     - host: COSMOTECH_API_DNS_NAME}
+#   tls:
+#     - secretName: TLS_SECRET_NAME}
+#       hosts: ["COSMOTECH_API_DNS_NAME}"]
 
 resources:
   limits:

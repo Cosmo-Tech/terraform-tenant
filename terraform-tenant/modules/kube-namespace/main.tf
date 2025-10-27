@@ -75,32 +75,3 @@ resource "kubernetes_secret" "terraform_module_tag" {
 }
 
 
-
-
-
-# postgres_postgresql_password
-# argo_postgresql_password
-# postgresql_reader_password
-# postgresql_writer_password
-# postgresql_admin_password
-# postgresql_data
-# postgresql-initdb
-# postgres-config
-# rabbitmq_admin_password
-# rabbitmq_listener_password
-# rabbitmq_sender_password
-# rabbitmq_load_data
-# rabbitmq-secret
-# rabbitmq_load_definition
-# redis_admin_password
-# redis_admin_password
-# seaweedfs_argo_workflows_password
-# seaweedfs_cosmotech_api_password
-# s3_credentials
-# s3_auth_config
-# postgres-seaweedfs-config
-# acr_login_password
-# kusto_account_password
-# storage_account_password
-# keycloak_client_secret
-# platform_client_secret

@@ -119,14 +119,6 @@ module "kube-storage-azure-redis-replica" {
 }
 
 
-# ## (Helm Chart) Cosmo Tech API
-# module "chart-cosmotech-api" {
-#   source = "./modules/chart-cosmotech-api"
-
-#   tenant = module.kube-namespace.tenant
-# }
-
-
 ## (Helm Chart) Redis
 module "chart-redis" {
   source = "./modules/chart-redis"
@@ -200,6 +192,33 @@ module "chart-argo" {
   s3_secret              = module.chart-seaweedfs.s3_secret
   s3_secret_key_username = module.chart-seaweedfs.s3_secret_key_argo_workflows_username
   s3_secret_key_password = module.chart-seaweedfs.s3_secret_key_argo_workflows_password
+}
+
+
+## (Helm Chart) Cosmo Tech API
+module "chart-cosmotech-api" {
+  source = "./modules/chart-cosmotech-api"
+
+  release = "cosmotech-api"
+  tenant  = module.kube-namespace.tenant
+
+  postgresql_host            = module.chart-postgresql.database_host
+  postgresql_port            = module.chart-postgresql.database_port
+  # postgresql_database        = module.chart-postgresql.database_name
+  postgresql_username_reader = module.chart-postgresql.database_cosmotech_username_reader
+  postgresql_password_reader = module.chart-postgresql.database_cosmotech_password_reader
+  postgresql_username_writer = module.chart-postgresql.database_cosmotech_username_writer
+  postgresql_password_writer = module.chart-postgresql.database_cosmotech_password_writer
+  postgresql_username_admin  = module.chart-postgresql.database_cosmotech_username_admin
+  postgresql_password_admin  = module.chart-postgresql.database_cosmotech_password_admin
+
+  s3_host                = module.chart-seaweedfs.s3_host
+  s3_port                = module.chart-seaweedfs.s3_port
+  s3_bucket              = module.chart-seaweedfs.s3_cosmotech_api_bucket
+  s3_secret              = module.chart-seaweedfs.s3_secret
+  s3_secret_key_username = module.chart-seaweedfs.s3_secret_key_cosmotech_api_username
+  s3_secret_key_password = module.chart-seaweedfs.s3_secret_key_cosmotech_api_password
+
 }
 
 
