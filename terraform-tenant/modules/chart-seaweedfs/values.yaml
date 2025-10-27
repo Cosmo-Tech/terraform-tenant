@@ -5,9 +5,11 @@ global:
     allowInsecureImages: true
 image:
   repository: bitnamilegacy/seaweedfs
+  pullPolicy: IfNotPresent
 postgresql:
   image:
     repository: bitnamilegacy/postgresql
+    pullPolicy: IfNotPresent
   enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
 master:
   persistence:

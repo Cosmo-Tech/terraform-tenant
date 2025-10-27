@@ -10,6 +10,7 @@ image:
   registry: ghcr.io
   repository: cosmo-tech/cosmotech-redis
   tag: "${REDIS_VERSION_COSMOTECH}"
+  pullPolicy: IfNotPresent
 volumePermissions:
   enabled: false
   image:

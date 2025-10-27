@@ -1,0 +1,35 @@
+image:
+  repository: bitnamilegacy/rabbitmq
+global:
+  security:
+    allowInsecureImages: true  
+nodeSelector:
+  cosmotech.com/tier: services
+tolerations:
+  - key: vendor
+    operator: Equal
+    value: cosmotech
+    effect: NoSchedule
+extraPlugins: "rabbitmq_amqp1_0 rabbitmq_prometheus"
+loadDefinition:
+  enabled: true
+  existingSecret: "${SECRET_LOAD_DEFINITION}"
+extraConfiguration: |
+  load_definitions = /app/load_definition.json
+persistence:
+  enabled: true
+  size: "${PERSISTENCE_SIZE}"
+resources:
+  requests:
+    cpu: 2
+    memory: 512Mi
+  limits:
+    cpu: 3
+    memory: 1024Mi
+metrics:
+  enabled: true
+  # serviceMonitor:
+  #   enabled: true
+  #   namespace: MONITORING_NAMESPACE}
+  #   interval: 30s
+  #   scrapeTimeout: 10s

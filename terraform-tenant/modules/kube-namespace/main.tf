@@ -28,35 +28,6 @@ resource "kubernetes_secret" "argo" {
   type = "Opaque"
 }
 
-resource "kubernetes_secret" "rabbitmq" {
-  metadata {
-    name      = "cosmotech-rabbitmq"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
-
-  data = {
-    "todo1" = random_password.password.result
-    "todo2" = random_password.password.result
-    "todo3" = random_password.password.result
-  }
-
-  type = "Opaque"
-}
-
-# resource "kubernetes_secret" "redis" {
-#   metadata {
-#     name      = "cosmotech-redis"
-#     namespace = kubernetes_namespace.tenant.metadata[0].name
-#   }
-
-#   data = {
-#     "todo1" = random_password.password.result
-#     "todo2" = random_password.password.result
-#     "todo3" = random_password.password.result
-#   }
-
-#   type = "Opaque"
-# }
 
 resource "kubernetes_secret" "harbor" {
   metadata {

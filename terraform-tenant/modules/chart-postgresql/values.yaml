@@ -1,6 +1,7 @@
 image:
   debug: true
   repository: bitnamilegacy/postgresql
+  pullPolicy: IfNotPresent
 auth:
   enablePostgresUser: true
   database: postgres
@@ -57,6 +58,7 @@ metrics:
   #   scrapeTimeout: 10s
   image:
     repository: bitnamilegacy/postgres-exporter
+    pullPolicy: IfNotPresent
   resources:
     requests:
       memory: "64Mi"

@@ -1,0 +1,47 @@
+{
+    "users": [
+        {
+            "name": "${USER_ADMIN}",
+            "password": "${PASSWORD_ADMIN}",
+            "tags": "administrator"
+        },
+        {
+            "name": "${USER_LISTENER}",
+            "password": "${PASSWORD_LISTENER}",
+            "tags": ""
+        },
+        {
+            "name": "${USER_SENDER}",
+            "password": "${PASSWORD_SENDER}",
+            "tags": ""
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "${USER_ADMIN}",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        },
+        {
+            "user": "${USER_LISTENER}",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        },
+        {
+            "user": "${USER_SENDER}",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ]
+}

@@ -10,7 +10,6 @@ locals {
     "REDIS_PASSWORD"                    = kubernetes_secret.secret.data.password
     "REDIS_VERSION_COSMOTECH"           = "1.0.13"
   }
-
 }
 
 
@@ -37,14 +36,13 @@ resource "kubernetes_secret" "secret" {
 }
 
 
-
 resource "helm_release" "redis" {
   namespace  = var.tenant
   name       = var.release
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "redis"
   # version    = "19.6.2"
-  version    = "23.2.1"
+  version = "23.2.1"
   # version    = "17.8.0"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)

@@ -86,6 +86,23 @@ module "kube-storage-azure-seaweedfs-volume" {
 # }
 
 
+## (persistent storage) RabbitMQ
+module "kube-storage-azure-rabbitmq" {
+  source = "./modules/kube-storage/azure"
+
+  count = var.cloud_provider == "azure" ? 1 : 0
+
+  tenant   = module.kube-namespace.tenant
+  resource = "rabbitmq"
+  size     = 8
+
+  zz_azure_subscription_id = var.zz_azure_subscription_id
+  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
+  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
+  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+}
+
+
 ## (persistent storage) Redis master
 module "kube-storage-azure-redis-master" {
   source = "./modules/kube-storage/azure"
@@ -189,12 +206,16 @@ module "chart-seaweedfs" {
 }
 
 
-# ## (Helm Chart) RabbitMQ
-# module "rabbitmq" {
-#   source = "./modules/rabbitmq"
+## (Helm Chart) RabbitMQ
+module "chart-rabbitmq" {
+  source = "./modules/chart-rabbitmq"
 
-#   tenant = module.kube-namespace.tenant
-# }
+  release           = "rabbitmq"
+  tenant            = module.kube-namespace.tenant
+  size              = module.kube-storage-azure-postgresql[0].size
+  pvc               = module.kube-storage-azure-postgresql[0].pvc
+  pvc_storage_class = module.kube-storage-azure-postgresql[0].pvc_storage_class
+}
 
 
 # ## (Helm Chart) Harbor
