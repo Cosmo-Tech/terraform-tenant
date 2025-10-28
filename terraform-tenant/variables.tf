@@ -24,6 +24,12 @@ variable "cloud_provider" {
 
 
 
+variable "zz_cluster_domain" {
+  description = "[temporary] Cluster domain"
+  type        = string
+}
+
+
 variable "zz_azure_subscription_id" {
   description = "[temporary] Azure subscription ID"
   type        = string
@@ -44,3 +50,9 @@ variable "zz_azure_aks_rg_region" {
   type        = string
 }
 
+
+
+variable "zz_aws_cluster_region" {
+  description = "[temporary] AWS region of the cluster"
+  type        = string
+}

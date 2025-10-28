@@ -61,3 +61,7 @@ variable "postgresql_username_admin" {
 variable "postgresql_password_admin" {
   type = string
 }
+
+variable "cluster_domain" {
+  type = string
+}

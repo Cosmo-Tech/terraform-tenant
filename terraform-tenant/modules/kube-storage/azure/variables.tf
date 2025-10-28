@@ -12,15 +12,12 @@ variable "size" {
   type        = number
 }
 
-# variable "access_mode" {
-#   description = "Access mode for disk/pv/pvc"
-#   type = string
-# }
+variable "storage_class_name" {
+  description = "Storage class for disk/pv/pvc"
+  type = string
+}
 
-# variable "storage_class" {
-#   description = "Storage class for disk/pv/pvc"
-#   type = string
-# }
+
 
 variable "zz_azure_subscription_id" {
   description = "[temporary] Azure subscription ID"

@@ -16,10 +16,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.49.0"
     }
-    # postgresql = {
-    #   source = "cyrilgdn/postgresql"
-    #   version = "~> 1.26.0"
-    # }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.18.0"
+    }
   }
 }
 
@@ -42,4 +42,6 @@ provider "azurerm" {
 }
 
 
-# provider "postgresql" {}
+provider "aws" {
+  region = var.zz_aws_cluster_region
+}

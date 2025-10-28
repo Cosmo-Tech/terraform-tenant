@@ -39,7 +39,7 @@ locals {
     "S3_USERNAME" = data.kubernetes_secret.s3.data["${var.s3_secret_key_username}"]
     "S3_PASSWORD" = data.kubernetes_secret.s3.data["${var.s3_secret_key_password}"]
 
-    "POSTGRESQL_DATABASE_HOST"   = var.postgresql_host
+    "POSTGRESQL_DATABASE_HOST" = var.postgresql_host
     # "POSTGRESQL_DATABASE_NAME"   = var.postgresql_database
     "POSTGRESQL_READER_USERNAME" = var.postgresql_username_reader
     "POSTGRESQL_READER_PASSWORD" = var.postgresql_password_reader
@@ -47,7 +47,39 @@ locals {
     "POSTGRESQL_WRITER_PASSWORD" = var.postgresql_password_writer
     "POSTGRESQL_ADMIN_USERNAME"  = var.postgresql_username_admin
     "POSTGRESQL_ADMIN_PASSWORD"  = var.postgresql_password_admin
+
+    "IDENTITY_PROVIDER" = jsonencode(local.api_identity_provider)
+
+    "CLUSTER_DOMAIN"           = var.cluster_domain
+    "KEYCLOAK_CLIENT_ID"       = "cosmotech-api-client"
+    "KEYCLOAK_CLIENT_PASSWORD" = nnnnnn
   }
+
+  api_identity_provider = "todo"
+  # api_identity_provider = merge(var.api_identity_provider, local.api_keycloak_identity)
+
+  # api_identity_provider = {
+  #   audience         = "account"
+  #   code             = "keycloak"
+  #   authorizationUrl = "https://warp.api.cosmotech.com/keycloak/realms/sphinx/protocol/openid-connect/auth"
+  #   tokenUrl         = "https://warp.api.cosmotech.com/keycloak/realms/sphinx/protocol/openid-connect/token"
+  #   defaultScopes = {
+  #     openid = "OpenId Scope"
+  #   }
+  #   serverBaseUrl = "https://warp.api.cosmotech.com/keycloak"
+  #   tls = {
+  #     enabled = false
+  #   }
+  # }
+
+
+  # api_keycloak_identity = {
+  #   identity = {
+  #     clientId     = var.keycloak_client_id
+  #     clientSecret = var.keycloak_client_secret
+  #     tenantId     = var.kubernetes_tenant_namespace
+  #   }
+  # }
 }
 
 

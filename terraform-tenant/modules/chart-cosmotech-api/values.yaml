@@ -44,6 +44,22 @@ config:
       #   password: ACR_LOGIN_PASSWORD}
       #   username: ACR_LOGIN_USERNAME}
       # identityProvider: IDENTITY_PROVIDER}
+      identityProvider:
+        audience: account
+        authorizationUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth
+        code: keycloak
+        defaultScopes:
+          openid: OpenId Scope
+        identity:
+          # clientId: cosmotech-api-client
+          clientId: "${KEYCLOAK_CLIENT_ID}"
+          clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
+          tenantId: ${NAMESPACE}
+        serverBaseUrl: https://${CLUSTER_DOMAIN}/keycloak
+        tls:
+          enabled: false
+        tokenUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token
+
       namespace: ${NAMESPACE}
       # loki:
       #   baseUrl: http://loki.MONITORING_NAMESPACE}.svc.cluster.local:3100
