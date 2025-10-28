@@ -37,11 +37,11 @@ provider "helm" {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.zz_azure_subscription_id
-  tenant_id       = var.zz_azure_entra_tenant_id
+  subscription_id = var.azure_subscription_id
+  tenant_id       = var.azure_entra_tenant_id
 }
 
 
 provider "aws" {
-  region = var.zz_aws_cluster_region
+  region = var.aws_region
 }

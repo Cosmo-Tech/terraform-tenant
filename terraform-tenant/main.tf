@@ -147,33 +147,44 @@ module "storage-azure" {
   # Fill the foreach loop with values only if right cloud provider is given
   for_each = var.cloud_provider == "azure" ? local.persistences : {}
 
-  tenant   = module.kube-namespace.tenant
-  resource = each.key
-  size     = each.value.size
+  tenant             = module.kube-namespace.tenant
+  resource           = each.key
+  size               = each.value.size
   storage_class_name = local.storage_class_name
+  region             = var.azure_region
 
-  zz_azure_subscription_id = var.zz_azure_subscription_id
-  zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-  zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-  zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
+  resource_group = var.azure_resource_group
+
+  # azure_subscription_id = var.azure_subscription_id
 }
 
 
-module "storage-aws" {
-  source = "./modules/kube-storage/aws"
+# module "storage-aws" {
+#   source = "./modules/kube-storage/aws"
 
-  # Fill the foreach loop with values only if right cloud provider is given
-  for_each = var.cloud_provider == "aws" ? local.persistences : {}
+#   # Fill the foreach loop with values only if right cloud provider is given
+#   for_each = var.cloud_provider == "aws" ? local.persistences : {}
 
-  tenant   = module.kube-namespace.tenant
-  resource = each.key
-  size     = each.value.size
-  storage_class_name = local.storage_class_name
+#   tenant             = module.kube-namespace.tenant
+#   resource           = each.key
+#   size               = each.value.size
+#   storage_class_name = local.storage_class_name
+#   region             = var.aws_region
+# }
 
-  zz_aws_cluster_region = var.zz_aws_cluster_region
+
+# # Timer to wait for storage to be created before continue
+# resource "time_sleep" "timer" {
+#   create_duration = "2m"
+# }
+
+
+# Timer to wait for storage to be created before continue
+resource "null_resource" "timer" {
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
 }
-
-
 
 
 
@@ -191,6 +202,11 @@ module "chart-postgresql" {
   # size              = module.kube-storage-azure-postgresql[0].size
   # pvc               = module.kube-storage-azure-postgresql[0].pvc
   # pvc_storage_class = module.kube-storage-azure-postgresql[0].storage_class
+
+  depends_on = [
+    # time_sleep.timer,
+    null_resource.timer,
+  ]
 }
 
 
@@ -226,6 +242,11 @@ module "chart-seaweedfs" {
   database_seaweedfs_name   = module.chart-postgresql.database_seaweedfs_name
   database_seaweedfs_user   = module.chart-postgresql.database_seaweedfs_user
   database_seaweedfs_secret = module.chart-postgresql.database_seaweedfs_secret
+
+  depends_on = [
+    # time_sleep.timer,
+    null_resource.timer,
+  ]
 }
 
 
@@ -248,6 +269,11 @@ module "chart-argo" {
   s3_secret              = module.chart-seaweedfs.s3_secret
   s3_secret_key_username = module.chart-seaweedfs.s3_secret_key_argo_workflows_username
   s3_secret_key_password = module.chart-seaweedfs.s3_secret_key_argo_workflows_password
+
+  depends_on = [
+    # time_sleep.timer,
+    null_resource.timer,
+  ]
 }
 
 
@@ -273,6 +299,11 @@ module "chart-redis" {
   # size_replica              = module.kube-storage-azure-redis-replica[0].size
   # pvc_replica               = module.kube-storage-azure-redis-replica[0].pvc
   # pvc_replica_storage_class = module.kube-storage-azure-redis-replica[0].storage_class
+
+  depends_on = [
+    # time_sleep.timer,
+    null_resource.timer,
+  ]
 }
 
 

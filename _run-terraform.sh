@@ -26,6 +26,7 @@ done
 
 # # Clear old data
 # rm -rf terraform-tenant/.terraform*
+# rm -rf terraform-tenant/terraform.tfstate*
 
 # Deploy
 terraform -chdir=terraform-tenant init

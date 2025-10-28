@@ -14,11 +14,10 @@ variable "size" {
 
 variable "storage_class_name" {
   description = "Storage class for disk/pv/pvc"
-  type = string
+  type        = string
 }
 
 
-
-variable "zz_aws_cluster_region" {
+variable "region" {
   type = string
 }

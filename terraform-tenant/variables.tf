@@ -24,35 +24,35 @@ variable "cloud_provider" {
 
 
 
-variable "zz_cluster_domain" {
+variable "cluster_domain" {
   description = "[temporary] Cluster domain"
   type        = string
 }
 
 
-variable "zz_azure_subscription_id" {
+variable "azure_subscription_id" {
   description = "[temporary] Azure subscription ID"
   type        = string
 }
 
-variable "zz_azure_entra_tenant_id" {
+variable "azure_entra_tenant_id" {
   description = "[temporary] Azure Entra tenant ID"
   type        = string
 }
 
-variable "zz_azure_aks_rg_name" {
-  description = "[temporary] Azure resource group of the AKS cluster (name)"
-  type        = string
-}
 
-variable "zz_azure_aks_rg_region" {
-  description = "[temporary] Azure of resource group of the AKS cluster (region)"
+variable "azure_region" {
+  description = "Region where to store tenant objects (like disks for example)"
   type        = string
 }
 
 
-
-variable "zz_aws_cluster_region" {
-  description = "[temporary] AWS region of the cluster"
+variable "aws_region" {
+  description = "Region where to store tenant objects (like disks for example)"
   type        = string
+}
+
+
+variable "azure_resource_group" {
+  type = string
 }

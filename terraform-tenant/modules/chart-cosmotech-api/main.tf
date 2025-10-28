@@ -52,7 +52,7 @@ locals {
 
     "CLUSTER_DOMAIN"           = var.cluster_domain
     "KEYCLOAK_CLIENT_ID"       = "cosmotech-api-client"
-    "KEYCLOAK_CLIENT_PASSWORD" = nnnnnn
+    "KEYCLOAK_CLIENT_PASSWORD" = "nnnnnn"
   }
 
   api_identity_provider = "todo"

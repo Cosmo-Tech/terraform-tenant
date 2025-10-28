@@ -22,13 +22,13 @@ locals {
   s3_host = "${helm_release.seaweedfs.name}.${helm_release.seaweedfs.namespace}.svc.cluster.local"
   s3_port = "8333"
 
-  s3_argo_workflows_bucket              = "argo_workflows"
+  s3_argo_workflows_bucket              = "argo-workflows"
   s3_argo_workflows_username            = "argo_workflows"
   s3_argo_workflows_password            = random_password.password[0].result
   s3_secret_key_argo_workflows_username = "argo-workflows-username"
   s3_secret_key_argo_workflows_password = "argo-workflows-password"
 
-  s3_cosmotech_api_bucket              = "cosmotech_api"
+  s3_cosmotech_api_bucket              = "cosmotech-api"
   s3_cosmotech_api_username            = "cosmotech_api"
   s3_cosmotech_api_password            = random_password.password[1].result
   s3_secret_key_cosmotech_api_username = "cosmotech-api-username"

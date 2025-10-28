@@ -1,16 +1,45 @@
+resource "aws_resourcegroups_group" "rg" {
+  # tags = local.tags
+
+  name   = var.tenant
+  region = var.region
+
+  resource_query {
+    query = <<JSON
+      {
+        "ResourceTypeFilters": [
+          "AWS::AllSupported"
+        ],
+        "TagFilters": [
+          {
+            "Key": "rg",
+            "Values": ["${var.tenant}"]
+          }
+        ]
+      }
+    JSON
+  }
+}
+
+
 data "aws_availability_zones" "cluster" {
-  region = var.zz_aws_cluster_region
+  region = var.region
   state  = "available"
 }
 
 
 resource "aws_ebs_volume" "disk" {
-  availability_zone = data.aws_availability_zones.cluster
-  size              = var.size
+  availability_zone = data.aws_availability_zones.cluster.names[0]
+  # availability_zone = "${var.region}a"
+  size = var.size
 
   tags = {
     Name = "disk-${var.tenant}-${var.resource}"
   }
+
+  depends_on = [
+    aws_resourcegroups_group.rg,
+  ]
 }
 
 
