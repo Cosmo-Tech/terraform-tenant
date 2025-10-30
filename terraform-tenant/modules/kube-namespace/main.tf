@@ -13,52 +13,9 @@ resource "random_password" "password" {
 }
 
 
-resource "kubernetes_secret" "harbor" {
-  metadata {
-    name      = "cosmotech-harbor"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
 
-  data = {
-    "todo1" = random_password.password.result
-    "todo2" = random_password.password.result
-    "todo3" = random_password.password.result
-  }
 
-  type = "Opaque"
-}
 
-resource "kubernetes_secret" "keycloak" {
-  metadata {
-    name      = "cosmotech-keycloak"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
-
-  data = {
-    "todo1" = random_password.password.result
-    "todo2" = random_password.password.result
-    "todo3" = random_password.password.result
-  }
-
-  type = "Opaque"
-}
-
-resource "kubernetes_secret" "babylon" {
-  metadata {
-    name      = "cosmotech-babylon"
-    namespace = kubernetes_namespace.tenant.metadata[0].name
-  }
-
-  data = {
-    "client_id" : "cosmotech-babylon-client",
-    "client_secret" : random_password.password.result,
-    "grant_type" : "client_credentials",
-    "scope" : "openid",
-    "url" : "https://KEYCLOAK_URL/keycloak/realms/TENANT/protocol/openid-connect/token"
-  }
-
-  type = "Opaque"
-}
 
 resource "kubernetes_secret" "terraform_module_tag" {
   metadata {

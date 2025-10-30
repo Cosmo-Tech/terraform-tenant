@@ -31,7 +31,7 @@ locals {
 
     "API_VERSION_PATH" = "v5"
 
-    "REDIS_PASSWORD" = data.kubernetes_secret.redis.data["password"]
+    "REDIS_PASSWORD" = data.kubernetes_secret.redis.data["redis-password"]
     "REDIS_PORT"     = "6379"
 
     "S3_ENDPOINT" = "${var.s3_host}:${var.s3_port}"
@@ -48,66 +48,17 @@ locals {
     "POSTGRESQL_ADMIN_USERNAME"  = var.postgresql_username_admin
     "POSTGRESQL_ADMIN_PASSWORD"  = var.postgresql_password_admin
 
-    # "IDENTITY_PROVIDER" = jsonencode(local.api_identity_provider)
-
     "CLUSTER_DOMAIN"           = var.cluster_domain
-    "KEYCLOAK_CLIENT_ID"       = local.keycloak_client_id
-    "KEYCLOAK_CLIENT_PASSWORD" = local.keycloak_client_secret
+    "KEYCLOAK_CLIENT_ID"       = var.keycloak_client_id
+    "KEYCLOAK_CLIENT_PASSWORD" = var.keycloak_client_secret
   }
-
-
-  keycloak_realm         = var.tenant
-  keycloak_client_id     = "cosmotech-api-client"
-  keycloak_client_secret = var.keycloak_password_client
-
-  # api_identity_provider = {
-  #   audience         = "account"
-  #   code             = "keycloak"
-  #   authorizationUrl = "https://${var.cluster_domain}/keycloak/realms/${local.realm}/protocol/openid-connect/auth"
-  #   tokenUrl         = "https://${var.cluster_domain}/keycloak/realms/${local.realm}/protocol/openid-connect/token"
-  #   defaultScopes = {
-  #     openid = "OpenId Scope"
-  #   }
-  #   serverBaseUrl = "https://${var.cluster_domain}/keycloak"
-  #   tls = {
-  #     enabled = false
-  #   }
-  #   identity = {
-  #     clientId     = local.keycloak_client_id
-  #     clientSecret = local.keycloak_client_secret
-  #     tenantId     = local.keycloak_realm
-  #   }
-  # }
-
-
-  # api_identity_provider = merge(var.api_identity_provider, local.api_keycloak_identity)
-  # api_identity_provider = {
-  #   audience         = "account"
-  #   code             = "keycloak"
-  #   authorizationUrl = "https://warp.api.cosmotech.com/keycloak/realms/sphinx/protocol/openid-connect/auth"
-  #   tokenUrl         = "https://warp.api.cosmotech.com/keycloak/realms/sphinx/protocol/openid-connect/token"
-  #   defaultScopes = {
-  #     openid = "OpenId Scope"
-  #   }
-  #   serverBaseUrl = "https://warp.api.cosmotech.com/keycloak"
-  #   tls = {
-  #     enabled = false
-  #   }
-  # }
-  # api_keycloak_identity = {
-  #   identity = {
-  #     clientId     = var.keycloak_client_id
-  #     clientSecret = var.keycloak_client_secret
-  #     tenantId     = var.kubernetes_tenant_namespace
-  #   }
-  # }
 }
 
 
 data "kubernetes_secret" "redis" {
   metadata {
     namespace = var.tenant
-    name      = "redis-svcbind"
+    name      = "redis"
   }
 }
 

@@ -66,6 +66,10 @@ variable "cluster_domain" {
   type = string
 }
 
-variable "keycloak_password_client" {
+variable "keycloak_client_id" {
+  type = string
+}
+
+variable "keycloak_client_secret" {
   type = string
 }

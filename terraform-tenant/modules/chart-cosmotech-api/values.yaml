@@ -23,10 +23,11 @@ config:
       multipart:
         max-file-size: "1MB"
         max-request-size: "10MB"
-  # api:
-  #   serviceMonitor:
-  #     enabled: true
-  #     namespace: MONITORING_NAMESPACE}
+  api:
+    serviceMonitor:
+      enabled: false
+      # enabled: true
+      # namespace: MONITORING_NAMESPACE}
   logging:
     level:
       com.cosmotech: DEBUG

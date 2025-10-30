@@ -32,13 +32,16 @@ module "kube-namespace" {
 }
 
 
-# ## (config) Keycloak realm
-# module "config-keycloak-realm" {
-#   source = "./modules/config-keycloak-realm"
-  
-#   tenant = var.tenant
-#   cluster_domain = var.cluster_domain
-# }
+## (config) Keycloak realm
+module "config-keycloak-realm" {
+  source = "./modules/config-keycloak-realm"
+
+  tenant         = module.kube-namespace.tenant
+  cluster_domain = var.cluster_domain
+
+  # keycloak_password_master = var.keycloak_password_master
+  # keycloak_password_client = var.keycloak_password_client
+}
 
 
 # ## (config) Grafana dashboard
@@ -327,8 +330,8 @@ module "chart-cosmotech-api" {
 
   cluster_domain = var.cluster_domain
 
-  keycloak_password_client = var.keycloak_password_client
-
+  keycloak_client_id = module.config-keycloak-realm.keycloak_api_client_id
+  keycloak_client_secret = module.config-keycloak-realm.keycloak_api_client_secret
 
   depends_on = [
     null_resource.timer,
