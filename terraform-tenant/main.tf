@@ -311,15 +311,15 @@ module "chart-cosmotech-api" {
   release = "cosmotech-api"
   tenant  = module.kube-namespace.tenant
 
-  postgresql_host = module.chart-postgresql.database_host
-  postgresql_port = module.chart-postgresql.database_port
-  # postgresql_database        = module.chart-postgresql.database_name
-  postgresql_username_reader = module.chart-postgresql.database_cosmotech_username_reader
-  postgresql_password_reader = module.chart-postgresql.database_cosmotech_password_reader
-  postgresql_username_writer = module.chart-postgresql.database_cosmotech_username_writer
-  postgresql_password_writer = module.chart-postgresql.database_cosmotech_password_writer
-  postgresql_username_admin  = module.chart-postgresql.database_cosmotech_username_admin
-  postgresql_password_admin  = module.chart-postgresql.database_cosmotech_password_admin
+  postgresql_host            = module.chart-postgresql.database_host
+  postgresql_port            = module.chart-postgresql.database_port
+  postgresql_database        = module.chart-postgresql.database_cosmotech_name
+  postgresql_admin_username  = module.chart-postgresql.database_cosmotech_username_admin
+  postgresql_admin_password  = module.chart-postgresql.database_cosmotech_password_admin
+  postgresql_writer_username = module.chart-postgresql.database_cosmotech_username_writer
+  postgresql_writer_password = module.chart-postgresql.database_cosmotech_password_writer
+  postgresql_reader_username = module.chart-postgresql.database_cosmotech_username_reader
+  postgresql_reader_password = module.chart-postgresql.database_cosmotech_password_reader
 
   s3_host                = module.chart-seaweedfs.s3_host
   s3_port                = module.chart-seaweedfs.s3_port
@@ -330,7 +330,7 @@ module "chart-cosmotech-api" {
 
   cluster_domain = var.cluster_domain
 
-  keycloak_client_id = module.config-keycloak-realm.keycloak_api_client_id
+  keycloak_client_id     = module.config-keycloak-realm.keycloak_api_client_id
   keycloak_client_secret = module.config-keycloak-realm.keycloak_api_client_secret
 
   depends_on = [

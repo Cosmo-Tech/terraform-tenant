@@ -38,27 +38,31 @@ variable "s3_secret_key_password" {
   type = string
 }
 
-variable "postgresql_username_reader" {
+variable "postgresql_database" {
   type = string
 }
 
-variable "postgresql_password_reader" {
+variable "postgresql_admin_username" {
   type = string
 }
 
-variable "postgresql_username_writer" {
+variable "postgresql_admin_password" {
   type = string
 }
 
-variable "postgresql_password_writer" {
+variable "postgresql_writer_username" {
   type = string
 }
 
-variable "postgresql_username_admin" {
+variable "postgresql_writer_password" {
   type = string
 }
 
-variable "postgresql_password_admin" {
+variable "postgresql_reader_username" {
+  type = string
+}
+
+variable "postgresql_reader_password" {
   type = string
 }
 

@@ -59,7 +59,6 @@ config:
         tls:
           enabled: false
         tokenUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token
-
       namespace: ${NAMESPACE}
       # loki:
       #   baseUrl: http://loki.MONITORING_NAMESPACE}.svc.cluster.local:3100
@@ -117,7 +116,7 @@ config:
         data:
           host: "${POSTGRESQL_DATABASE_HOST}"
           port: 5432
-          # database: "POSTGRESQL_DATABASE_NAME}"
+          database: "${POSTGRESQL_DATABASE_NAME}"
           reader:
             username: "${POSTGRESQL_READER_USERNAME}"
             password: "${POSTGRESQL_READER_PASSWORD}"
@@ -154,26 +153,21 @@ ingress:
   # tls:
   #   - secretName: TLS_SECRET_NAME}
   #     hosts: ["${CLUSTER_DOMAIN}"]
-
 resources:
   limits:
-    memory: 2048Mi
+    memory: 2Gi
   requests:
-    memory: 1024Mi
-
+    memory: 1Gi
 tolerations:
 - key: "vendor"
   operator: "Equal"
   value: "cosmotech"
   effect: "NoSchedule"
-
 nodeSelector:
   "cosmotech.com/tier": "services"
-
 podSecurityContext:
   seccompProfile:
     type: "RuntimeDefault"
-
 securityContext:
   capabilities:
     drop:

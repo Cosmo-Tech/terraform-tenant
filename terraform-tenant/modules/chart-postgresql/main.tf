@@ -98,12 +98,13 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
   }
 
   data = {
-    "username-admin"  = "cosmotech_api_admin"
-    "password-admin"  = random_password.password[4].result
-    "username-reader" = "cosmotech_api_reader"
-    "password-reader" = random_password.password[5].result
-    "username-writer" = "cosmotech_api_writer"
-    "password-writer" = random_password.password[6].result
+    "admin-username"  = "cosmotech_api_admin"
+    "admin-password"  = random_password.password[4].result
+    "reader-username" = "cosmotech_api_reader"
+    "reader-password" = random_password.password[5].result
+    "writer-username" = "cosmotech_api_writer"
+    "writer-password" = random_password.password[6].result
+    "database-name"   = "cosmotech"
   }
 }
 
@@ -162,59 +163,85 @@ resource "kubernetes_job" "initdb" {
             <<EOT
               # DNS doesn't work by default in postgres image
               apt update && apt install -y dnsutils 
-  
-              export PGPASSWORD='${kubernetes_secret.postgresql-config.data.postgres-password}'
+
+              export PGPASSWORD='${kubernetes_secret.postgresql-config.data["postgres-password"]}'
               export PGHOST='${local.database_host}'
               export PGPORT='${local.database_port}'
 
 
+
+              # Function to check if database already exists
+              # Usage: database_exists <name>
+              database_exists() {
+                local dbname="$1"
+                if [ "$(psql -U postgres -c "SELECT datname FROM pg_database" | grep -w $dbname)" = "" ]; then
+                  echo "false"
+                fi
+              }
+
+
+
               ## >>> Argo
-              argo_database='${kubernetes_secret.postgresql-argo.data.database-name}'
-              argo_username='${kubernetes_secret.postgresql-argo.data.database-username}'
-              argo_password='${kubernetes_secret.postgresql-argo.data.database-password}'
-              psql -U postgres -c "
-                CREATE ROLE $argo_username WITH LOGIN PASSWORD '$argo_password';
-              "
-              psql -U postgres -c "
-                CREATE DATABASE $argo_database WITH OWNER $argo_username;
-              "
+              argo_database='${kubernetes_secret.postgresql-argo.data["database-name"]}'
+              argo_username='${kubernetes_secret.postgresql-argo.data["database-username"]}'
+              argo_password='${kubernetes_secret.postgresql-argo.data["database-password"]}'
+              if [ "$(database_exists $argo_database)" = "false" ]; then
+                psql -U postgres -c "CREATE ROLE $argo_username WITH LOGIN PASSWORD '$argo_password';"
+                psql -U postgres -c "CREATE DATABASE $argo_database WITH OWNER $argo_username;"
+              else
+                  echo "database $argo_database already exists, skipping"
+              fi
+
 
 
               ## >>> Cosmo Tech API
-              postgresql_username_reader='${kubernetes_secret.postgresql-cosmotechapi.data.username-reader}'
-              postgresql_password_reader='${kubernetes_secret.postgresql-cosmotechapi.data.password-reader}'
-              postgresql_username_writer='${kubernetes_secret.postgresql-cosmotechapi.data.username-writer}'
-              postgresql_password_writer='${kubernetes_secret.postgresql-cosmotechapi.data.password-writer}'
-              postgresql_username_admin='${kubernetes_secret.postgresql-cosmotechapi.data.username-admin}'
-              postgresql_password_admin='${kubernetes_secret.postgresql-cosmotechapi.data.password-admin}'
-              CREATE ROLE $postgresql_username_reader WITH LOGIN PASSWORD '$postgresql_password_reader';
-              CREATE ROLE $postgresql_username_writer WITH LOGIN PASSWORD '$postgresql_password_writer';
-              CREATE ROLE $postgresql_username_admin WITH LOGIN PASSWORD '$postgresql_password_admin' CREATEDB;
+              cosmotechapi_database='${kubernetes_secret.postgresql-cosmotechapi.data["database-name"]}'
+              cosmotechapi_admin_username='${kubernetes_secret.postgresql-cosmotechapi.data["admin-username"]}'
+              cosmotechapi_admin_password='${kubernetes_secret.postgresql-cosmotechapi.data["admin-password"]}'
+              cosmotechapi_writer_username='${kubernetes_secret.postgresql-cosmotechapi.data["writer-username"]}'
+              cosmotechapi_writer_password='${kubernetes_secret.postgresql-cosmotechapi.data["writer-password"]}'
+              cosmotechapi_reader_username='${kubernetes_secret.postgresql-cosmotechapi.data["reader-username"]}'
+              cosmotechapi_reader_password='${kubernetes_secret.postgresql-cosmotechapi.data["reader-password"]}'
+
+              if [ "$(database_exists $cosmotechapi_database)" = "false" ]; then
+                psql -U postgres -c "CREATE ROLE $cosmotechapi_reader_username WITH LOGIN PASSWORD '$cosmotechapi_reader_password';"
+                psql -U postgres -c "CREATE ROLE $cosmotechapi_writer_username WITH LOGIN PASSWORD '$cosmotechapi_writer_password';"
+                psql -U postgres -c "CREATE ROLE $cosmotechapi_admin_username WITH LOGIN PASSWORD '$cosmotechapi_admin_password' CREATEDB;"
+                psql -U postgres -c "CREATE DATABASE $cosmotechapi_database WITH OWNER $cosmotechapi_admin_username;"
+
+                export PGPASSWORD="$cosmotechapi_admin_password" # Set cosmo admin password to use cosmo admin user
+                psql -U $cosmotechapi_admin_username -c "CREATE SCHEMA inputs AUTHORIZATION $cosmotechapi_writer_username;"
+                psql -U $cosmotechapi_admin_username -c "CREATE SCHEMA outputs AUTHORIZATION $cosmotechapi_writer_username;"
+                psql -U $cosmotechapi_admin_username -c "GRANT USAGE ON SCHEMA inputs TO $cosmotechapi_reader_username;"
+                psql -U $cosmotechapi_admin_username -c "GRANT USAGE ON SCHEMA outputs TO $cosmotechapi_reader_username;"
+              else
+                  echo "database $cosmotechapi_database already exists, skipping"
+              fi
+
 
 
               ## >>> SeaweedFS
-              seaweedfs_database='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-database}'
-              seaweedfs_username='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-username}'
-              seaweedfs_password='${kubernetes_secret.postgresql-seaweedfs.data.postgresql-password}'
-              psql -U postgres -c "
-                CREATE ROLE $seaweedfs_username WITH LOGIN PASSWORD '$seaweedfs_password';
-              "
-              psql -U postgres -c "
-                CREATE DATABASE $seaweedfs_database WITH OWNER $seaweedfs_username;
-              "
-              
-              # Set seaweedfs password to create table
-              export PGPASSWORD="$seaweedfs_password"
+              seaweedfs_database='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-database"]}'
+              seaweedfs_username='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-username"]}'
+              seaweedfs_password='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-password"]}'
+              if [ "$(database_exists $seaweedfs_database)" = "false" ]; then
+                psql -U postgres -c "CREATE ROLE $seaweedfs_username WITH LOGIN PASSWORD '$seaweedfs_password';"
+                psql -U postgres -c "CREATE DATABASE $seaweedfs_database WITH OWNER $seaweedfs_username;"
 
-              psql -U $seaweedfs_username -d $seaweedfs_database -c "
-                CREATE TABLE IF NOT EXISTS filemeta (
-                  dirhash     BIGINT,
-                  name        VARCHAR(65535),
-                  directory   VARCHAR(65535),
-                  meta        bytea,
-                  PRIMARY KEY (dirhash, name)
-                );
-              "
+                export PGPASSWORD="$seaweedfs_password" # Set seaweedfs password to user seaweedfs user
+                psql -U $seaweedfs_username -d $seaweedfs_database -c "
+                  CREATE TABLE IF NOT EXISTS filemeta (
+                    dirhash     BIGINT,
+                    name        VARCHAR(65535),
+                    directory   VARCHAR(65535),
+                    meta        bytea,
+                    PRIMARY KEY (dirhash, name)
+                  );
+                "
+              else
+                  echo "database $seaweedfs_database already exists, skipping"
+              fi
+
 
               exit
             EOT

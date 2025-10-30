@@ -1,17 +1,17 @@
 terraform {
   required_providers {
     keycloak = {
-      source = "keycloak/keycloak"
+      source  = "keycloak/keycloak"
       version = "~> 5.5.0"
     }
   }
 }
 
 provider "keycloak" {
-  url           = "https://${var.cluster_domain}/keycloak/"
-  client_id     = "admin-cli"
-  username      = "user"
-  password      = data.kubernetes_secret.keycloak.data["admin-password"]
+  url       = "https://${var.cluster_domain}/keycloak/"
+  client_id = "admin-cli"
+  username  = "user"
+  password  = data.kubernetes_secret.keycloak.data["admin-password"]
 }
 
 
@@ -56,7 +56,7 @@ resource "keycloak_role" "organization_user" {
 }
 
 
-resource "keycloak_openid_client" "cosmotech_api_client" {
+resource "keycloak_openid_client" "cosmotech_api" {
   enabled                  = true
   realm_id                 = keycloak_realm.realm.id
   client_id                = local.client_name_api
@@ -64,7 +64,12 @@ resource "keycloak_openid_client" "cosmotech_api_client" {
   access_type              = "CONFIDENTIAL"
   standard_flow_enabled    = true
   service_accounts_enabled = true
-  root_url                 = "https://${var.cluster_domain}"
+  # root_url                 = "https://${var.cluster_domain}"
+  # root_url = "https://${var.cluster_domain}/keycloak/"
+
+  valid_redirect_uris = [
+    "https://${var.cluster_domain}",
+  ]
 
   depends_on = [
     keycloak_realm.realm,
@@ -72,7 +77,7 @@ resource "keycloak_openid_client" "cosmotech_api_client" {
 }
 
 
-resource "keycloak_openid_client" "cosmotech_babylon_client" {
+resource "keycloak_openid_client" "babylon" {
   enabled                  = true
   realm_id                 = keycloak_realm.realm.id
   client_id                = local.client_name_babylon
@@ -80,7 +85,12 @@ resource "keycloak_openid_client" "cosmotech_babylon_client" {
   access_type              = "CONFIDENTIAL"
   standard_flow_enabled    = false
   service_accounts_enabled = true
-  root_url                 = "https://${var.cluster_domain}"
+  # root_url                 = "https://${var.cluster_domain}"
+  # root_url = "https://${var.cluster_domain}/keycloak/"
+
+  valid_redirect_uris = [
+    "https://${var.cluster_domain}",
+  ]
 
   depends_on = [
     keycloak_realm.realm,
@@ -95,16 +105,16 @@ resource "kubernetes_secret" "babylon" {
   }
 
   data = {
-    "client_id" : keycloak_openid_client.cosmotech_babylon_client.client_id,
-    "client_secret" : keycloak_openid_client.cosmotech_babylon_client.client_secret,
+    "client_id" : keycloak_openid_client.babylon.client_id,
+    "client_secret" : keycloak_openid_client.babylon.client_secret,
     # "grant_type" : "client_credentials",
     # "scope" : "openid",
-    "url" : "${keycloak_openid_client.cosmotech_babylon_client.client_id}/realms/${var.tenant}/protocol/openid-connect/token"
+    "url" : "${keycloak_openid_client.babylon.client_id}/realms/${var.tenant}/protocol/openid-connect/token"
   }
 
   type = "Opaque"
 
   depends_on = [
-    keycloak_openid_client.cosmotech_babylon_client,
+    keycloak_openid_client.babylon,
   ]
 }

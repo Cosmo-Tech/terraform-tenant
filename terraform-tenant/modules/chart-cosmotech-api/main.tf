@@ -39,14 +39,14 @@ locals {
     "S3_USERNAME" = data.kubernetes_secret.s3.data["${var.s3_secret_key_username}"]
     "S3_PASSWORD" = data.kubernetes_secret.s3.data["${var.s3_secret_key_password}"]
 
-    "POSTGRESQL_DATABASE_HOST" = var.postgresql_host
-    # "POSTGRESQL_DATABASE_NAME"   = var.postgresql_database
-    "POSTGRESQL_READER_USERNAME" = var.postgresql_username_reader
-    "POSTGRESQL_READER_PASSWORD" = var.postgresql_password_reader
-    "POSTGRESQL_WRITER_USERNAME" = var.postgresql_username_writer
-    "POSTGRESQL_WRITER_PASSWORD" = var.postgresql_password_writer
-    "POSTGRESQL_ADMIN_USERNAME"  = var.postgresql_username_admin
-    "POSTGRESQL_ADMIN_PASSWORD"  = var.postgresql_password_admin
+    "POSTGRESQL_DATABASE_HOST"   = var.postgresql_host
+    "POSTGRESQL_DATABASE_NAME"   = var.postgresql_database
+    "POSTGRESQL_ADMIN_USERNAME"  = var.postgresql_admin_username
+    "POSTGRESQL_ADMIN_PASSWORD"  = var.postgresql_admin_password
+    "POSTGRESQL_WRITER_USERNAME" = var.postgresql_writer_username
+    "POSTGRESQL_WRITER_PASSWORD" = var.postgresql_writer_password
+    "POSTGRESQL_READER_USERNAME" = var.postgresql_reader_username
+    "POSTGRESQL_READER_PASSWORD" = var.postgresql_reader_password
 
     "CLUSTER_DOMAIN"           = var.cluster_domain
     "KEYCLOAK_CLIENT_ID"       = var.keycloak_client_id
