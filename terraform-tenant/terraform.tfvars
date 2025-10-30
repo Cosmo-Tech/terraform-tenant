@@ -1,5 +1,5 @@
 kubernetes_context = "aks-devops7hjyrn"
-tenant             = "test1"
+tenant             = "test0"
 cluster_domain     = "aks-devops.api.cosmotech.com"
 
 
@@ -16,3 +16,11 @@ azure_resource_group  = "MC_aks-devops_aks-devops7hjyrn_westeurope"
 ## AWS examples
 # cloud_provider = "aws"
 aws_region = "eu-west-3"
+
+
+
+keycloak_password_master="PASSWORD"
+keycloak_password_client="PASSWORD"
+# export TF_VAR_keycloak_password_master='PASSWORD'
+# export TF_VAR_keycloak_password_client='PASSWORD'
+

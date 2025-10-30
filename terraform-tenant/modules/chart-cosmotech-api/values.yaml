@@ -51,7 +51,6 @@ config:
         defaultScopes:
           openid: OpenId Scope
         identity:
-          # clientId: cosmotech-api-client
           clientId: "${KEYCLOAK_CLIENT_ID}"
           clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
           tenantId: ${NAMESPACE}
@@ -139,21 +138,21 @@ config:
             - text/x-yaml
             - application/json
             - application/gzip
-# ingress:
-#   enabled: true
-#   annotations:
-#     cert-manager.io/cluster-issuer: TLS_SECRET_NAME}
-#     kubernetes.io/ingress.class: nginx
-#     nginx.ingress.kubernetes.io/proxy-body-size: "0"
-#     nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
-#     nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
-#     nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
-#     nginx.org/client-max-body-size: "0"
-#   hosts:
-#     - host: COSMOTECH_API_DNS_NAME}
-#   tls:
-#     - secretName: TLS_SECRET_NAME}
-#       hosts: ["COSMOTECH_API_DNS_NAME}"]
+ingress:
+  enabled: true
+  annotations:
+    # cert-manager.io/cluster-issuer: TLS_SECRET_NAME}
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.org/client-max-body-size: "0"
+  hosts:
+    - host: ${CLUSTER_DOMAIN}
+  # tls:
+  #   - secretName: TLS_SECRET_NAME}
+  #     hosts: ["${CLUSTER_DOMAIN}"]
 
 resources:
   limits:

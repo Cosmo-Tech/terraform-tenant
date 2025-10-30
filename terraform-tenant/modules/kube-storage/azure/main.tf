@@ -5,10 +5,10 @@
 
 
 resource "azurerm_managed_disk" "disk" {
-  name                 = "disk-${var.tenant}-${var.resource}"
-  location             = var.region
+  name     = "disk-${var.tenant}-${var.resource}"
+  location = var.region
   # resource_group_name  = azurerm_resource_group.rg.name
-  resource_group_name = var.resource_group
+  resource_group_name  = var.resource_group
   storage_account_type = "Premium_LRS"
   create_option        = "Empty"
   disk_size_gb         = var.size

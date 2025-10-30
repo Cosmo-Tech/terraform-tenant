@@ -15,21 +15,25 @@ for command in $required_commands; do
 done
 
 
-# # Get value of a variable declared in a given file from this pattern: variable = value
-# # Usage: get_var_value <file> <variable>
-# get_var_value() {
-#     local file=$1
-#     local variable=$2
+# Get value of a variable declared in a given file from this pattern: variable = value
+# Usage: get_var_value <file> <variable>
+get_var_value() {
+    local file=$1
+    local variable=$2
 
-#     cat $file | grep '=' | grep -w $variable | sed 's|.*"\(.*\)".*|\1|' | head -n 1
-# }
+    cat $file | grep '=' | grep -w $variable | sed 's|.*"\(.*\)".*|\1|' | head -n 1
+}
 
-# # Clear old data
-# rm -rf terraform-tenant/.terraform*
-# rm -rf terraform-tenant/terraform.tfstate*
+state_file_name="tfstate-tenant-$(get_var_value terraform-tenant/terraform.tfvars tenant)"
+
+# Clear old data
+rm -rf terraform-tenant/.terraform*
+rm -rf terraform-tenant/terraform.tfstate*
 
 # Deploy
-terraform -chdir=terraform-tenant init
+# terraform -chdir=terraform-tenant init
+# terraform -chdir=terraform-tenant init -upgrade
+terraform -chdir=terraform-tenant init -upgrade -backend-config="key=$state_file_name" 
 terraform -chdir=terraform-tenant plan -out .terraform.plan
 terraform -chdir=terraform-tenant apply .terraform.plan
 

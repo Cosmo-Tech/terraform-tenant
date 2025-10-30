@@ -48,16 +48,39 @@ locals {
     "POSTGRESQL_ADMIN_USERNAME"  = var.postgresql_username_admin
     "POSTGRESQL_ADMIN_PASSWORD"  = var.postgresql_password_admin
 
-    "IDENTITY_PROVIDER" = jsonencode(local.api_identity_provider)
+    # "IDENTITY_PROVIDER" = jsonencode(local.api_identity_provider)
 
     "CLUSTER_DOMAIN"           = var.cluster_domain
-    "KEYCLOAK_CLIENT_ID"       = "cosmotech-api-client"
-    "KEYCLOAK_CLIENT_PASSWORD" = "nnnnnn"
+    "KEYCLOAK_CLIENT_ID"       = local.keycloak_client_id
+    "KEYCLOAK_CLIENT_PASSWORD" = local.keycloak_client_secret
   }
 
-  api_identity_provider = "todo"
-  # api_identity_provider = merge(var.api_identity_provider, local.api_keycloak_identity)
 
+  keycloak_realm         = var.tenant
+  keycloak_client_id     = "cosmotech-api-client"
+  keycloak_client_secret = var.keycloak_password_client
+
+  # api_identity_provider = {
+  #   audience         = "account"
+  #   code             = "keycloak"
+  #   authorizationUrl = "https://${var.cluster_domain}/keycloak/realms/${local.realm}/protocol/openid-connect/auth"
+  #   tokenUrl         = "https://${var.cluster_domain}/keycloak/realms/${local.realm}/protocol/openid-connect/token"
+  #   defaultScopes = {
+  #     openid = "OpenId Scope"
+  #   }
+  #   serverBaseUrl = "https://${var.cluster_domain}/keycloak"
+  #   tls = {
+  #     enabled = false
+  #   }
+  #   identity = {
+  #     clientId     = local.keycloak_client_id
+  #     clientSecret = local.keycloak_client_secret
+  #     tenantId     = local.keycloak_realm
+  #   }
+  # }
+
+
+  # api_identity_provider = merge(var.api_identity_provider, local.api_keycloak_identity)
   # api_identity_provider = {
   #   audience         = "account"
   #   code             = "keycloak"
@@ -71,8 +94,6 @@ locals {
   #     enabled = false
   #   }
   # }
-
-
   # api_keycloak_identity = {
   #   identity = {
   #     clientId     = var.keycloak_client_id

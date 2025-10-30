@@ -65,3 +65,7 @@ variable "postgresql_password_admin" {
 variable "cluster_domain" {
   type = string
 }
+
+variable "keycloak_password_client" {
+  type = string
+}

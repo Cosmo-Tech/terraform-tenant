@@ -56,3 +56,13 @@ variable "aws_region" {
 variable "azure_resource_group" {
   type = string
 }
+
+
+
+variable "keycloak_password_master" {
+  type = string
+}
+
+variable "keycloak_password_client" {
+  type = string
+}
