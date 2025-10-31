@@ -13,3 +13,7 @@ variable "cluster_domain" {
 # variable "keycloak_admin_password" {
 #   type = string
 # }
+
+# variable "api_version_path" {
+#   type = string
+# }

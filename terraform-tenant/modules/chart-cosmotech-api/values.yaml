@@ -54,32 +54,12 @@ config:
         tokenUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token"
         defaultScopes:
           openid: "OpenId Scope"
-          # openid: "openid profile email"
         identity:
           clientId: "${KEYCLOAK_CLIENT_ID}"
           clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
           tenantId: "${NAMESPACE}"
         tls:
           enabled: false
-          # bundle: "keycloak"
-
-      # identityProvider:
-      #   tls:
-      #     enabled: true
-      #     bundle: "keycloak"
-      #   audience: account
-      #   authorizationUrl: "[fill-this-value]" # keycloak auth endpoint
-      #   defaultScopes:
-      #     openid: OpenId Scope
-      #   identity:
-      #     clientId: "[fill-this-value]"
-      #     clientSecret: "[fill-this-value]"
-      #     tenantId: "[fill-this-value]" # NAMESPACE
-      #   serverBaseUrl: "[fill-this-value]" # e.g https://kubernetes.cosmotech.com/keycloak
-      #   tokenUrl: "[fill-this-value]" # eg. https://kubernetes.cosmotech.com/keycloak/realms/brewery/protocol/openid-connect/token
-
-
-
       namespace: ${NAMESPACE}
       # loki:
       #   baseUrl: http://loki.MONITORING_NAMESPACE}.svc.cluster.local:3100

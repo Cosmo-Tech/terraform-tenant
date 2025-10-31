@@ -86,8 +86,16 @@ data "kubernetes_secret" "s3" {
 }
 
 
+data "kubernetes_secret" "keycloak" {
+  metadata {
+    namespace = var.tenant
+    name      = "keycloak-cosmotech-client-api"
+  }
+}
+
+
 resource "helm_release" "cosmotech_api" {
-  namespace  = var.tenant
+  namespace = var.tenant
   # name       = var.release
   name       = "${var.release}-${var.tenant}"
   repository = "https://cosmo-tech.github.io/helm-charts"

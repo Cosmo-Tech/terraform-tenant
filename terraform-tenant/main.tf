@@ -39,8 +39,9 @@ module "config-keycloak-realm" {
   tenant         = module.kube-namespace.tenant
   cluster_domain = var.cluster_domain
 
-  # keycloak_password_master = var.keycloak_password_master
-  # keycloak_password_client = var.keycloak_password_client
+  # api_version_path = module.chart-cosmotech-api.api_version_path
+  # api_version_path = "v5"
+
 }
 
 
@@ -339,5 +340,6 @@ module "chart-cosmotech-api" {
     null_resource.timer,
     module.chart-postgresql,
     module.chart-redis,
+    # module.config-keycloak-realm,
   ]
 }
