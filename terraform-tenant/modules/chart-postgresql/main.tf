@@ -162,18 +162,20 @@ resource "kubernetes_job" "initdb" {
           args = [
             <<EOT
               # DNS doesn't work by default in postgres image
-              apt update && apt install -y dnsutils 
+              apt update && apt install -y dnsutils
 
-              export PGPASSWORD='${kubernetes_secret.postgresql-config.data["postgres-password"]}'
+              postgres_password='${kubernetes_secret.postgresql-config.data["postgres-password"]}'
+              # export PGPASSWORD="$postgres_password"
               export PGHOST='${local.database_host}'
               export PGPORT='${local.database_port}'
-
 
 
               # Function to check if database already exists
               # Usage: database_exists <name>
               database_exists() {
                 local dbname="$1"
+
+                export PGPASSWORD="$postgres_password"
                 if [ "$(psql -U postgres -c "SELECT datname FROM pg_database" | grep -w $dbname)" = "" ]; then
                   echo "false"
                 fi
@@ -186,6 +188,9 @@ resource "kubernetes_job" "initdb" {
               argo_username='${kubernetes_secret.postgresql-argo.data["database-username"]}'
               argo_password='${kubernetes_secret.postgresql-argo.data["database-password"]}'
               if [ "$(database_exists $argo_database)" = "false" ]; then
+                echo "starting init of Argo"
+
+                export PGPASSWORD="$postgres_password"
                 psql -U postgres -c "CREATE ROLE $argo_username WITH LOGIN PASSWORD '$argo_password';"
                 psql -U postgres -c "CREATE DATABASE $argo_database WITH OWNER $argo_username;"
               else
@@ -204,16 +209,21 @@ resource "kubernetes_job" "initdb" {
               cosmotechapi_reader_password='${kubernetes_secret.postgresql-cosmotechapi.data["reader-password"]}'
 
               if [ "$(database_exists $cosmotechapi_database)" = "false" ]; then
-                psql -U postgres -c "CREATE ROLE $cosmotechapi_reader_username WITH LOGIN PASSWORD '$cosmotechapi_reader_password';"
-                psql -U postgres -c "CREATE ROLE $cosmotechapi_writer_username WITH LOGIN PASSWORD '$cosmotechapi_writer_password';"
+                echo "starting init of Cosmo Tech API"
+
+                export PGPASSWORD="$postgres_password"
                 psql -U postgres -c "CREATE ROLE $cosmotechapi_admin_username WITH LOGIN PASSWORD '$cosmotechapi_admin_password' CREATEDB;"
+                psql -U postgres -c "CREATE ROLE $cosmotechapi_writer_username WITH LOGIN PASSWORD '$cosmotechapi_writer_password';"
+                psql -U postgres -c "CREATE ROLE $cosmotechapi_reader_username WITH LOGIN PASSWORD '$cosmotechapi_reader_password';"
+                psql -U postgres -c "GRANT $cosmotechapi_writer_username to $cosmotechapi_admin_username;"
+                psql -U postgres -c "GRANT $cosmotechapi_reader_username to $cosmotechapi_admin_username;"
                 psql -U postgres -c "CREATE DATABASE $cosmotechapi_database WITH OWNER $cosmotechapi_admin_username;"
 
-                export PGPASSWORD="$cosmotechapi_admin_password" # Set cosmo admin password to use cosmo admin user
-                psql -U $cosmotechapi_admin_username -c "CREATE SCHEMA inputs AUTHORIZATION $cosmotechapi_writer_username;"
-                psql -U $cosmotechapi_admin_username -c "CREATE SCHEMA outputs AUTHORIZATION $cosmotechapi_writer_username;"
-                psql -U $cosmotechapi_admin_username -c "GRANT USAGE ON SCHEMA inputs TO $cosmotechapi_reader_username;"
-                psql -U $cosmotechapi_admin_username -c "GRANT USAGE ON SCHEMA outputs TO $cosmotechapi_reader_username;"
+                export PGPASSWORD="$cosmotechapi_admin_password"
+                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "CREATE SCHEMA inputs AUTHORIZATION $cosmotechapi_writer_username;"
+                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "CREATE SCHEMA outputs AUTHORIZATION $cosmotechapi_writer_username;"
+                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "GRANT USAGE ON SCHEMA inputs TO $cosmotechapi_reader_username;"
+                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "GRANT USAGE ON SCHEMA outputs TO $cosmotechapi_reader_username;"
               else
                   echo "database $cosmotechapi_database already exists, skipping"
               fi
@@ -225,10 +235,15 @@ resource "kubernetes_job" "initdb" {
               seaweedfs_username='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-username"]}'
               seaweedfs_password='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-password"]}'
               if [ "$(database_exists $seaweedfs_database)" = "false" ]; then
+                echo "starting init of SeaweedFS"
+
+                export PGPASSWORD="$postgres_password"
                 psql -U postgres -c "CREATE ROLE $seaweedfs_username WITH LOGIN PASSWORD '$seaweedfs_password';"
                 psql -U postgres -c "CREATE DATABASE $seaweedfs_database WITH OWNER $seaweedfs_username;"
 
-                export PGPASSWORD="$seaweedfs_password" # Set seaweedfs password to user seaweedfs user
+                # We should be able to delegate that setup to the SeaweedFS chart with 'externalDatabase.initDatabaseJob.enable: true'
+                # See https://github.com/bitnami/charts/issues/30030
+                export PGPASSWORD="$seaweedfs_password"
                 psql -U $seaweedfs_username -d $seaweedfs_database -c "
                   CREATE TABLE IF NOT EXISTS filemeta (
                     dirhash     BIGINT,

@@ -1,5 +1,5 @@
 kubernetes_context = "aks-devops7hjyrn"
-tenant             = "test0"
+tenant             = "test2"
 cluster_domain     = "aks-devops.api.cosmotech.com"
 
 

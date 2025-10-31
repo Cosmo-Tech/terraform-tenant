@@ -52,6 +52,21 @@ locals {
     "KEYCLOAK_CLIENT_ID"       = var.keycloak_client_id
     "KEYCLOAK_CLIENT_PASSWORD" = var.keycloak_client_secret
   }
+
+
+  # api_identity_provider = {
+  #   audience         = "account"
+  #   code             = "keycloak"
+  #   authorizationUrl = "https://warp.api.cosmotech.com/keycloak/realms/sphinx/protocol/openid-connect/auth"
+  #   tokenUrl         = "https://warp.api.cosmotech.com/keycloak/realms/sphinx/protocol/openid-connect/token"
+  #   defaultScopes = {
+  #     openid = "OpenId Scope"
+  #   }
+  #   serverBaseUrl = "https://warp.api.cosmotech.com/keycloak"
+  #   tls = {
+  #     enabled = false
+  #   }
+  # }  
 }
 
 
@@ -73,7 +88,8 @@ data "kubernetes_secret" "s3" {
 
 resource "helm_release" "cosmotech_api" {
   namespace  = var.tenant
-  name       = var.release
+  # name       = var.release
+  name       = "${var.release}-${var.tenant}"
   repository = "https://cosmo-tech.github.io/helm-charts"
   chart      = "cosmotech-api"
   version    = "5.0.0-beta6"

@@ -6,8 +6,8 @@ locals {
     "PERSISTENCE_REPLICA_SIZE"          = var.size_replica
     "PERSISTENCE_REPLICA_PVC"           = var.pvc_replica
     "PERSISTENCE_REPLICA_STORAGE_CLASS" = var.pvc_replica_storage_class
-    "REDIS_SECRET"                      = kubernetes_secret.secret.metadata[0].name
-    "REDIS_PASSWORD"                    = kubernetes_secret.secret.data.password
+    "REDIS_SECRET"                      = kubernetes_secret.redis.metadata[0].name
+    "REDIS_PASSWORD"                    = kubernetes_secret.redis.data.password
     "REDIS_VERSION_COSMOTECH"           = "1.0.13"
   }
 }
@@ -22,7 +22,7 @@ resource "random_password" "password" {
 }
 
 
-resource "kubernetes_secret" "secret" {
+resource "kubernetes_secret" "redis" {
   metadata {
     namespace = var.tenant
     name      = "${var.release}-config"
@@ -56,6 +56,6 @@ resource "helm_release" "redis" {
     var.tenant,
     var.pvc_master,
     var.pvc_replica,
-    kubernetes_secret.secret,
+    kubernetes_secret.redis,
   ]
 }

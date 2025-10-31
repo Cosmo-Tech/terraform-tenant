@@ -25,6 +25,7 @@ config:
         max-request-size: "10MB"
   api:
     serviceMonitor:
+      name: cosmotech-api-${NAMESPACE}
       enabled: false
       # enabled: true
       # namespace: MONITORING_NAMESPACE}
@@ -46,19 +47,39 @@ config:
       #   username: ACR_LOGIN_USERNAME}
       # identityProvider: IDENTITY_PROVIDER}
       identityProvider:
-        audience: account
-        authorizationUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth
-        code: keycloak
+        audience: "account"
+        code: "keycloak"
+        serverBaseUrl: "https://${CLUSTER_DOMAIN}/keycloak"
+        authorizationUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth"
+        tokenUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token"
         defaultScopes:
-          openid: OpenId Scope
+          openid: "OpenId Scope"
+          # openid: "openid profile email"
         identity:
           clientId: "${KEYCLOAK_CLIENT_ID}"
           clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
-          tenantId: ${NAMESPACE}
-        serverBaseUrl: https://${CLUSTER_DOMAIN}/keycloak
+          tenantId: "${NAMESPACE}"
         tls:
           enabled: false
-        tokenUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token
+          # bundle: "keycloak"
+
+      # identityProvider:
+      #   tls:
+      #     enabled: true
+      #     bundle: "keycloak"
+      #   audience: account
+      #   authorizationUrl: "[fill-this-value]" # keycloak auth endpoint
+      #   defaultScopes:
+      #     openid: OpenId Scope
+      #   identity:
+      #     clientId: "[fill-this-value]"
+      #     clientSecret: "[fill-this-value]"
+      #     tenantId: "[fill-this-value]" # NAMESPACE
+      #   serverBaseUrl: "[fill-this-value]" # e.g https://kubernetes.cosmotech.com/keycloak
+      #   tokenUrl: "[fill-this-value]" # eg. https://kubernetes.cosmotech.com/keycloak/realms/brewery/protocol/openid-connect/token
+
+
+
       namespace: ${NAMESPACE}
       # loki:
       #   baseUrl: http://loki.MONITORING_NAMESPACE}.svc.cluster.local:3100
@@ -141,7 +162,7 @@ config:
 ingress:
   enabled: true
   annotations:
-    # cert-manager.io/cluster-issuer: TLS_SECRET_NAME}
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-${NAMESPACE}"
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
@@ -150,9 +171,9 @@ ingress:
     nginx.org/client-max-body-size: "0"
   hosts:
     - host: ${CLUSTER_DOMAIN}
-  # tls:
-  #   - secretName: TLS_SECRET_NAME}
-  #     hosts: ["${CLUSTER_DOMAIN}"]
+  tls:
+    - secretName: "letsencrypt-prod-${NAMESPACE}"
+      hosts: ["${CLUSTER_DOMAIN}"]
 resources:
   limits:
     memory: 2Gi

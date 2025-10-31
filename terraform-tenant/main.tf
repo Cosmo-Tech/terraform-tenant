@@ -321,6 +321,8 @@ module "chart-cosmotech-api" {
   postgresql_reader_username = module.chart-postgresql.database_cosmotech_username_reader
   postgresql_reader_password = module.chart-postgresql.database_cosmotech_password_reader
 
+  # redis_password = module.chart-redis.redis_password
+
   s3_host                = module.chart-seaweedfs.s3_host
   s3_port                = module.chart-seaweedfs.s3_port
   s3_bucket              = module.chart-seaweedfs.s3_cosmotech_api_bucket
@@ -335,5 +337,7 @@ module "chart-cosmotech-api" {
 
   depends_on = [
     null_resource.timer,
+    module.chart-postgresql,
+    module.chart-redis,
   ]
 }
