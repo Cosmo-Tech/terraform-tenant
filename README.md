@@ -1,4 +1,6 @@
 ![Static Badge](https://img.shields.io/badge/Cosmo%20Tech-%23FFB039?style=for-the-badge)
+![Static Badge](https://img.shields.io/badge/tenant-%23f8f8f7?style=for-the-badge)
+
 
 # Cosmo Tech tenant
 
@@ -28,14 +30,17 @@
         * will ask for the access key of the Azure Storage of "cosmotechstates"
             * go to Azure > Azure Storage > "cosmotechstates" > Access keys
             * copy/paste "Key" from "key1" or "key2" in the terraform input
-    * AWS:
+    * AWS
+        * to fill
+    * GCP
+        * to fill
 
 ## Developpers
 * modules
     * **terraform-tenant**
-        * tofill
+        * install Cosmo Tech API and all its dependencies in a dedicated namespace
     * **terraform-webapp**
-        * tofill
+        * install Cosmo Tech webapp in the tenant created from terraform-tenant
 
 <br>
 <br>

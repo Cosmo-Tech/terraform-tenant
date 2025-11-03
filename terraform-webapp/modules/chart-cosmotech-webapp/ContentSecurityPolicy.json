@@ -1,0 +1,5 @@
+{
+    "connect-src": [
+        "https://${CLUSTER_DOMAIN}"
+    ]
+}

@@ -16,10 +16,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.18.0"
     }
-    # keycloak = {
-    #   source  = "keycloak/keycloak"
-    #   version = "~> 5.5.0"
-    # }
   }
 
   required_version = "~> 1.13.0"
@@ -55,11 +51,3 @@ provider "azurerm" {
 #   region = var.aws_region
 # }
 
-
-# provider "keycloak" {
-#   client_id     = "user"
-#   client_secret = var.TF_VAR_keycloak_password_master
-#   realm         = "master"
-#   url           = "https://${var.cluster_domain}/keycloak/"
-#   # base_url      = "https://${var.cluster_domain}/keycloak/"
-# }

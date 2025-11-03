@@ -1,0 +1,51 @@
+ingress:
+  enabled: true
+keycloak:
+  realmUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}"
+name: "${WEBAPP_NAME}"
+# powerbi:
+#   clientId: ""
+#   clientSecret: ""
+#   tenantId: ""
+tolerations:
+- key: "vendor"
+  operator: "Equal"
+  value: "cosmotech"
+  effect: "NoSchedule"
+nodeSelector:
+  "cosmotech.com/tier": "services"
+resources:
+  limits:
+    cpu: "1000m"
+    memory: "256Mi"
+  requests:
+    cpu: "200m"
+    memory: "128Mi"
+webapp:
+  domainName: "${CLUSTER_DOMAIN}"
+  functions:
+    image:
+      pullPolicy: "Always"
+      repository: "ghcr.io/cosmo-tech/azure-sample-webapp/webapp-functions"
+      # tag: latest
+    # tolerations:
+    # - key: "vendor"
+    #   operator: "Equal"
+    #   value: "cosmotech"
+    #   effect: "NoSchedule"
+    # nodeSelector:
+    #   "cosmotech.com/tier": "services"
+  publicUrl: "/${NAMESPACE}/${WEBAPP_NAME}"
+  server:
+    image:
+      pullPolicy: Always
+      repository: "ghcr.io/cosmo-tech/azure-sample-webapp/webapp-server"
+      # tag: latest
+    # tolerations:
+    # - key: "vendor"
+    #   operator: "Equal"
+    #   value: "cosmotech"
+    #   effect: "NoSchedule"
+    # nodeSelector:
+    #   "cosmotech.com/tier": "services"
+    

@@ -22,12 +22,10 @@ variable "cloud_provider" {
   }
 }
 
-
 variable "cluster_domain" {
   description = "[temporary] Cluster domain"
   type        = string
 }
-
 
 variable "azure_subscription_id" {
   description = "[temporary] Azure subscription ID"
@@ -43,18 +41,15 @@ variable "azure_resource_group" {
   type = string
 }
 
-
 variable "azure_region" {
   description = "Region where to store tenant objects (like disks for example)"
   type        = string
 }
 
-
 # variable "aws_region" {
 #   description = "Region where to store tenant objects (like disks for example)"
 #   type        = string
 # }
-
 
 # variable "keycloak_admin_username" {
 #   type = string

@@ -21,18 +21,14 @@ locals {
   cosmotech_babylon = "cosmotech-client-babylon"
 
 
-  # api_version_path = "v${substr(regex("[0-1]", "${data.kubernetes_pod.cosmotech_api.spec[0].container[0].image}"), 0, 1)}"
-  api_version_path = "v5"
-  
-
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
   standard_flow_enabled = true
   web_origins           = ["+"]
   root_url              = "https://${var.cluster_domain}"
-  base_url              = "/${var.tenant}/${local.api_version_path}/"
+  base_url              = "/${var.tenant}/api/"
   valid_redirect_uris = [
-    "https://${var.cluster_domain}/${var.tenant}/${local.api_version_path}/swagger-ui/oauth2-redirect.html",
+    "https://${var.cluster_domain}/${var.tenant}/api/swagger-ui/oauth2-redirect.html",
     "/*"
   ]
 }
@@ -44,17 +40,6 @@ data "kubernetes_secret" "keycloak" {
     name      = "keycloak"
   }
 }
-
-
-# data "kubernetes_pod" "cosmotech_api" {
-#   metadata {
-#     name       = "cosmotech-api-${var.tenant}"
-#     namespace  = var.tenant
-#     # labels = {
-#     #   instance = "cosmotech-api-${var.tenant}"
-#     # }
-#   }
-# }
 
 
 resource "keycloak_realm" "realm" {

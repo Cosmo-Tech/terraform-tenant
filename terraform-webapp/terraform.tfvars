@@ -1,1 +1,5 @@
-tenant = "test"
+kubernetes_context = "aks-devops7hjyrn"
+cluster_domain     = "aks-devops.api.cosmotech.com"
+tenant             = "test5"
+webapp_name        = "webapp1"
+organization_id    = "o-5dl1ywx1greo"
