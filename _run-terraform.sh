@@ -24,18 +24,16 @@ get_var_value() {
     cat $file | grep '=' | grep -w $variable | sed 's|.*"\(.*\)".*|\1|' | head -n 1
 }
 
-state_file_name="tfstate-tenant-$(get_var_value terraform-tenant/terraform.tfvars tenant)"
+state_file_name="tfstate-tenant-$(get_var_value terraform.tfvars tenant)"
 
 # Clear old data
-rm -rf terraform-tenant/.terraform*
-rm -rf terraform-tenant/terraform.tfstate*
+rm -rf .terraform*
+rm -rf terraform.tfstate*
 
 # Deploy
-# terraform -chdir=terraform-tenant init
-# terraform -chdir=terraform-tenant init -upgrade
-terraform -chdir=terraform-tenant init -upgrade -backend-config="key=$state_file_name" 
-terraform -chdir=terraform-tenant plan -out .terraform.plan
-terraform -chdir=terraform-tenant apply .terraform.plan
+terraform init -upgrade -backend-config="key=$state_file_name" 
+terraform plan -out .terraform.plan
+terraform apply .terraform.plan
 
 
 exit

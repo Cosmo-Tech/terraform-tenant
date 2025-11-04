@@ -170,7 +170,7 @@ resource "keycloak_openid_client" "cosmotech_web" {
 #   }
 # }
 
-resource "keycloak_generic_protocol_mapper" "realm_roles_mapper" {
+resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_web" {
   realm_id        = keycloak_realm.realm.id
   client_id       = keycloak_openid_client.cosmotech_web.id
   name            = "realm roles"
@@ -230,7 +230,8 @@ resource "kubernetes_secret" "babylon" {
   data = {
     "client_id" : keycloak_openid_client.cosmotech_babylon.client_id,
     "client_secret" : keycloak_openid_client.cosmotech_babylon.client_secret,
-    "url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
+    "token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
+    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.tenant}/api",
     # "grant_type" : "client_credentials",
     # "scope" : "openid",
   }
@@ -241,3 +242,26 @@ resource "kubernetes_secret" "babylon" {
     keycloak_openid_client.cosmotech_babylon,
   ]
 }
+
+
+
+resource "keycloak_generic_protocol_mapper" "mapper_group" {
+  realm_id        = keycloak_realm.realm.id
+  client_id       = keycloak_openid_client.cosmotech_web.id
+  name            = "realm roles"
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-usermodel-realm-role-mapper"
+  config = {
+    "id.token.claim" : "true",
+    "access.token.claim" : "true",
+    "claim.name" : "userRoles",
+    "jsonType.label" : "String",
+    "multivalued" : "true",
+    "userinfo.token.claim" : "true",
+    "introspection.token.claim" : "true"
+  }
+}
+
+
+
+
