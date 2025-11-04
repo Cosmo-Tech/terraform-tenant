@@ -244,24 +244,35 @@ resource "kubernetes_secret" "babylon" {
 }
 
 
+resource "keycloak_group" "group_admin" {
+  realm_id = keycloak_realm.realm.id
+  name     = "${var.tenant}-admin"
+}
 
-resource "keycloak_generic_protocol_mapper" "mapper_group" {
-  realm_id        = keycloak_realm.realm.id
-  client_id       = keycloak_openid_client.cosmotech_web.id
-  name            = "realm roles"
-  protocol        = "openid-connect"
-  protocol_mapper = "oidc-usermodel-realm-role-mapper"
-  config = {
-    "id.token.claim" : "true",
-    "access.token.claim" : "true",
-    "claim.name" : "userRoles",
-    "jsonType.label" : "String",
-    "multivalued" : "true",
-    "userinfo.token.claim" : "true",
-    "introspection.token.claim" : "true"
-  }
+resource "keycloak_group" "group_editor" {
+  realm_id = keycloak_realm.realm.id
+  name     = "${var.tenant}-editor"
+}
+
+resource "keycloak_group" "group_viewer" {
+  realm_id = keycloak_realm.realm.id
+  name     = "${var.tenant}-viewer"
 }
 
 
 
+data "keycloak_openid_client_scope" "client_scope_profile" {
+  realm_id =  keycloak_realm.realm.id
+  name     = "profile"
+}
 
+
+resource "keycloak_openid_group_membership_protocol_mapper" "group_membership_mapper" {
+  realm_id        = keycloak_realm.realm.id
+  client_scope_id = data.keycloak_openid_client_scope.client_scope_profile.id
+  name            = "cosmotech-api-groups"
+
+  full_path = false
+
+  claim_name = "groups"
+}
