@@ -12,6 +12,7 @@ primary:
   containerSecurityContext:
     enabled: true
     runAsNonRoot: true
+    # runAsNonRoot: false
     seccompProfile:
       type: RuntimeDefault
     capabilities:
@@ -66,3 +67,9 @@ metrics:
     limits:
       memory: "256Mi"
       cpu: "1"
+
+# Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
+volumePermissions:
+  enabled: true
+  image:
+    repository: bitnamilegacy/os-shell

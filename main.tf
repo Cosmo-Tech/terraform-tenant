@@ -21,6 +21,13 @@ locals {
       size = 32
       pvc  = "pvc-${module.kube-namespace.tenant}-redis-replica"
     }
+
+
+    # # TEMPORARY TO REMOVE
+    # postgresql-keycloak = {
+    #   size = 32
+    #   pvc  = "pvc-${module.kube-namespace.tenant}-keycloak-postgresql"
+    # }
   }
 }
 
@@ -148,36 +155,36 @@ module "config-keycloak-realm" {
 
 
 
-module "storage-azure" {
-  source = "./modules/kube-storage/azure"
-
-  # Fill the foreach loop with values only if right cloud provider is given
-  for_each = var.cloud_provider == "azure" ? local.persistences : {}
-
-  tenant             = module.kube-namespace.tenant
-  resource           = each.key
-  size               = each.value.size
-  storage_class_name = local.storage_class_name
-  region             = var.azure_region
-
-  resource_group = var.azure_resource_group
-
-  # azure_subscription_id = var.azure_subscription_id
-}
-
-
-# module "storage-aws" {
-#   source = "./modules/kube-storage/aws"
+# module "storage-azure" {
+#   source = "./modules/kube-storage/azure"
 
 #   # Fill the foreach loop with values only if right cloud provider is given
-#   for_each = var.cloud_provider == "aws" ? local.persistences : {}
+#   for_each = var.cloud_provider == "azure" ? local.persistences : {}
 
 #   tenant             = module.kube-namespace.tenant
 #   resource           = each.key
 #   size               = each.value.size
 #   storage_class_name = local.storage_class_name
-#   region             = var.aws_region
+#   region             = var.azure_region
+
+#   resource_group = var.azure_resource_group
+
+#   # azure_subscription_id = var.azure_subscription_id
 # }
+
+
+module "storage-aws" {
+  source = "./modules/kube-storage/aws"
+
+  # Fill the foreach loop with values only if right cloud provider is given
+  for_each = var.cloud_provider == "aws" ? local.persistences : {}
+
+  tenant             = module.kube-namespace.tenant
+  resource           = each.key
+  size               = each.value.size
+  storage_class_name = local.storage_class_name
+  region             = var.aws_region
+}
 
 
 

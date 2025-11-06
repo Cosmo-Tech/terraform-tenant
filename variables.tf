@@ -46,10 +46,10 @@ variable "azure_region" {
   type        = string
 }
 
-# variable "aws_region" {
-#   description = "Region where to store tenant objects (like disks for example)"
-#   type        = string
-# }
+variable "aws_region" {
+  description = "Region where to store tenant objects (like disks for example)"
+  type        = string
+}
 
 # variable "keycloak_admin_username" {
 #   type = string

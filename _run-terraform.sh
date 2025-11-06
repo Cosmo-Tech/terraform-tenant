@@ -21,19 +21,94 @@ get_var_value() {
     local file=$1
     local variable=$2
 
-    cat $file | grep '=' | grep -w $variable | sed 's|.*"\(.*\)".*|\1|' | head -n 1
+    cat $file | grep '=' | grep -w $variable | sed '/.*#.*/d' | sed 's|.*=.*"\(.*\)".*|\1|' | head -n 1
 }
 
+cloud_provider="$(get_var_value terraform.tfvars cloud_provider)"
+region="$(get_var_value terraform.tfvars region)"
 state_file_name="tfstate-tenant-$(get_var_value terraform.tfvars tenant)"
 
-# Clear old data
-rm -rf .terraform*
-rm -rf terraform.tfstate*
 
-# Deploy
-terraform init -upgrade -backend-config="key=$state_file_name" 
+# echo $cloud_provider
+# echo $region
+# echo $state_file_name
+
+
+# # Clear old data
+# # rm -rf .terraform*
+# # rm -rf terraform.tfstate*
+
+# # Deploy
+# terraform init -upgrade -backend-config="key=$state_file_name" 
+# terraform plan -out .terraform.plan
+# terraform apply .terraform.plan
+
+
+
+
+
+
+
+
+
+
+  # backend "azurerm" {
+  #   storage_account_name = "cosmotechstates"
+  #   container_name       = "cosmotechstates"
+  #   resource_group_name  = "cosmotechstates"
+  # }
+
+  # backend "s3" {
+  #   bucket = "cosmotech-states"
+  #   region = "eu-west-3"
+  #   key = "tfstate-eks-${var.cluster_stage}-${var.cluster_name}"
+  # }
+
+
+
+# The trick here is to write configuration in a dynamic file created during at begin of execution and
+# containing the config that the concerned provider is waiting for Terraform backend.
+# Then, Terraform will automatically detects it from its .tf extension
+backend_file="backend.tf"
+case "$(echo $cloud_provider)" in
+  'azure')
+    echo " \
+        terraform {
+            backend \"azurerm\" {
+                key=\"$state_file_name\"
+                storage_account_name=\"cosmotechstates\"
+                container_name=\"cosmotechstates\"
+                resource_group_name=\"cosmotechstates\"
+            }
+        }
+    " > $backend_file ;;
+
+  'aws')
+    echo " \
+        terraform {
+            backend \"s3\" {
+                key=\"$state_file_name\"
+                bucket=\"cosmotech-states\"
+                region=\"$region\"
+            }
+        }
+    " > $backend_file ;;
+
+  'gcp')
+    echo "NOT IMPLEMENTED YET" && exit
+    ;;
+
+  *)
+    echo "error: unknown or empty \e[91mcloud_provider\e[0m from terraform.tfvars"
+    exit
+    ;;
+esac
+
+terraform fmt $backend_file
+terraform init -upgrade
 terraform plan -out .terraform.plan
-terraform apply .terraform.plan
+# terraform apply .terraform.plan
+
 
 
 exit

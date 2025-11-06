@@ -262,7 +262,7 @@ resource "keycloak_group" "group_viewer" {
 
 
 data "keycloak_openid_client_scope" "client_scope_profile" {
-  realm_id =  keycloak_realm.realm.id
+  realm_id = keycloak_realm.realm.id
   name     = "profile"
 }
 

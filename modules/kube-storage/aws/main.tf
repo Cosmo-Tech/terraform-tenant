@@ -1,25 +1,25 @@
-resource "aws_resourcegroups_group" "rg" {
-  # tags = local.tags
+# resource "aws_resourcegroups_group" "rg" {
+#   # tags = local.tags
 
-  name   = var.tenant
-  region = var.region
+#   name   = var.tenant
+#   region = var.region
 
-  resource_query {
-    query = <<JSON
-      {
-        "ResourceTypeFilters": [
-          "AWS::AllSupported"
-        ],
-        "TagFilters": [
-          {
-            "Key": "rg",
-            "Values": ["${var.tenant}"]
-          }
-        ]
-      }
-    JSON
-  }
-}
+#   resource_query {
+#     query = <<JSON
+#       {
+#         "ResourceTypeFilters": [
+#           "AWS::AllSupported"
+#         ],
+#         "TagFilters": [
+#           {
+#             "Key": "rg",
+#             "Values": ["${var.tenant}"]
+#           }
+#         ]
+#       }
+#     JSON
+#   }
+# }
 
 
 data "aws_availability_zones" "cluster" {
@@ -29,17 +29,17 @@ data "aws_availability_zones" "cluster" {
 
 
 resource "aws_ebs_volume" "disk" {
-  availability_zone = data.aws_availability_zones.cluster.names[0]
-  # availability_zone = "${var.region}a"
-  size = var.size
+  # availability_zone = data.aws_availability_zones.cluster.names[0]
+  availability_zone = "${var.region}a"
+  size              = var.size
 
   tags = {
     Name = "disk-${var.tenant}-${var.resource}"
   }
 
-  depends_on = [
-    aws_resourcegroups_group.rg,
-  ]
+  # depends_on = [
+  #   aws_resourcegroups_group.rg,
+  # ]
 }
 
 
@@ -53,8 +53,8 @@ resource "kubernetes_persistent_volume" "pv" {
     }
     access_modes       = ["ReadWriteOnce"]
     storage_class_name = var.storage_class_name
+    # storage_class_name = "gp2"
     persistent_volume_source {
-
       aws_elastic_block_store {
         volume_id = aws_ebs_volume.disk.id
       }
@@ -68,7 +68,6 @@ resource "kubernetes_persistent_volume" "pv" {
 
 
 resource "kubernetes_persistent_volume_claim" "pvc" {
-
   metadata {
     namespace = var.tenant
     name      = "pvc-${var.tenant}-${var.resource}"

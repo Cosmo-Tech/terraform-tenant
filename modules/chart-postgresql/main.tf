@@ -153,8 +153,9 @@ resource "kubernetes_job" "initdb" {
       }
       spec {
         container {
-          name  = "postgresql-initdb"
-          image = "postgres:17-trixie"
+          name              = "postgresql-initdb"
+          image             = "postgres:17-trixie"
+          image_pull_policy = "IfNotPresent"
           command = [
             "/bin/sh",
             "-c",

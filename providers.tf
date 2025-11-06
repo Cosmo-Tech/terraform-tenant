@@ -20,11 +20,17 @@ terraform {
 
   required_version = "~> 1.13.0"
 
-  backend "azurerm" {
-    storage_account_name = "cosmotechstates"
-    container_name       = "cosmotechstates"
-    resource_group_name  = "cosmotechstates"
-  }
+  # backend "azurerm" {
+  #   storage_account_name = "cosmotechstates"
+  #   container_name       = "cosmotechstates"
+  #   resource_group_name  = "cosmotechstates"
+  # }
+
+  # backend "s3" {
+  #   bucket = "cosmotech-states"
+  #   region = "eu-west-3"
+  #   key = "tfstate-eks-${var.cluster_stage}-${var.cluster_name}"
+  # }
 }
 
 
@@ -40,11 +46,11 @@ provider "helm" {
   }
 }
 
-provider "azurerm" {
-  features {}
-  subscription_id = var.azure_subscription_id
-  tenant_id       = var.azure_entra_tenant_id
-}
+# provider "azurerm" {
+#   features {}
+#   subscription_id = var.azure_subscription_id
+#   tenant_id       = var.azure_entra_tenant_id
+# }
 
 
 # provider "aws" {

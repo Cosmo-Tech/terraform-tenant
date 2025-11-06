@@ -24,6 +24,22 @@ master:
       operator: "Equal"
       value: "cosmotech"
       effect: "NoSchedule"
+  # args: [
+  #     '/bin/sh -c "mkdir -p /data && chown -R 1001:1001 /data"',
+  #     '-logtostderr=true',
+  #     '-logtostderr=true',
+  #     '-v=1',
+  #     '-config_dir=/etc/seaweedfs',
+  #     'master',
+  #     '-mdir=/data',
+  #     '-ip.bind=0.0.0.0',
+  #     '-ip=$(POD_NAME).seaweedfs-master-headless.$(NAMESPACE).svc.cluster.local',
+  #     '-port=9333',
+  #     '-port.grpc=19333',
+  #     '-peers=seaweedfs-master-0.seaweedfs-master-headless.$(NAMESPACE).svc.cluster.local:9333',
+  #     '-volumeSizeLimitMB=1000'
+  #   ]
+  # args: ['/bin/sh', '-ec', 'find /data -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R 1001:1001']
 mariadb:
   enabled: false
 externalDatabase:
@@ -118,6 +134,7 @@ extraDeploy:
           containers:
             - name: init-buckets
               image: alpine
+              imagePullPolicy: IfNotPresent
               {{- if .Values.filer.containerSecurityContext.enabled }}
               securityContext:
                 {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.filer.containerSecurityContext "context" $) | nindent 12 }}
@@ -133,3 +150,100 @@ extraDeploy:
                     wget --quiet -O /dev/null --post-data= --header "Content-Type:" ${FILER_ENDPOINT}/buckets/${bucket}/
                   fi
                   %{~ endfor ~}
+  # # Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
+  # - |
+  #   apiVersion: batch/v1
+  #   kind: Job
+  #   metadata:
+  #     name: seaweedfs-volumepermissions
+  #     namespace: {{ include "common.names.namespace" . | quote }}
+  #     annotations:
+  #       helm.sh/hook: pre-install
+  #   spec:
+  #     template:
+  #       metadata:
+  #         labels:
+  #           {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 8 }}
+  #       spec:
+  #         restartPolicy: OnFailure
+  #         volumes:
+  #           - name: "${PERSISTENCE_MASTER_PVC}"
+  #             persistentVolumeClaim:
+  #               claimName: "${PERSISTENCE_MASTER_PVC}"
+  #         nodeSelector:
+  #           cosmotech.com/tier: services
+  #         tolerations:
+  #         - key: "vendor"
+  #           operator: "Equal"
+  #           value: "cosmotech"
+  #           effect: "NoSchedule"
+  #         containers:
+  #           - name: seaweedfs-volumepermissions
+  #             image: alpine
+  #             imagePullPolicy: IfNotPresent
+  #             command:
+  #               - /bin/sh
+  #             args:
+  #               - -exc
+  #               - |
+  #                 ls -al /
+  #                 mkdir -p /data
+  #                 ls -al /data
+  #                 chmod 777 /data
+  #                 chown -R 1001:1001 /data
+  #                 chmod 777 /opt
+  #                 chown -R 1001:1001 /opt
+  #                 mkdir -p /etc/seaweedfs
+  #                 chmod 777 /etc/seaweedfs
+  #                 chown -R 1001:1001 /etc/seaweedfs
+  #                 ls -al /
+  #                 ls -alR /data
+  #                 ls -alR /opt
+  #                 ls -alR /etc/seaweedfs
+  #                 find /data -mindepth 1 -maxdepth 1 -not -name "conf" -not -name ".snapshot" -not -name "lost+found"
+#                  ls -alR /
+#                  find /data -mindepth 1 -maxdepth 1 -not -name "conf" -not -name ".snapshot" -not -name "lost+found" | \
+#                    xargs -r chown -R 1001:1001
+#                - mkdir -p /data
+#                - chown -R 1001:1001 /data
+#                - find /data -mindepth 1 -maxdepth 1 -not -name "conf" -not -name ".snapshot" -not -name "lost+found" | \
+#                -  xargs -r chown -R 1001:1001
+#                - chmod -R 777 /dev/shm
+
+
+
+
+#                - /bin/sh
+#                - -c
+#                - mkdir -p /data
+#                - chmod -R 1001:1001 /data
+
+
+# - find /data -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R 1001:1001
+
+
+# Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
+volumePermissions:
+  enabled: true
+  image:
+    repository: bitnamilegacy/os-shell
+  # args: ['/bin/sh', '-ec', 'find /data -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R 1001:1001']
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {"z"}
+    runAsUser: 0
+  #   runAsUser: auto
+  # podSecurityContext:
+  #   enabled: true
+  # containerSecurityContext:
+  #   enabled: true
+  #   seLinuxOptions: {}
+  #   runAsUser: 0
+  #   runAsGroup: 1001
+  #   runAsNonRoot: true
+  #   allowPrivilegeEscalation: false
+  #   readOnlyRootFilesystem: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  #   capabilities:
+  #     drop: ["ALL"]
