@@ -8,17 +8,19 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 3.0.2"
     }
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.49.0"
-    }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.18.0"
-    }
+    # azurerm = {
+    #   source  = "hashicorp/azurerm"
+    #   version = "~> 4.49.0"
+    # }
+    # aws = {
+    #   source  = "hashicorp/aws"
+    #   version = "~> 6.18.0"
+    # }
   }
 
   required_version = "~> 1.13.0"
+
+  # Backend block is dynamically generated from _run-terraform.sh script
 
   # backend "azurerm" {
   #   storage_account_name = "cosmotechstates"
@@ -46,10 +48,15 @@ provider "helm" {
   }
 }
 
+
+
+# data "azurerm_subscription" "azure" {}
 # provider "azurerm" {
 #   features {}
-#   subscription_id = var.azure_subscription_id
-#   tenant_id       = var.azure_entra_tenant_id
+#   subscription_id = data.azurerm_subscription.azure.subscription_id
+#   tenant_id       = data.azurerm_subscription.azure.tenant_id
+
+#   # count = var.cloud_provider == "azure" ? 1 : 0
 # }
 
 

@@ -45,10 +45,6 @@ module "config-keycloak-realm" {
 
   tenant         = module.kube-namespace.tenant
   cluster_domain = var.cluster_domain
-
-  # api_version_path = module.chart-cosmotech-api.api_version_path
-  # api_version_path = "v5"
-
 }
 
 
@@ -56,103 +52,6 @@ module "config-keycloak-realm" {
 # module "config-grafana-dashboard" {
 #   source = "./modules/config-grafana-dashboard"
 # }
-
-
-
-
-
-
-
-
-
-# ## Azure (persistent storage) PostgreSQL
-# module "kube-storage-azure-postgresql" {
-#   source = "./modules/kube-storage/azure"
-
-#   count = var.cloud_provider == "azure" ? 1 : 0
-
-#   tenant   = module.kube-namespace.tenant
-#   resource = "postgresql"
-#   size     = 8
-
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
-
-
-# ## Azure (persistent storage) SeaweedFS
-# module "kube-storage-azure-seaweedfs-master" {
-#   source = "./modules/kube-storage/azure"
-
-#   count = var.cloud_provider == "azure" ? 1 : 0
-
-#   tenant   = module.kube-namespace.tenant
-#   resource = "seaweedfs-master"
-#   size     = 32
-
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
-
-
-# ## Azure (persistent storage) SeaweedFS
-# module "kube-storage-azure-seaweedfs-volume" {
-#   source = "./modules/kube-storage/azure"
-
-#   count = var.cloud_provider == "azure" ? 1 : 0
-
-#   tenant   = module.kube-namespace.tenant
-#   resource = "seaweedfs-volume"
-#   size     = 32
-
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
-
-
-# ## Azure (persistent storage) Redis master
-# module "kube-storage-azure-redis-master" {
-#   source = "./modules/kube-storage/azure"
-
-#   count = var.cloud_provider == "azure" ? 1 : 0
-
-#   tenant   = module.kube-namespace.tenant
-#   resource = "redis-master"
-#   size     = 32
-
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
-
-
-# ## Azure (persistent storage) Redis replica
-# module "kube-storage-azure-redis-replica" {
-#   source = "./modules/kube-storage/azure"
-
-#   count = var.cloud_provider == "azure" ? 1 : 0
-
-#   tenant   = module.kube-namespace.tenant
-#   resource = "redis-replica"
-#   size     = 32
-
-#   zz_azure_subscription_id = var.zz_azure_subscription_id
-#   zz_azure_entra_tenant_id = var.zz_azure_entra_tenant_id
-#   zz_azure_aks_rg_name     = var.zz_azure_aks_rg_name
-#   zz_azure_aks_rg_region   = var.zz_azure_aks_rg_region
-# }
-
-
-
-
-
 
 
 # module "storage-azure" {
@@ -165,25 +64,44 @@ module "config-keycloak-realm" {
 #   resource           = each.key
 #   size               = each.value.size
 #   storage_class_name = local.storage_class_name
-#   region             = var.azure_region
-
-#   resource_group = var.azure_resource_group
-
-#   # azure_subscription_id = var.azure_subscription_id
+#   region = var.region
+#   cluster_name = var.kubernetes_context
+#   cloud_provider = var.cloud_provider
 # }
 
 
-module "storage-aws" {
-  source = "./modules/kube-storage/aws"
+# module "storage-aws" {
+#   source = "./modules/kube-storage/azure"
 
-  # Fill the foreach loop with values only if right cloud provider is given
-  for_each = var.cloud_provider == "aws" ? local.persistences : {}
+#   # Fill the foreach loop with values only if right cloud provider is given
+#   for_each = var.cloud_provider == "aws" ? local.persistences : {}
+
+#   tenant             = module.kube-namespace.tenant
+#   resource           = each.key
+#   size               = each.value.size
+#   storage_class_name = local.storage_class_name
+#   region = var.region
+#   cloud_provider = var.cloud_provider
+# }
+
+
+
+
+
+
+module "storage" {
+  # The 'source' cannot use a variable, it's why it's dynamically replaced from ./_run-terraform.sh according to the variable cloud_provider
+  source = "./modules/kube-storage/azure"
+
+  for_each = local.persistences
 
   tenant             = module.kube-namespace.tenant
   resource           = each.key
   size               = each.value.size
   storage_class_name = local.storage_class_name
-  region             = var.aws_region
+  region             = var.region
+  cluster_name       = var.kubernetes_context
+  cloud_provider     = var.cloud_provider
 }
 
 

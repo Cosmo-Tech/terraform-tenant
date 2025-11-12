@@ -4,6 +4,7 @@ resource "kubernetes_namespace" "tenant" {
   }
 }
 
+
 resource "random_password" "password" {
   length      = 40
   min_lower   = 5

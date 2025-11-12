@@ -27,26 +27,31 @@ variable "cluster_domain" {
   type        = string
 }
 
-variable "azure_subscription_id" {
-  description = "[temporary] Azure subscription ID"
-  type        = string
-}
+# variable "azure_subscription_id" {
+#   description = "[temporary] Azure subscription ID"
+#   type        = string
+# }
 
-variable "azure_entra_tenant_id" {
-  description = "[temporary] Azure Entra tenant ID"
-  type        = string
-}
+# variable "azure_entra_tenant_id" {
+#   description = "[temporary] Azure Entra tenant ID"
+#   type        = string
+# }
 
-variable "azure_resource_group" {
-  type = string
-}
+# variable "azure_resource_group" {
+#   type = string
+# }
 
-variable "azure_region" {
-  description = "Region where to store tenant objects (like disks for example)"
-  type        = string
-}
+# variable "azure_region" {
+#   description = "Region where to store tenant objects (like disks for example)"
+#   type        = string
+# }
 
-variable "aws_region" {
+# variable "aws_region" {
+#   description = "Region where to store tenant objects (like disks for example)"
+#   type        = string
+# }
+
+variable "region" {
   description = "Region where to store tenant objects (like disks for example)"
   type        = string
 }

@@ -17,7 +17,6 @@ variable "storage_class_name" {
   type        = string
 }
 
-
 variable "region" {
   type = string
 }
@@ -27,6 +26,14 @@ variable "region" {
 #   type        = string
 # }
 
-variable "resource_group" {
+# variable "resource_group" {
+#   type = string
+# }
+
+variable "cluster_name" {
+  type = string
+}
+
+variable "cloud_provider" {
   type = string
 }

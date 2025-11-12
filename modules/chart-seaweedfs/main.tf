@@ -78,12 +78,14 @@ resource "kubernetes_secret" "s3_secret" {
 
 
 resource "helm_release" "seaweedfs" {
-  namespace = var.tenant
-  name      = var.release
-  # repository = "https://charts.bitnami.com/bitnami"
+  namespace  = var.tenant
+  name       = var.release
+  repository = "https://charts.bitnami.com/bitnami"
   # chart      = "seaweedfs"
-  chart   = "/home/ggontard/git_wsl/devops/charts/bitnami/seaweedfs/"
-  version = "6.0.2"
+  # version    = "6.0.1"
+  chart   = "/home/ggontard/git_wsl/devops/charts_fixed/bitnami/seaweedfs/"
+  version = "6.0.3"
+  # repository = "https://github.com/ggtrd/charts/bitnami"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

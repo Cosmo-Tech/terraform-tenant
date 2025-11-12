@@ -15,7 +15,7 @@ for command in $required_commands; do
 done
 
 
-# Get value of a variable declared in a given file from this pattern: variable = value
+# Get value of a variable declared in a given file from this pattern: variable = "value"
 # Usage: get_var_value <file> <variable>
 get_var_value() {
     local file=$1
@@ -23,56 +23,31 @@ get_var_value() {
 
     cat $file | grep '=' | grep -w $variable | sed '/.*#.*/d' | sed 's|.*=.*"\(.*\)".*|\1|' | head -n 1
 }
-
 cloud_provider="$(get_var_value terraform.tfvars cloud_provider)"
 region="$(get_var_value terraform.tfvars region)"
 state_file_name="tfstate-tenant-$(get_var_value terraform.tfvars tenant)"
 
 
-# echo $cloud_provider
-# echo $region
-# echo $state_file_name
+# Clear old data
+rm -rf .terraform*
+rm -rf terraform.tfstate*
 
 
-# # Clear old data
-# # rm -rf .terraform*
-# # rm -rf terraform.tfstate*
-
-# # Deploy
-# terraform init -upgrade -backend-config="key=$state_file_name" 
-# terraform plan -out .terraform.plan
-# terraform apply .terraform.plan
-
-
-
-
-
-
-
-
-
-
-  # backend "azurerm" {
-  #   storage_account_name = "cosmotechstates"
-  #   container_name       = "cosmotechstates"
-  #   resource_group_name  = "cosmotechstates"
-  # }
-
-  # backend "s3" {
-  #   bucket = "cosmotech-states"
-  #   region = "eu-west-3"
-  #   key = "tfstate-eks-${var.cluster_stage}-${var.cluster_name}"
-  # }
-
-
-
-# The trick here is to write configuration in a dynamic file created during at begin of execution and
-# containing the config that the concerned provider is waiting for Terraform backend.
-# Then, Terraform will automatically detects it from its .tf extension
+# The trick here is to write configuration in a dynamic file created at the begin of the
+# execution, containing the config that the concerned provider is waiting for Terraform backend.
+# Then, Terraform will automatically detects it from its .tf extension.
 backend_file="backend.tf"
 case "$(echo $cloud_provider)" in
   'azure')
     echo " \
+        # data "azurerm_subscription" "current" {}
+        provider "azurerm" {
+            features {}
+            # subscription_id = data.azurerm_subscription.current.subscription_id
+            # tenant_id       = data.azurerm_subscription.current.tenant_id
+            subscription_id = var.azure_subscription_id
+            tenant_id       = var.azure_entra_tenant_id
+        }    
         terraform {
             backend \"azurerm\" {
                 key=\"$state_file_name\"
@@ -81,10 +56,16 @@ case "$(echo $cloud_provider)" in
                 resource_group_name=\"cosmotechstates\"
             }
         }
+        variable "azure_subscription_id" { type = string }
+        variable "azure_entra_tenant_id" { type = string }
+        # variable "azure_resource_group" { type = string }
     " > $backend_file ;;
 
   'aws')
     echo " \
+        provider "aws" {
+            region = var.region
+        }
         terraform {
             backend \"s3\" {
                 key=\"$state_file_name\"
@@ -104,11 +85,17 @@ case "$(echo $cloud_provider)" in
     ;;
 esac
 
+
+# Dynamically replace the storage module block to call the right provider
+sed -i "s|\(.*/modules/kube-storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
+# sed -i "s|\(.*for_each.*var.cloud_provider.*\)\".*\"\(.*\)|\1\"$cloud_provider\"\2|" main.tf
+
+
+# Deploy
 terraform fmt $backend_file
 terraform init -upgrade
 terraform plan -out .terraform.plan
-# terraform apply .terraform.plan
-
+terraform apply .terraform.plan
 
 
 exit

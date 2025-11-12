@@ -25,7 +25,7 @@ config:
         max-request-size: "10MB"
   api:
     serviceMonitor:
-      name: cosmotech-api-${NAMESPACE}
+      # name: cosmotech-api-${NAMESPACE}
       enabled: false
       # enabled: true
       # namespace: MONITORING_NAMESPACE}
