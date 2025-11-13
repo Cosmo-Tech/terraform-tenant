@@ -57,7 +57,7 @@ resource "kubernetes_persistent_volume" "pv" {
     capacity = {
       storage = "${azurerm_managed_disk.disk[0].disk_size_gb}Gi"
     }
-    access_modes = ["ReadWriteOnce"]
+    access_modes       = ["ReadWriteOnce"]
     storage_class_name = var.storage_class_name
     persistent_volume_source {
       azure_disk {

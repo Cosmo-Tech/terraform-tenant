@@ -48,12 +48,6 @@ module "config-keycloak-realm" {
 }
 
 
-# ## (config) Grafana dashboard
-# module "config-grafana-dashboard" {
-#   source = "./modules/config-grafana-dashboard"
-# }
-
-
 # module "storage-azure" {
 #   source = "./modules/kube-storage/azure"
 
@@ -267,4 +261,14 @@ module "chart-cosmotech-api" {
     module.chart-redis,
     # module.config-keycloak-realm,
   ]
+}
+
+
+
+## (config) Grafana dashboard
+module "config-grafana-dashboard" {
+  source = "./modules/config-grafana-dashboard"
+
+  tenant         = module.kube-namespace.tenant
+  cluster_domain = var.cluster_domain
 }
