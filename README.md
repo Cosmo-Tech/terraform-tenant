@@ -15,9 +15,7 @@
 ## How to
 * clone & open the repository
     ```
-    git clone https://github.com/Cosmo-Tech/terraform-tenant.git
-    ```
-    ```
+    git clone https://github.com/Cosmo-Tech/terraform-tenant.git --branch <tag>
     cd terraform-tenant
     ```
 * deploy
