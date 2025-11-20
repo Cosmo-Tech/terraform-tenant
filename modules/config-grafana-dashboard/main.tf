@@ -10,7 +10,7 @@ terraform {
 
 data "kubernetes_secret" "grafana" {
   metadata {
-    namespace = "cosmotech-monitoring"
+    namespace = "monitoring"
     name      = "kube-prometheus-stack-grafana"
   }
 }

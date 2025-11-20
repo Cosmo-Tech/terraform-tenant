@@ -93,9 +93,11 @@ sed -i "s|\(.*/modules/kube-storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
 
 # Deploy
 terraform fmt $backend_file
-terraform init -upgrade
-terraform plan -out .terraform.plan
-terraform apply .terraform.plan
-
+terraform init -upgrade -reconfigure
+# terraform plan -out .terraform.plan
+# terraform apply .terraform.plan
+# terraform plan -var-file="terraform.tfvars"
+terraform apply -var-file="terraform.tfvars" -auto-approve
+# terraform destroy -var-file="terraform.tfvars"
 
 exit

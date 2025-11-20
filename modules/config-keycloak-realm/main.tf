@@ -10,8 +10,8 @@ terraform {
 provider "keycloak" {
   url       = "https://${var.cluster_domain}/keycloak/"
   client_id = "admin-cli"
-  username  = "user"
-  password  = data.kubernetes_secret.keycloak.data["admin-password"]
+  username  = "admin"
+  password  = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
 }
 
 
@@ -37,7 +37,7 @@ locals {
 data "kubernetes_secret" "keycloak" {
   metadata {
     namespace = "keycloak"
-    name      = "keycloak"
+    name      = "keycloak-config"
   }
 }
 

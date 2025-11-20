@@ -139,153 +139,153 @@ resource "helm_release" "postgresql" {
 #   - To be sure having a working 'psql' command, the job is directly installed from an official PostgreSQL image
 #   - The used image is Debian because Kubernetes DNS forces us to have DNS based on glibc & not musl (like in Alpine)
 #       > See https://guillaume.fenollar.fr/blog/kubernetes-dns-options-ndots-glibc-musl/ for more details
-resource "kubernetes_job" "initdb" {
-  metadata {
-    namespace = var.tenant
-    name      = "postgresql-initdb"
-  }
-  spec {
-    template {
-      metadata {
-        labels = {
-          "networking/traffic-allowed" = "yes"
-        }
-      }
-      spec {
-        container {
-          name              = "postgresql-initdb"
-          image             = "postgres:17-trixie"
-          image_pull_policy = "IfNotPresent"
-          command = [
-            "/bin/sh",
-            "-c",
-          ]
-          args = [
-            <<EOT
-              # DNS doesn't work by default in postgres image
-              apt update && apt install -y dnsutils
+#   resource "kubernetes_job" "initdb" {
+#     metadata {
+#       namespace = var.tenant
+#       name      = "postgresql-initdb"
+#     }
+#     spec {
+#       template {
+#         metadata {
+#           labels = {
+#             "networking/traffic-allowed" = "yes"
+#           }
+#         }
+#         spec {
+#           container {
+#             name              = "postgresql-initdb"
+#             image             = "postgres:17-trixie"
+#             image_pull_policy = "IfNotPresent"
+#             command = [
+#               "/bin/sh",
+#               "-c",
+#             ]
+#             args = [
+#               <<EOT
+#                 # DNS doesn't work by default in postgres image
+#                 apt update && apt install -y dnsutils
 
-              postgres_password='${kubernetes_secret.postgresql-config.data["postgres-password"]}'
-              # export PGPASSWORD="$postgres_password"
-              export PGHOST='${local.database_host}'
-              export PGPORT='${local.database_port}'
-
-
-              # Function to check if database already exists
-              # Usage: database_exists <name>
-              database_exists() {
-                local dbname="$1"
-
-                export PGPASSWORD="$postgres_password"
-                if [ "$(psql -U postgres -c "SELECT datname FROM pg_database" | grep -w $dbname)" = "" ]; then
-                  echo "false"
-                fi
-              }
+#                 postgres_password='${kubernetes_secret.postgresql-config.data["postgres-password"]}'
+#                 # export PGPASSWORD="$postgres_password"
+#                 export PGHOST='${local.database_host}'
+#                 export PGPORT='${local.database_port}'
 
 
+#                 # Function to check if database already exists
+#                 # Usage: database_exists <name>
+#                 database_exists() {
+#                   local dbname="$1"
 
-              ## >>> Argo
-              argo_database='${kubernetes_secret.postgresql-argo.data["database-name"]}'
-              argo_username='${kubernetes_secret.postgresql-argo.data["database-username"]}'
-              argo_password='${kubernetes_secret.postgresql-argo.data["database-password"]}'
-              if [ "$(database_exists $argo_database)" = "false" ]; then
-                echo "starting init of Argo"
-
-                export PGPASSWORD="$postgres_password"
-                psql -U postgres -c "CREATE ROLE $argo_username WITH LOGIN PASSWORD '$argo_password';"
-                psql -U postgres -c "CREATE DATABASE $argo_database WITH OWNER $argo_username;"
-              else
-                  echo "database $argo_database already exists, skipping"
-              fi
+#                   export PGPASSWORD="$postgres_password"
+#                   if [ "$(psql -U postgres -c "SELECT datname FROM pg_database" | grep -w $dbname)" = "" ]; then
+#                     echo "false"
+#                   fi
+#                 }
 
 
 
-              ## >>> Cosmo Tech API
-              cosmotechapi_database='${kubernetes_secret.postgresql-cosmotechapi.data["database-name"]}'
-              cosmotechapi_admin_username='${kubernetes_secret.postgresql-cosmotechapi.data["admin-username"]}'
-              cosmotechapi_admin_password='${kubernetes_secret.postgresql-cosmotechapi.data["admin-password"]}'
-              cosmotechapi_writer_username='${kubernetes_secret.postgresql-cosmotechapi.data["writer-username"]}'
-              cosmotechapi_writer_password='${kubernetes_secret.postgresql-cosmotechapi.data["writer-password"]}'
-              cosmotechapi_reader_username='${kubernetes_secret.postgresql-cosmotechapi.data["reader-username"]}'
-              cosmotechapi_reader_password='${kubernetes_secret.postgresql-cosmotechapi.data["reader-password"]}'
+#                 ## >>> Argo
+#                 argo_database='${kubernetes_secret.postgresql-argo.data["database-name"]}'
+#                 argo_username='${kubernetes_secret.postgresql-argo.data["database-username"]}'
+#                 argo_password='${kubernetes_secret.postgresql-argo.data["database-password"]}'
+#                 if [ "$(database_exists $argo_database)" = "false" ]; then
+#                   echo "starting init of Argo"
 
-              if [ "$(database_exists $cosmotechapi_database)" = "false" ]; then
-                echo "starting init of Cosmo Tech API"
-
-                export PGPASSWORD="$postgres_password"
-                psql -U postgres -c "CREATE ROLE $cosmotechapi_admin_username WITH LOGIN PASSWORD '$cosmotechapi_admin_password' CREATEDB;"
-                psql -U postgres -c "CREATE ROLE $cosmotechapi_writer_username WITH LOGIN PASSWORD '$cosmotechapi_writer_password';"
-                psql -U postgres -c "CREATE ROLE $cosmotechapi_reader_username WITH LOGIN PASSWORD '$cosmotechapi_reader_password';"
-                psql -U postgres -c "GRANT $cosmotechapi_writer_username to $cosmotechapi_admin_username;"
-                psql -U postgres -c "GRANT $cosmotechapi_reader_username to $cosmotechapi_admin_username;"
-                psql -U postgres -c "CREATE DATABASE $cosmotechapi_database WITH OWNER $cosmotechapi_admin_username;"
-
-                export PGPASSWORD="$cosmotechapi_admin_password"
-                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "CREATE SCHEMA inputs AUTHORIZATION $cosmotechapi_writer_username;"
-                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "CREATE SCHEMA outputs AUTHORIZATION $cosmotechapi_writer_username;"
-                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "GRANT USAGE ON SCHEMA inputs TO $cosmotechapi_reader_username;"
-                psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "GRANT USAGE ON SCHEMA outputs TO $cosmotechapi_reader_username;"
-              else
-                  echo "database $cosmotechapi_database already exists, skipping"
-              fi
+#                   export PGPASSWORD="$postgres_password"
+#                   psql -U postgres -c "CREATE ROLE $argo_username WITH LOGIN PASSWORD '$argo_password';"
+#                   psql -U postgres -c "CREATE DATABASE $argo_database WITH OWNER $argo_username;"
+#                 else
+#                     echo "database $argo_database already exists, skipping"
+#                 fi
 
 
 
-              ## >>> SeaweedFS
-              seaweedfs_database='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-database"]}'
-              seaweedfs_username='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-username"]}'
-              seaweedfs_password='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-password"]}'
-              if [ "$(database_exists $seaweedfs_database)" = "false" ]; then
-                echo "starting init of SeaweedFS"
+#                 ## >>> Cosmo Tech API
+#                 cosmotechapi_database='${kubernetes_secret.postgresql-cosmotechapi.data["database-name"]}'
+#                 cosmotechapi_admin_username='${kubernetes_secret.postgresql-cosmotechapi.data["admin-username"]}'
+#                 cosmotechapi_admin_password='${kubernetes_secret.postgresql-cosmotechapi.data["admin-password"]}'
+#                 cosmotechapi_writer_username='${kubernetes_secret.postgresql-cosmotechapi.data["writer-username"]}'
+#                 cosmotechapi_writer_password='${kubernetes_secret.postgresql-cosmotechapi.data["writer-password"]}'
+#                 cosmotechapi_reader_username='${kubernetes_secret.postgresql-cosmotechapi.data["reader-username"]}'
+#                 cosmotechapi_reader_password='${kubernetes_secret.postgresql-cosmotechapi.data["reader-password"]}'
 
-                export PGPASSWORD="$postgres_password"
-                psql -U postgres -c "CREATE ROLE $seaweedfs_username WITH LOGIN PASSWORD '$seaweedfs_password';"
-                psql -U postgres -c "CREATE DATABASE $seaweedfs_database WITH OWNER $seaweedfs_username;"
+#                 if [ "$(database_exists $cosmotechapi_database)" = "false" ]; then
+#                   echo "starting init of Cosmo Tech API"
 
-                # We should be able to delegate that setup to the SeaweedFS chart with 'externalDatabase.initDatabaseJob.enable: true'
-                # See https://github.com/bitnami/charts/issues/30030
-                export PGPASSWORD="$seaweedfs_password"
-                psql -U $seaweedfs_username -d $seaweedfs_database -c "
-                  CREATE TABLE IF NOT EXISTS filemeta (
-                    dirhash     BIGINT,
-                    name        VARCHAR(65535),
-                    directory   VARCHAR(65535),
-                    meta        bytea,
-                    PRIMARY KEY (dirhash, name)
-                  );
-                "
-              else
-                  echo "database $seaweedfs_database already exists, skipping"
-              fi
+#                   export PGPASSWORD="$postgres_password"
+#                   psql -U postgres -c "CREATE ROLE $cosmotechapi_admin_username WITH LOGIN PASSWORD '$cosmotechapi_admin_password' CREATEDB;"
+#                   psql -U postgres -c "CREATE ROLE $cosmotechapi_writer_username WITH LOGIN PASSWORD '$cosmotechapi_writer_password';"
+#                   psql -U postgres -c "CREATE ROLE $cosmotechapi_reader_username WITH LOGIN PASSWORD '$cosmotechapi_reader_password';"
+#                   psql -U postgres -c "GRANT $cosmotechapi_writer_username to $cosmotechapi_admin_username;"
+#                   psql -U postgres -c "GRANT $cosmotechapi_reader_username to $cosmotechapi_admin_username;"
+#                   psql -U postgres -c "CREATE DATABASE $cosmotechapi_database WITH OWNER $cosmotechapi_admin_username;"
+
+#                   export PGPASSWORD="$cosmotechapi_admin_password"
+#                   psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "CREATE SCHEMA inputs AUTHORIZATION $cosmotechapi_writer_username;"
+#                   psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "CREATE SCHEMA outputs AUTHORIZATION $cosmotechapi_writer_username;"
+#                   psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "GRANT USAGE ON SCHEMA inputs TO $cosmotechapi_reader_username;"
+#                   psql -U $cosmotechapi_admin_username -d $cosmotechapi_database -c "GRANT USAGE ON SCHEMA outputs TO $cosmotechapi_reader_username;"
+#                 else
+#                     echo "database $cosmotechapi_database already exists, skipping"
+#                 fi
 
 
-              exit
-            EOT
-          ]
-        }
-        toleration {
-          key      = "vendor"
-          operator = "Equal"
-          value    = "cosmotech"
-          effect   = "NoSchedule"
-        }
-        node_selector = {
-          "cosmotech.com/tier" = "services",
-        }
-        dns_policy     = "ClusterFirst"
-        restart_policy = "Never"
-      }
-    }
-    backoff_limit              = 0
-    ttl_seconds_after_finished = 0
-  }
-  wait_for_completion = true
-  timeouts {
-    create = "30s"
-    update = "30s"
-  }
 
-  depends_on = [
-    helm_release.postgresql,
-  ]
-}
+#                 ## >>> SeaweedFS
+#                 seaweedfs_database='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-database"]}'
+#                 seaweedfs_username='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-username"]}'
+#                 seaweedfs_password='${kubernetes_secret.postgresql-seaweedfs.data["postgresql-password"]}'
+#                 if [ "$(database_exists $seaweedfs_database)" = "false" ]; then
+#                   echo "starting init of SeaweedFS"
+
+#                   export PGPASSWORD="$postgres_password"
+#                   psql -U postgres -c "CREATE ROLE $seaweedfs_username WITH LOGIN PASSWORD '$seaweedfs_password';"
+#                   psql -U postgres -c "CREATE DATABASE $seaweedfs_database WITH OWNER $seaweedfs_username;"
+
+#                   # We should be able to delegate that setup to the SeaweedFS chart with 'externalDatabase.initDatabaseJob.enable: true'
+#                   # See https://github.com/bitnami/charts/issues/30030
+#                   export PGPASSWORD="$seaweedfs_password"
+#                   psql -U $seaweedfs_username -d $seaweedfs_database -c "
+#                     CREATE TABLE IF NOT EXISTS filemeta (
+#                       dirhash     BIGINT,
+#                       name        VARCHAR(65535),
+#                       directory   VARCHAR(65535),
+#                       meta        bytea,
+#                       PRIMARY KEY (dirhash, name)
+#                     );
+#                   "
+#                 else
+#                     echo "database $seaweedfs_database already exists, skipping"
+#                 fi
+
+
+#                 exit
+#               EOT
+#             ]
+#           }
+#         toleration {
+#           key      = "vendor"
+#           operator = "Equal"
+#           value    = "cosmotech"
+#           effect   = "NoSchedule"
+#         }
+#         node_selector = {
+#           "cosmotech.com/tier" = "services",
+#         }
+#         dns_policy     = "ClusterFirst"
+#         restart_policy = "Never"
+#       }
+#     }
+#     backoff_limit              = 0
+#     ttl_seconds_after_finished = 0
+#   }
+#   wait_for_completion = true
+#   timeouts {
+#     create = "30s"
+#     update = "30s"
+#   }
+
+#   depends_on = [
+#     helm_release.postgresql,
+#   ]
+# }

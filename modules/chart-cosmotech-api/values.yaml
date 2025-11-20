@@ -25,10 +25,10 @@ config:
         max-request-size: "10MB"
   api:
     serviceMonitor:
-      # name: cosmotech-api-${NAMESPACE}
-      enabled: false
-      # enabled: true
-      # namespace: MONITORING_NAMESPACE}
+      name: cosmotech-api-${NAMESPACE}
+      # enabled: false
+      enabled: true
+      namespace: ${MONITORING_NAMESPACE}
   logging:
     level:
       com.cosmotech: DEBUG
@@ -40,11 +40,11 @@ config:
       include-stacktrace: always
   csm:
     platform:
-      # containerRegistry:
-      #   scheme: https
-      #   host: ACR_LOGIN_SERVER}
-      #   password: ACR_LOGIN_PASSWORD}
-      #   username: ACR_LOGIN_USERNAME}
+      containerRegistry:
+        scheme: https
+        host: acrsphinxd38ygr.azurecr.io
+        password: ""
+        username: acrsphinxd38ygr
       # identityProvider: IDENTITY_PROVIDER}
       identityProvider:
         audience: "account"
@@ -62,7 +62,7 @@ config:
           enabled: false
       namespace: ${NAMESPACE}
       # loki:
-      #   baseUrl: http://loki.MONITORING_NAMESPACE}.svc.cluster.local:3100
+      #   baseUrl: http://loki.${MONITORING_NAMESPACE}.svc.cluster.local:3100
       argo:
         base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
         workflows:

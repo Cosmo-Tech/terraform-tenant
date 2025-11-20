@@ -20,10 +20,10 @@ locals {
     "POSTGRESQL_WRITER_PASSWORD" = var.postgresql_writer_password
     "POSTGRESQL_READER_USERNAME" = var.postgresql_reader_username
     "POSTGRESQL_READER_PASSWORD" = var.postgresql_reader_password
-
-    "CLUSTER_DOMAIN"           = var.cluster_domain
-    "KEYCLOAK_CLIENT_ID"       = var.keycloak_client_id
-    "KEYCLOAK_CLIENT_PASSWORD" = var.keycloak_client_secret
+    "MONITORING_NAMESPACE"       = "monitoring"
+    "CLUSTER_DOMAIN"             = var.cluster_domain
+    "KEYCLOAK_CLIENT_ID"         = var.keycloak_client_id
+    "KEYCLOAK_CLIENT_PASSWORD"   = var.keycloak_client_secret
   }
 }
 
@@ -57,7 +57,7 @@ resource "helm_release" "cosmotech_api" {
   # name       = var.release
   name       = "${var.release}-${var.tenant}"
   repository = "https://cosmo-tech.github.io/helm-charts"
-  chart      = "cosmotech-api"
+  chart      = "/mnt/c/Users/EdonTafili/Desktop/helm-charts/charts/cosmotech-api"
   version    = "5.0.0-rc1"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)

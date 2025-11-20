@@ -5,7 +5,7 @@ global:
     allowInsecureImages: true
 image:
   repository: bitnamilegacy/seaweedfs
-  pullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent 
 postgresql:
   image:
     repository: bitnamilegacy/postgresql
