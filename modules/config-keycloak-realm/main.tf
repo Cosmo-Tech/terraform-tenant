@@ -12,8 +12,8 @@ provider "keycloak" {
   url       = "https://${var.cluster_domain}/keycloak/"
   client_id = "admin-cli"
   # username  = "admin"
-  username  = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
-  password  = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
+  username = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
+  password = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
 }
 
 

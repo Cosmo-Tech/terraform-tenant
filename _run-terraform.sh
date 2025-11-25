@@ -40,11 +40,8 @@ backend_file="backend.tf"
 case "$(echo $cloud_provider)" in
   'azure')
     echo " \
-        # data "azurerm_subscription" "current" {}
-        provider "azurerm" {
+        provider \"azurerm\" {
             features {}
-            # subscription_id = data.azurerm_subscription.current.subscription_id
-            # tenant_id       = data.azurerm_subscription.current.tenant_id
             subscription_id = var.azure_subscription_id
             tenant_id       = var.azure_entra_tenant_id
         }    
@@ -56,14 +53,13 @@ case "$(echo $cloud_provider)" in
                 resource_group_name=\"cosmotechstates\"
             }
         }
-        variable "azure_subscription_id" { type = string }
-        variable "azure_entra_tenant_id" { type = string }
-        # variable "azure_resource_group" { type = string }
+        variable \"azure_subscription_id\" { type = string }
+        variable \"azure_entra_tenant_id\" { type = string }
     " > $backend_file ;;
 
   'aws')
     echo " \
-        provider "aws" {
+        provider \"aws\" {
             region = var.region
         }
         terraform {
@@ -95,7 +91,7 @@ sed -i "s|\(.*/modules/kube-storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
 terraform fmt $backend_file
 terraform init -upgrade -reconfigure
 terraform plan -out .terraform.plan
-terraform apply .terraform.plan
+# terraform apply .terraform.plan
 
 
 

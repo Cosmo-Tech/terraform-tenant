@@ -265,10 +265,11 @@ module "chart-cosmotech-api" {
 
 
 
-## (config) Grafana dashboard
-# module "config-grafana-dashboard" {
-#   source = "./modules/config-grafana-dashboard"
+# (config) Grafana dashboard
+module "config-grafana-dashboard" {
+  source = "./modules/config-grafana-dashboard"
 
-#   tenant         = module.kube-namespace.tenant
-#   cluster_domain = var.cluster_domain
-# }
+  tenant               = module.kube-namespace.tenant
+  cluster_domain       = var.cluster_domain
+  namespace_monitoring = "cosmotech-monitoring"
+}

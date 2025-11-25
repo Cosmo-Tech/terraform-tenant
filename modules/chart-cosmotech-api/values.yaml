@@ -1,6 +1,6 @@
 replicaCount: 1
 api:
-  version: ${API_VERSION_PATH}
+  version: api
   multiTenant: true
   servletContextPath: /
   tlsTruststore:
@@ -26,9 +26,8 @@ config:
   api:
     serviceMonitor:
       name: cosmotech-api-${NAMESPACE}
-      # enabled: false
       enabled: true
-      namespace: ${MONITORING_NAMESPACE}
+      namespace: ${NAMESPACE_MONITORING}
   logging:
     level:
       com.cosmotech: DEBUG
@@ -42,10 +41,9 @@ config:
     platform:
       containerRegistry:
         scheme: https
-        host: acrsphinxd38ygr.azurecr.io
-        password: ""
-        username: acrsphinxd38ygr
-      # identityProvider: IDENTITY_PROVIDER}
+        host: ${REGISTRY_URL}
+        username: ${REGISTRY_USERNAME}
+        password: ${REGISTRY_PASSWORD}
       identityProvider:
         audience: "account"
         code: "keycloak"
@@ -62,7 +60,7 @@ config:
           enabled: false
       namespace: ${NAMESPACE}
       # loki:
-      #   baseUrl: http://loki.${MONITORING_NAMESPACE}.svc.cluster.local:3100
+      #   baseUrl: http://loki.${NAMESPACE_MONITORING}.svc.cluster.local:3100
       argo:
         base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
         workflows:

@@ -10,10 +10,11 @@ terraform {
 
 data "kubernetes_secret" "grafana" {
   metadata {
-    namespace = "monitoring"
+    namespace = var.namespace_monitoring
     name      = "kube-prometheus-stack-grafana"
   }
 }
+
 
 provider "grafana" {
   url  = "https://${var.cluster_domain}/monitoring"

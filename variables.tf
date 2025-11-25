@@ -2,8 +2,8 @@ locals {
   main_name = "tenant-${var.tenant}"
 }
 
-variable "kubernetes_context" {
-  description = "Kubernetes context (= the cluster) where to perform installation"
+variable "cluster_name" {
+  description = "Kubernetes cluster where to perform installation"
   type        = string
 }
 
