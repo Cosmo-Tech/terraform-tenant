@@ -83,7 +83,8 @@ resource "helm_release" "seaweedfs" {
   repository = "https://charts.bitnami.com/bitnami"
   # chart      = "seaweedfs"
   # version    = "6.0.1"
-  chart   = "/mnt/c/Users/EdonTafili/Desktop/charts/bitnami/seaweedfs"
+  # chart   = "/mnt/c/Users/EdonTafili/Desktop/charts/bitnami/seaweedfs"
+  chart   = "/home/ggontard/git_wsl/devops/charts_fixed/bitnami/seaweedfs"
   version = "6.0.3"
   # repository = "https://github.com/ggtrd/charts/bitnami"
   values = [

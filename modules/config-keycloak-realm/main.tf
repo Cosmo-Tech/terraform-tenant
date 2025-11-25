@@ -7,10 +7,12 @@ terraform {
   }
 }
 
+
 provider "keycloak" {
   url       = "https://${var.cluster_domain}/keycloak/"
   client_id = "admin-cli"
-  username  = "admin"
+  # username  = "admin"
+  username  = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
   password  = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
 }
 
@@ -19,7 +21,6 @@ locals {
   cosmotech_api     = "cosmotech-client-api"
   cosmotech_web     = "cosmotech-client-web"
   cosmotech_babylon = "cosmotech-client-babylon"
-
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
@@ -58,6 +59,7 @@ resource "keycloak_role" "platform_admin" {
     keycloak_realm.realm,
   ]
 }
+
 
 resource "keycloak_role" "organization_user" {
   realm_id = keycloak_realm.realm.id
@@ -220,6 +222,7 @@ resource "keycloak_openid_client" "cosmotech_babylon" {
   ]
 }
 
+
 # Secret that will be used directly from Babylon
 resource "kubernetes_secret" "babylon" {
   metadata {
@@ -249,16 +252,17 @@ resource "keycloak_group" "group_admin" {
   name     = "${var.tenant}-admin"
 }
 
+
 resource "keycloak_group" "group_editor" {
   realm_id = keycloak_realm.realm.id
   name     = "${var.tenant}-editor"
 }
 
+
 resource "keycloak_group" "group_viewer" {
   realm_id = keycloak_realm.realm.id
   name     = "${var.tenant}-viewer"
 }
-
 
 
 data "keycloak_openid_client_scope" "client_scope_profile" {
