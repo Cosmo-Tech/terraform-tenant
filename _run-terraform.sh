@@ -24,7 +24,7 @@ get_var_value() {
     cat $file | grep '=' | grep -w $variable | sed '/.*#.*/d' | sed 's|.*=.*"\(.*\)".*|\1|' | head -n 1
 }
 cloud_provider="$(get_var_value terraform.tfvars cloud_provider)"
-region="$(get_var_value terraform.tfvars region)"
+cluster_region="$(get_var_value terraform.tfvars cluster_region)"
 state_file_name="tfstate-tenant-$(get_var_value terraform.tfvars tenant)"
 
 
@@ -66,7 +66,7 @@ case "$(echo $cloud_provider)" in
             backend \"s3\" {
                 key    = \"$state_file_name\"
                 bucket = \"cosmotech-states\"
-                region = \"$region\"
+                region = \"$cluster_region\"
             }
         }
     " > $backend_file ;;
