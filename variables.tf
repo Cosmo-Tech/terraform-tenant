@@ -23,43 +23,11 @@ variable "cloud_provider" {
 }
 
 variable "cluster_domain" {
-  description = "[temporary] Cluster domain"
+  description = "Cluster domain"
   type        = string
 }
 
-# variable "azure_subscription_id" {
-#   description = "[temporary] Azure subscription ID"
-#   type        = string
-# }
-
-# variable "azure_entra_tenant_id" {
-#   description = "[temporary] Azure Entra tenant ID"
-#   type        = string
-# }
-
-# variable "azure_resource_group" {
-#   type = string
-# }
-
-# variable "azure_region" {
-#   description = "Region where to store tenant objects (like disks for example)"
-#   type        = string
-# }
-
-# variable "aws_region" {
-#   description = "Region where to store tenant objects (like disks for example)"
-#   type        = string
-# }
-
-variable "region" {
+variable "cluster_region" {
   description = "Region where to store tenant objects (like disks for example)"
   type        = string
 }
-
-# variable "keycloak_admin_username" {
-#   type = string
-# }
-
-# variable "keycloak_admin_password" {
-#   type = string
-# }

@@ -3,47 +3,38 @@ locals {
   persistences = {
     postgresql = {
       size = 8
-      pvc  = "pvc-${module.kube-namespace.tenant}-postgresql"
+      pvc  = "pvc-${module.kube_namespace.tenant}-postgresql"
     }
     seaweedfs-master = {
       size = 32
-      pvc  = "pvc-${module.kube-namespace.tenant}-seaweedfs-master"
+      pvc  = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
     }
     seaweedfs-volume = {
       size = 32
-      pvc  = "pvc-${module.kube-namespace.tenant}-seaweedfs-volume"
+      pvc  = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
     }
     redis-master = {
       size = 32
-      pvc  = "pvc-${module.kube-namespace.tenant}-redis-master"
+      pvc  = "pvc-${module.kube_namespace.tenant}-redis-master"
     }
     redis-replica = {
       size = 32
-      pvc  = "pvc-${module.kube-namespace.tenant}-redis-replica"
+      pvc  = "pvc-${module.kube_namespace.tenant}-redis-replica"
     }
-
-
-    # # TEMPORARY TO REMOVE
-    # postgresql-keycloak = {
-    #   size = 32
-    #   pvc  = "pvc-${module.kube-namespace.tenant}-keycloak-postgresql"
-    # }
   }
 }
 
-## namespace
-module "kube-namespace" {
-  source = "./modules/kube-namespace"
+module "kube_namespace" {
+  source = "./modules/kube_namespace"
 
   tenant = var.tenant
 }
 
 
-## (config) Keycloak realm
-module "config-keycloak-realm" {
-  source = "./modules/config-keycloak-realm"
+module "config_keycloak_realm" {
+  source = "./modules/config_keycloak_realm"
 
-  tenant         = module.kube-namespace.tenant
+  tenant         = module.kube_namespace.tenant
   cluster_domain = var.cluster_domain
 }
 
@@ -54,7 +45,7 @@ module "config-keycloak-realm" {
 #   # Fill the foreach loop with values only if right cloud provider is given
 #   for_each = var.cloud_provider == "azure" ? local.persistences : {}
 
-#   tenant             = module.kube-namespace.tenant
+#   tenant             = module.kube_namespace.tenant
 #   resource           = each.key
 #   size               = each.value.size
 #   storage_class_name = local.storage_class_name
@@ -70,7 +61,7 @@ module "config-keycloak-realm" {
 #   # Fill the foreach loop with values only if right cloud provider is given
 #   for_each = var.cloud_provider == "aws" ? local.persistences : {}
 
-#   tenant             = module.kube-namespace.tenant
+#   tenant             = module.kube_namespace.tenant
 #   resource           = each.key
 #   size               = each.value.size
 #   storage_class_name = local.storage_class_name
@@ -79,21 +70,17 @@ module "config-keycloak-realm" {
 # }
 
 
-
-
-
-
 module "storage" {
   # The 'source' cannot use a variable, it's why it's dynamically replaced from ./_run-terraform.sh according to the variable cloud_provider
-  source = "./modules/kube-storage/azure"
+  source = "./modules/storage/azure"
 
   for_each = local.persistences
 
-  tenant             = module.kube-namespace.tenant
+  tenant             = module.kube_namespace.tenant
   resource           = each.key
   size               = each.value.size
   storage_class_name = local.storage_class_name
-  region             = var.region
+  region             = var.cluster_region
   cluster_name       = var.cluster_name
   cloud_provider     = var.cloud_provider
 }
@@ -108,21 +95,15 @@ resource "null_resource" "timer" {
 }
 
 
-
-## (Helm Chart) PostgreSQL
-module "chart-postgresql" {
-  source = "./modules/chart-postgresql"
+module "chart_postgresql" {
+  source = "./modules/chart_postgresql"
 
   release = "postgresql"
-  tenant  = module.kube-namespace.tenant
+  tenant  = module.kube_namespace.tenant
 
   size              = local.persistences.postgresql["size"]
   pvc               = local.persistences.postgresql["pvc"]
   pvc_storage_class = local.storage_class_name
-
-  # size              = module.kube-storage-azure-postgresql[0].size
-  # pvc               = module.kube-storage-azure-postgresql[0].pvc
-  # pvc_storage_class = module.kube-storage-azure-postgresql[0].storage_class
 
   depends_on = [
     null_resource.timer,
@@ -130,12 +111,11 @@ module "chart-postgresql" {
 }
 
 
-## (Helm Chart) SeaweedFS
-module "chart-seaweedfs" {
-  source = "./modules/chart-seaweedfs"
+module "chart_seaweedfs" {
+  source = "./modules/chart_seaweedfs"
 
   release = "seaweedfs"
-  tenant  = module.kube-namespace.tenant
+  tenant  = module.kube_namespace.tenant
 
   size_master              = local.persistences.seaweedfs-master["size"]
   pvc_master               = local.persistences.seaweedfs-master["pvc"]
@@ -147,21 +127,11 @@ module "chart-seaweedfs" {
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
-  # size_master              = module.kube-storage-azure-seaweedfs-master[0].size
-  # pvc_master               = module.kube-storage-azure-seaweedfs-master[0].pvc
-  # pvc_master_access_modes  = module.kube-storage-azure-seaweedfs-master[0].pvc_access_modes
-  # pvc_master_storage_class = module.kube-storage-azure-seaweedfs-master[0].storage_class
-
-  # size_volume              = module.kube-storage-azure-seaweedfs-volume[0].size
-  # pvc_volume               = module.kube-storage-azure-seaweedfs-volume[0].pvc
-  # pvc_volume_access_modes  = module.kube-storage-azure-seaweedfs-volume[0].pvc_access_modes
-  # pvc_volume_storage_class = module.kube-storage-azure-seaweedfs-volume[0].storage_class
-
-  database_host             = module.chart-postgresql.database_host
-  database_port             = module.chart-postgresql.database_port
-  database_seaweedfs_name   = module.chart-postgresql.database_seaweedfs_name
-  database_seaweedfs_user   = module.chart-postgresql.database_seaweedfs_user
-  database_seaweedfs_secret = module.chart-postgresql.database_seaweedfs_secret
+  database_host             = module.chart_postgresql.database_host
+  database_port             = module.chart_postgresql.database_port
+  database_seaweedfs_name   = module.chart_postgresql.database_seaweedfs_name
+  database_seaweedfs_user   = module.chart_postgresql.database_seaweedfs_user
+  database_seaweedfs_secret = module.chart_postgresql.database_seaweedfs_secret
 
   depends_on = [
     null_resource.timer,
@@ -169,25 +139,24 @@ module "chart-seaweedfs" {
 }
 
 
-## (Helm Chart) Argo Workflows
-module "chart-argo" {
-  source = "./modules/chart-argo"
+module "chart_argo" {
+  source = "./modules/chart_argo"
 
   release = "argo-workflows"
-  tenant  = module.kube-namespace.tenant
+  tenant  = module.kube_namespace.tenant
 
-  database_host   = module.chart-postgresql.database_host
-  database_port   = module.chart-postgresql.database_port
-  database_name   = module.chart-postgresql.database_argo_name
-  database_user   = module.chart-postgresql.database_argo_user
-  database_secret = module.chart-postgresql.database_argo_secret
+  database_host   = module.chart_postgresql.database_host
+  database_port   = module.chart_postgresql.database_port
+  database_name   = module.chart_postgresql.database_argo_name
+  database_user   = module.chart_postgresql.database_argo_user
+  database_secret = module.chart_postgresql.database_argo_secret
 
-  s3_host                = module.chart-seaweedfs.s3_host
-  s3_port                = module.chart-seaweedfs.s3_port
-  s3_bucket              = module.chart-seaweedfs.s3_argo_workflows_bucket
-  s3_secret              = module.chart-seaweedfs.s3_secret
-  s3_secret_key_username = module.chart-seaweedfs.s3_secret_key_argo_workflows_username
-  s3_secret_key_password = module.chart-seaweedfs.s3_secret_key_argo_workflows_password
+  s3_host                = module.chart_seaweedfs.s3_host
+  s3_port                = module.chart_seaweedfs.s3_port
+  s3_bucket              = module.chart_seaweedfs.s3_argo_workflows_bucket
+  s3_secret              = module.chart_seaweedfs.s3_secret
+  s3_secret_key_username = module.chart_seaweedfs.s3_secret_key_argo_workflows_username
+  s3_secret_key_password = module.chart_seaweedfs.s3_secret_key_argo_workflows_password
 
   depends_on = [
     null_resource.timer,
@@ -195,12 +164,11 @@ module "chart-argo" {
 }
 
 
-## (Helm Chart) Redis
-module "chart-redis" {
-  source = "./modules/chart-redis"
+module "chart_redis" {
+  source = "./modules/chart_redis"
 
   release = "redis"
-  tenant  = module.kube-namespace.tenant
+  tenant  = module.kube_namespace.tenant
 
   size_master              = local.persistences.redis-master["size"]
   pvc_master               = local.persistences.redis-master["pvc"]
@@ -210,68 +178,54 @@ module "chart-redis" {
   pvc_replica               = local.persistences.redis-replica["pvc"]
   pvc_replica_storage_class = local.storage_class_name
 
-  # size_master              = module.kube-storage-azure-redis-master[0].size
-  # pvc_master               = module.kube-storage-azure-redis-master[0].pvc
-  # pvc_master_storage_class = module.kube-storage-azure-redis-master[0].storage_class
-
-  # size_replica              = module.kube-storage-azure-redis-replica[0].size
-  # pvc_replica               = module.kube-storage-azure-redis-replica[0].pvc
-  # pvc_replica_storage_class = module.kube-storage-azure-redis-replica[0].storage_class
-
   depends_on = [
     null_resource.timer,
   ]
 }
 
 
-## (Helm Chart) Cosmo Tech API
-module "chart-cosmotech-api" {
-  source = "./modules/chart-cosmotech-api"
+module "chart_cosmotech_api" {
+  source = "./modules/chart_cosmotech_api"
 
   release = "cosmotech-api"
-  tenant  = module.kube-namespace.tenant
+  tenant  = module.kube_namespace.tenant
 
-  postgresql_host            = module.chart-postgresql.database_host
-  postgresql_port            = module.chart-postgresql.database_port
-  postgresql_database        = module.chart-postgresql.database_cosmotech_name
-  postgresql_admin_username  = module.chart-postgresql.database_cosmotech_username_admin
-  postgresql_admin_password  = module.chart-postgresql.database_cosmotech_password_admin
-  postgresql_writer_username = module.chart-postgresql.database_cosmotech_username_writer
-  postgresql_writer_password = module.chart-postgresql.database_cosmotech_password_writer
-  postgresql_reader_username = module.chart-postgresql.database_cosmotech_username_reader
-  postgresql_reader_password = module.chart-postgresql.database_cosmotech_password_reader
+  postgresql_host            = module.chart_postgresql.database_host
+  postgresql_port            = module.chart_postgresql.database_port
+  postgresql_database        = module.chart_postgresql.database_cosmotech_name
+  postgresql_admin_username  = module.chart_postgresql.database_cosmotech_username_admin
+  postgresql_admin_password  = module.chart_postgresql.database_cosmotech_password_admin
+  postgresql_writer_username = module.chart_postgresql.database_cosmotech_username_writer
+  postgresql_writer_password = module.chart_postgresql.database_cosmotech_password_writer
+  postgresql_reader_username = module.chart_postgresql.database_cosmotech_username_reader
+  postgresql_reader_password = module.chart_postgresql.database_cosmotech_password_reader
 
-  # redis_password = module.chart-redis.redis_password
-
-  s3_host                = module.chart-seaweedfs.s3_host
-  s3_port                = module.chart-seaweedfs.s3_port
-  s3_bucket              = module.chart-seaweedfs.s3_cosmotech_api_bucket
-  s3_secret              = module.chart-seaweedfs.s3_secret
-  s3_secret_key_username = module.chart-seaweedfs.s3_secret_key_cosmotech_api_username
-  s3_secret_key_password = module.chart-seaweedfs.s3_secret_key_cosmotech_api_password
+  s3_host                = module.chart_seaweedfs.s3_host
+  s3_port                = module.chart_seaweedfs.s3_port
+  s3_bucket              = module.chart_seaweedfs.s3_cosmotech_api_bucket
+  s3_secret              = module.chart_seaweedfs.s3_secret
+  s3_secret_key_username = module.chart_seaweedfs.s3_secret_key_cosmotech_api_username
+  s3_secret_key_password = module.chart_seaweedfs.s3_secret_key_cosmotech_api_password
 
   cluster_domain = var.cluster_domain
 
-  keycloak_client_id     = module.config-keycloak-realm.keycloak_api_client_id
-  keycloak_client_secret = module.config-keycloak-realm.keycloak_api_client_secret
+  keycloak_client_id     = module.config_keycloak_realm.keycloak_api_client_id
+  keycloak_client_secret = module.config_keycloak_realm.keycloak_api_client_secret
 
   depends_on = [
     null_resource.timer,
-    module.chart-postgresql,
-    module.chart-redis,
-    # module.config-keycloak-realm,
+    module.chart_postgresql,
+    module.chart_redis,
   ]
 }
 
 
+module "config_grafana_dashboard" {
+  source = "./modules/config_grafana_dashboard"
 
-# (config) Grafana dashboard
-module "config-grafana-dashboard" {
-  source = "./modules/config-grafana-dashboard"
-
-  tenant               = module.kube-namespace.tenant
+  tenant               = module.kube_namespace.tenant
   cluster_domain       = var.cluster_domain
   namespace_monitoring = "monitoring"
-  secret_redis = module.chart-redis.redis_secret
-  secret_postgresql = module.chart-postgresql.postgresql_secret
+  secret_redis         = module.chart_redis.redis_secret
+  secret_postgresql    = module.chart_postgresql.postgresql_secret
 }

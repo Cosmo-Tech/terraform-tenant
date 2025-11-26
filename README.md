@@ -40,6 +40,10 @@
     * **terraform-webapp**
         * install Cosmo Tech webapp in the tenant created from terraform-tenant
 
+* known errors
+    * Error: Provider configuration not present
+        > The tenant has been deleted or exists in an other cluster, but the state file still exists. Chose another tenant name or delete the state file if tenant doesn't exist anymore.
+
 <br>
 <br>
 <br>

@@ -6,7 +6,7 @@
 
 
 # Stop script if missing dependency
-required_commands="terraform aws jq"
+required_commands="terraform jq"
 for command in $required_commands; do
 	if [ -z "$(command -v $command)" ]; then
 		echo "error: required command not found: \e[91m$command\e[97m"
@@ -72,8 +72,32 @@ case "$(echo $cloud_provider)" in
     " > $backend_file ;;
 
   'gcp')
-    echo "NOT IMPLEMENTED YET" && exit
-    ;;
+    state_storage_name='"cosmotech-states"'
+    echo " \
+        terraform {
+          backend \"gcs\" {
+            bucket = $state_storage_name
+            prefix = "$state_file_name"
+          }
+        }
+
+        provider \"google\" {
+          project = var.project_id
+          region  = var.cluster_region
+        }
+
+        variable \"project_id\" { type = string }
+
+        data \"terraform_remote_state\" \"terraform_cluster\" {
+          backend = \"gcs\"
+          config = {
+            bucket = $state_storage_name
+            # prefix = \"\"
+          }
+        }
+
+        data \"google_client_config\" \"current\" {}
+    " > $backend_file ;;
 
   *)
     echo "error: unknown or empty \e[91mcloud_provider\e[0m from terraform.tfvars"
@@ -90,7 +114,7 @@ sed -i "s|\(.*/modules/kube-storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
 terraform fmt $backend_file
 terraform init -upgrade -reconfigure
 terraform plan -out .terraform.plan
-terraform apply .terraform.plan
+# terraform apply .terraform.plan
 
 
 exit

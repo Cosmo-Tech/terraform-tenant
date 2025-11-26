@@ -59,8 +59,8 @@ config:
         tls:
           enabled: false
       namespace: ${NAMESPACE}
-      # loki:
-      #   baseUrl: http://loki.${NAMESPACE_MONITORING}.svc.cluster.local:3100
+      loki:
+        baseUrl: http://loki.${NAMESPACE_MONITORING}.svc.cluster.local:3100
       argo:
         base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
         workflows:
