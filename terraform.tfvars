@@ -1,9 +1,9 @@
 ## VARIABLES EXAMPLE FOR AZURE
 cloud_provider        = "azure"
 region                = "westeurope"
-cluster_name          = "aks-devops"
-tenant                = "test14"
-cluster_domain        = "aks-devops.api.cosmotech.com"
+cluster_name          = "aks-dev-devops3"
+tenant                = "test0"
+cluster_domain        = "aks-dev-devops3.azure.platform.cosmotech.com"
 azure_subscription_id = "a24b131f-bd0b-42e8-872a-bded9b91ab74"
 azure_entra_tenant_id = "e413b834-8be8-4822-a370-be619545cb49"
 

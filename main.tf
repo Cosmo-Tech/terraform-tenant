@@ -94,7 +94,7 @@ module "storage" {
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.region
-  cluster_name       = var.kubernetes_context
+  cluster_name       = var.cluster_name
   cloud_provider     = var.cloud_provider
 }
 
@@ -271,5 +271,7 @@ module "config-grafana-dashboard" {
 
   tenant               = module.kube-namespace.tenant
   cluster_domain       = var.cluster_domain
-  namespace_monitoring = "cosmotech-monitoring"
+  namespace_monitoring = "monitoring"
+  secret_redis = module.chart-redis.redis_secret
+  secret_postgresql = module.chart-postgresql.postgresql_secret
 }

@@ -47,10 +47,10 @@ case "$(echo $cloud_provider)" in
         }    
         terraform {
             backend \"azurerm\" {
-                key=\"$state_file_name\"
-                storage_account_name=\"cosmotechstates\"
-                container_name=\"cosmotechstates\"
-                resource_group_name=\"cosmotechstates\"
+                key                  = \"$state_file_name\"
+                storage_account_name = \"cosmotechstates\"
+                container_name       = \"cosmotechstates\"
+                resource_group_name  = \"cosmotechstates\"
             }
         }
         variable \"azure_subscription_id\" { type = string }
@@ -64,9 +64,9 @@ case "$(echo $cloud_provider)" in
         }
         terraform {
             backend \"s3\" {
-                key=\"$state_file_name\"
-                bucket=\"cosmotech-states\"
-                region=\"$region\"
+                key    = \"$state_file_name\"
+                bucket = \"cosmotech-states\"
+                region = \"$region\"
             }
         }
     " > $backend_file ;;
@@ -84,19 +84,13 @@ esac
 
 # Dynamically replace the storage module block to call the right provider
 sed -i "s|\(.*/modules/kube-storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
-# sed -i "s|\(.*for_each.*var.cloud_provider.*\)\".*\"\(.*\)|\1\"$cloud_provider\"\2|" main.tf
 
 
 # Deploy
 terraform fmt $backend_file
 terraform init -upgrade -reconfigure
 terraform plan -out .terraform.plan
-# terraform apply .terraform.plan
+terraform apply .terraform.plan
 
-
-
-# terraform plan -var-file="terraform.tfvars"
-# terraform apply -var-file="terraform.tfvars" -auto-approve
-# terraform destroy -var-file="terraform.tfvars"
 
 exit

@@ -63,3 +63,8 @@ output "database_cosmotech_username_reader" {
 output "database_cosmotech_password_reader" {
   value = kubernetes_secret.postgresql-cosmotechapi.data["reader-password"]
 }
+
+
+output postgresql_secret {
+  value = kubernetes_secret.postgresql-config.metadata[0].name
+}

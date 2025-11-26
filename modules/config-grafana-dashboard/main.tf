@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-
 data "kubernetes_secret" "grafana" {
   metadata {
     namespace = var.namespace_monitoring
@@ -15,20 +14,18 @@ data "kubernetes_secret" "grafana" {
   }
 }
 
-
 provider "grafana" {
   url  = "https://${var.cluster_domain}/monitoring"
   auth = "admin:${data.kubernetes_secret.grafana.data["admin-password"]}"
 }
 
 
-data "kubernetes_secret" "redis" {
-  metadata {
-    namespace = var.tenant
-    name      = "redis"
-  }
-}
-
+# data "kubernetes_secret" "redis" {
+#   metadata {
+#     namespace = var.tenant
+#     name      = "redis"
+#   }
+# }
 
 resource "grafana_data_source" "redis-datasource" {
   name = "${var.tenant}-redis"
@@ -39,18 +36,18 @@ resource "grafana_data_source" "redis-datasource" {
   basic_auth_enabled  = true
   basic_auth_username = "default"
   secure_json_data_encoded = jsonencode({
-    password = data.kubernetes_secret.redis.data["redis-password"]
+    # password = data.kubernetes_secret.redis.data["redis-password"]
+    passsword = var.secret_redis
   })
 }
 
 
-data "kubernetes_secret" "postgresql" {
-  metadata {
-    namespace = var.tenant
-    name      = "postgresql-config"
-  }
-}
-
+# data "kubernetes_secret" "postgresql" {
+#   metadata {
+#     namespace = var.tenant
+#     name      = "postgresql-config"
+#   }
+# }
 
 resource "grafana_data_source" "postgresql-datasource" {
   name = "${var.tenant}-postgresql"
@@ -60,7 +57,8 @@ resource "grafana_data_source" "postgresql-datasource" {
   basic_auth_enabled = true
   username           = "postgres"
   secure_json_data_encoded = jsonencode({
-    password = data.kubernetes_secret.postgresql.data["postgres-password"]
+    # password = data.kubernetes_secret.postgresql.data["postgres-password"]
+    password = var.secret_postgresql
   })
 
   json_data_encoded = jsonencode({
@@ -75,7 +73,6 @@ resource "grafana_folder" "folder" {
   title = var.tenant
 }
 
-
 resource "grafana_dashboard" "redis" {
   folder = grafana_folder.folder.id
   config_json = templatefile("${path.module}/dashboards/redis.json",
@@ -84,7 +81,6 @@ resource "grafana_dashboard" "redis" {
     }
   )
 }
-
 
 resource "grafana_dashboard" "cosmotech_licensing" {
   folder = grafana_folder.folder.id

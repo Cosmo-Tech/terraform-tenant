@@ -3,7 +3,7 @@ locals {
 }
 
 variable "cluster_name" {
-  description = "Kubernetes cluster where to perform installation"
+  description = "Kubernetes cluster where to perform installation (must be one of the clusters (=/= context) in your kubectl config)"
   type        = string
 }
 
