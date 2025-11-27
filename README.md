@@ -33,16 +33,40 @@
     * GCP
         * to fill
 
+## Known errors
+* Error: Provider configuration not present
+    > The tenant has been deleted or exists in an other cluster, but the state file still exists. Chose another tenant name or delete the state file if tenant doesn't exist anymore.
+* Error: [POST /datasources][409] addDataSourceConflict {"message":"data source with the same name already exists"} [..] with module.config_grafana_dashboard.grafana_data_source.redis-datasource
+    > The state file could not be found (it has probably been deleted, but the deployed resources remains)
+    > Go to https://<cluster_url>/monitoring (credentials are stored on Kubernetes secret monitoring/kube-prometheus-stack-grafana) -> Connections -> Data sources -> Delete both tenant-<name>-postgresql and tenant-<name>-redis
+* Error: failed to create folder: [POST /folders][409] createFolderConflict {"message":"a folder with the same name already exists in the current location"} [..] with module.config_grafana_dashboard.grafana_folder.folder
+    > The state file could not be found (it has probably been deleted, but the deployed resources remains)
+    > Go to https://<cluster_url>/monitoring (credentials are stored on Kubernetes secret monitoring/kube-prometheus-stack-grafana) -> Dashboards -> Delete tenant-<name>
+* Error: error sending POST request to /keycloak//admin/realms: 409 Conflict. Response body: {"errorMessage":"Conflict detected. See logs for details"} [..] with with module.config_keycloak_realm.keycloak_realm.realm
+    > The state file could not be found (it has probably been deleted, but the deployed resources remains)
+    > Go to https://<cluster_url>/keycloak (credentials are stored on Kubernetes secret keycloak/keycloak-config) -> Select the realm "tenant-<name>" -> Realm settings > Action > Delete
+
 ## Developpers
 * modules
     * **terraform-tenant**
-        * install Cosmo Tech API and all its dependencies in a dedicated namespace
-    * **terraform-webapp**
-        * install Cosmo Tech webapp in the tenant created from terraform-tenant
+        * *install Cosmo Tech API and all its dependencies in a dedicated namespace*
+        * *chart_argo* = install Argo Workflows
+        * *chart_cosmotech_api* = install Cosmo Tech API
+        * *chart_postgresql* = install PostgreSQL (and configure it for Cosmo Tech API, SeaweedFS & Argo Workflows)
+        * *chart_redis* = install Redis
+        * *chart_seaweedfs* = install SeaweedFS
+        * *config_grafana_dashboard* = create tenant configuration on existing Grafana instance
+        * *config_keycloak_realm* = create tenant configuration on existing Keycloak instance
+        * *kube_namespace* = create tenant namespace
+        * *storage* = **[temporary]** dynamically create persistence storage for charts requiring it
+* Terraform **state**
+    * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called "cosmotech-states" or "cosmotechstates", depending on what the cloud provider allows in naming convention)
+* File **backend.tf**
+    * dynamically created at each run of _run-terraform.sh
+    * permit to have multi-cloud compatibility with Terraform
+    * it instanciate the needed Terraform providers based on the variable "cloud_provider" from terraform.tfvars
+    * this file is a workaround to avoid having unwanted variables related to cloud providers not targetted in current deployment
 
-* known errors
-    * Error: Provider configuration not present
-        > The tenant has been deleted or exists in an other cluster, but the state file still exists. Chose another tenant name or delete the state file if tenant doesn't exist anymore.
 
 <br>
 <br>
