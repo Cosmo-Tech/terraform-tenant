@@ -90,33 +90,6 @@ resource "keycloak_openid_client" "cosmotech_api" {
   ]
 }
 
-# resource "keycloak_generic_protocol_mapper" "api_realm_roles_mapper" {
-#   realm_id        = keycloak_realm.realm.id
-#   client_id       = keycloak_openid_client.cosmotech_api.id
-#   name            = "realm roles"
-#   protocol        = "openid-connect"
-#   protocol_mapper = "oidc-usermodel-realm-role-mapper"
-#   config = {
-#     "id.token.claim" : "true",
-#     "access.token.claim" : "true",
-#     "claim.name" : "userRoles",
-#     "jsonType.label" : "String",
-#     "multivalued" : "true",
-#     "userinfo.token.claim" : "true",
-#     "introspection.token.claim" : "true"
-#   }
-# }
-
-# resource "keycloak_openid_client_service_account_realm_role" "client_service_account_role" {
-#   realm_id                = keycloak_realm.realm.id
-#   service_account_user_id = keycloak_openid_client.cosmotech_api.service_account_user_id
-#   role                    = keycloak_role.platform_admin.name
-
-#   depends_on = [
-#     keycloak_openid_client.cosmotech_api,
-#   ]
-# }
-
 
 resource "keycloak_openid_client" "cosmotech_web" {
   enabled               = true
@@ -136,42 +109,6 @@ resource "keycloak_openid_client" "cosmotech_web" {
   ]
 }
 
-# resource "keycloak_generic_protocol_mapper" "branch_code_mapper" {
-#   realm_id        = keycloak_realm.realm.id
-#   client_id       = keycloak_openid_client.cosmotech_web.id
-#   name            = "BranchCodeMapper"
-#   protocol        = "openid-connect"
-#   protocol_mapper = "oidc-usermodel-attribute-mapper"
-#   config = {
-#     "aggregate.attrs" : "false",
-#     "multivalued" : "false",
-#     "userinfo.token.claim" : "true",
-#     "user.attribute" : "branch",
-#     "id.token.claim" : "false",
-#     "access.token.claim" : "true",
-#     "claim.name" : "branch",
-#     "jsonType.label" : "String",
-#     "introspection.token.claim" : "true"
-#   }
-# }
-
-# resource "keycloak_generic_protocol_mapper" "email_mapper" {
-#   realm_id        = keycloak_realm.realm.id
-#   client_id       = keycloak_openid_client.cosmotech_web.id
-#   name            = "email"
-#   protocol        = "openid-connect"
-#   protocol_mapper = "oidc-usermodel-property-mapper"
-#   config = {
-#     "user.attribute" : "email",
-#     "id.token.claim" : "true",
-#     "access.token.claim" : "true",
-#     "claim.name" : "email",
-#     "jsonType.label" : "String",
-#     "userinfo.token.claim" : "true",
-#     "introspection.token.claim" : "true"
-#   }
-# }
-
 resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_web" {
   realm_id        = keycloak_realm.realm.id
   client_id       = keycloak_openid_client.cosmotech_web.id
@@ -188,20 +125,6 @@ resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_web" {
     "introspection.token.claim" : "true"
   }
 }
-
-# resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
-#   realm_id  = keycloak_realm.realm.id
-#   client_id = keycloak_openid_client.cosmotech_web.id
-
-#   default_scopes = [
-#     "web-origins",
-#     "acr",
-#     "roles",
-#     "profile",
-#     "basic",
-#     "email"
-#   ]
-# }
 
 
 resource "keycloak_openid_client" "cosmotech_babylon" {

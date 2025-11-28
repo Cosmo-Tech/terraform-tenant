@@ -41,9 +41,7 @@ resource "helm_release" "redis" {
   name       = var.release
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "redis"
-  # version    = "19.6.2"
-  version = "23.2.1"
-  # version    = "17.8.0"
+  version    = "23.2.1"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

@@ -65,12 +65,6 @@ resource "kubernetes_secret" "s3_secret" {
       "COSMOTECH_API_USERNAME"  = local.s3_cosmotech_api_username
       "COSMOTECH_API_PASSWORD"  = local.s3_cosmotech_api_password
     })
-    # "config.json" = templatefile("${path.module}/s3_config.json", {
-    #   "ARGO_WORKFLOWS_USERNAME" = "argo_workflows"
-    #   "ARGO_WORKFLOWS_PASSWORD" = random_password.password[0].result
-    #   "COSMOTECH_API_USERNAME"  = "cosmotech_api"
-    #   "COSMOTECH_API_PASSWORD"  = random_password.password[1].result
-    # })
   }
 
   type = "Opaque"
@@ -86,7 +80,6 @@ resource "helm_release" "seaweedfs" {
   # chart   = "/mnt/c/Users/EdonTafili/Desktop/charts/bitnami/seaweedfs"
   chart   = "/home/ggontard/git_wsl/devops/charts_fixed/bitnami/seaweedfs"
   version = "6.0.3"
-  # repository = "https://github.com/ggtrd/charts/bitnami"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
@@ -104,59 +97,3 @@ resource "helm_release" "seaweedfs" {
     kubernetes_secret.s3_secret,
   ]
 }
-
-
-# # Goal of this Job is just to fix "permission denied" issue on PV
-# # Sometimes it's possible to achieve directly from Helm chart values, but sometimes not (for example, bitnami/seaweedfs has "volumePermissions", but it doesn't work).
-# resource "kubernetes_job" "chown" {
-#   metadata {
-#     namespace = var.tenant
-#     name      = "seaweedfs-chown"
-#   }
-#   spec {
-#     template {
-#       metadata {
-#         labels = {
-#           "networking/traffic-allowed" = "yes"
-#         }
-#       }
-#       spec {
-#         container {
-#           name  = "seaweedfs-chown"
-#           image = "alpine:latest"
-#           command = [
-#             "/bin/sh",
-#             "-c",
-#           ]
-#           args = [
-#             <<EOT
-#               find /data -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | xargs -r chown -R 1001:1001
-#             EOT
-#           ]
-#         }
-#         toleration {
-#           key      = "vendor"
-#           operator = "Equal"
-#           value    = "cosmotech"
-#           effect   = "NoSchedule"
-#         }
-#         node_selector = {
-#           "cosmotech.com/tier" = "services",
-#         }
-#         # dns_policy     = "ClusterFirst"
-#         restart_policy = "Never"
-#       }
-#     }
-#     backoff_limit              = 0
-#     ttl_seconds_after_finished = 0
-#   }
-#   wait_for_completion = true
-#   timeouts {
-#     create = "30s"
-#     update = "30s"
-#   }
-
-#   depends_on = [
-#     helm_release.postgresql,
-#   ]
-# }

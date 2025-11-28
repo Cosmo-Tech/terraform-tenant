@@ -13,11 +13,6 @@ resource "random_password" "password" {
   min_special = 5
 }
 
-
-
-
-
-
 resource "kubernetes_secret" "terraform_module_tag" {
   metadata {
     name      = "cosmotech-terraform-module-tag"
@@ -31,5 +26,3 @@ resource "kubernetes_secret" "terraform_module_tag" {
 
   type = "Opaque"
 }
-
-

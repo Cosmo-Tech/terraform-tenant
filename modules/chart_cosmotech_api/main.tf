@@ -51,8 +51,7 @@ data "kubernetes_secret" "keycloak" {
 
 
 resource "helm_release" "cosmotech_api" {
-  namespace = var.tenant
-  # name       = var.release
+  namespace  = var.tenant
   name       = "${var.release}-${var.tenant}"
   repository = "https://cosmo-tech.github.io/helm-charts"
   chart      = "cosmotech-api"

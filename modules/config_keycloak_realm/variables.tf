@@ -5,15 +5,3 @@ variable "tenant" {
 variable "cluster_domain" {
   type = string
 }
-
-# variable "keycloak_admin_username" {
-#   type = string
-# }
-
-# variable "keycloak_admin_password" {
-#   type = string
-# }
-
-# variable "api_version_path" {
-#   type = string
-# }

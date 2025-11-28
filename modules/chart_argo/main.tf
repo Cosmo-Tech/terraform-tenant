@@ -14,7 +14,6 @@ locals {
   }
 }
 
-
 resource "random_password" "password" {
   count = 10
 
@@ -25,31 +24,12 @@ resource "random_password" "password" {
   special     = false
 }
 
-
-# resource "kubernetes_secret" "secret" {
-#   metadata {
-#     namespace = var.tenant
-#     name      = "${var.release}-admin"
-#   }
-
-#   data = {
-#     "password" = random_password.password[0].result
-#   }
-
-#   type = "Opaque"
-# }
-
-
-
-
-
 resource "helm_release" "argo" {
   namespace  = var.tenant
   name       = var.release
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "argo-workflows"
   version    = "13.0.6"
-  # version    = "9.1.6"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
