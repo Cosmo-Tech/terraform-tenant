@@ -1,0 +1,75 @@
+image:
+  debug: true
+  repository: bitnamilegacy/postgresql
+  pullPolicy: IfNotPresent
+auth:
+  enablePostgresUser: true
+  database: postgres
+  existingSecret: ${POSTGRESQL_SECRET_CONFIG}
+  secretKeys:
+    adminPasswordKey: postgres-password
+primary:
+  containerSecurityContext:
+    enabled: true
+    runAsNonRoot: true
+    # runAsNonRoot: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+    allowPrivilegeEscalation: false
+  podSecurityContext:
+    enabled: true
+    seccompProfile:
+      type: RuntimeDefault
+  podLabels:
+    "networking/traffic-allowed": "yes"
+  tolerations:
+  - key: "vendor"
+    operator: "Equal"
+    value: "cosmotech"
+    effect: "NoSchedule"
+  nodeSelector:
+    "cosmotech.com/tier": "db"
+  persistence:
+    enabled: true
+    size: ${PERSISTENCE_SIZE}
+    existingClaim: ${PERSISTENCE_PVC}
+    storageClass: ${PERSISTENCE_STORAGE_CLASS}
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "250m"
+    limits:
+      memory: "256Mi"
+      cpu: "1"
+metrics:
+  enabled: true
+  # containerSecurityContext:
+  #   enabled: true
+  #   capabilities:
+  #     drop:
+  #       - ALL
+  #   allowPrivilegeEscalation: false
+  # serviceMonitor:
+  #   enabled: true
+  #   namespace: MONITORING_NAMESPACE}
+  #   interval: 30s
+  #   scrapeTimeout: 10s
+  image:
+    repository: bitnamilegacy/postgres-exporter
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "250m"
+    limits:
+      memory: "256Mi"
+      cpu: "1"
+
+# Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
+volumePermissions:
+  enabled: true
+  image:
+    repository: bitnamilegacy/os-shell

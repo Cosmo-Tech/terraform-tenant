@@ -1,0 +1,146 @@
+
+
+global:
+  security:
+    allowInsecureImages: true
+image:
+  repository: bitnamilegacy/seaweedfs
+  pullPolicy: IfNotPresent 
+postgresql:
+  image:
+    repository: bitnamilegacy/postgresql
+    pullPolicy: IfNotPresent
+  enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
+master:
+  persistence:
+    existingClaim: "${PERSISTENCE_MASTER_PVC}"
+    size: "${PERSISTENCE_MASTER_SIZE}"
+    accessModes: ${PERSISTENCE_MASTER_ACCESS_MODES}
+    storageClass: "${PERSISTENCE_MASTER_STORAGE_CLASS}"
+  nodeSelector:
+    cosmotech.com/tier: "services"
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+mariadb:
+  enabled: false
+externalDatabase:
+  enabled: true
+  store: "postgresql"
+  host: "${DATABASE_HOST}"
+  port: ${DATABASE_PORT}
+  database: "${DATABASE_NAME}"
+  user: "${DATABASE_USER}"
+  existingSecret: "${DATABASE_SECRET}"
+  # initDatabaseJob:
+  #   enabled: true
+volume:
+  dataVolumes:
+  # - name: data-0
+  #   mountPath: /data-0
+  - name: data
+    mountPath: /data
+    maxVolumes: 0
+    persistence:
+      existingClaim: "${PERSISTENCE_VOLUME_PVC}"
+      size: "${PERSISTENCE_VOLUME_SIZE}"
+      accessModes: ${PERSISTENCE_VOLUME_ACCESS_MODES}
+      storageClass: "${PERSISTENCE_VOLUME_STORAGE_CLASS}"
+  nodeSelector:
+    cosmotech.com/tier: "db"
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+filer:
+  resourcesPreset: medium
+  nodeSelector:
+    cosmotech.com/tier: "services"
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+  podLabels:
+    "networking/traffic-allowed": "yes"
+s3:
+  enabled: true
+  nodeSelector:
+    cosmotech.com/tier: "services"
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+  service:
+    ports:
+      http: "${S3_PORT}"
+  containerPorts:
+    http: "${S3_PORT}"
+  auth:
+    enabled: true
+    existingSecret: "${S3_SECRET}"
+    # existingSecretConfigKey: "S3_CONFIG_SECRET}"
+  allowEmptyFolder: false
+extraDeploy:
+  # There are no value entries to setup initial s3-buckets/http-folders
+  # So we deploy a Job as a post-{install,upgrade} to create them through the http filer api
+  - |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: {{ printf "%s-init-buckets" (include "common.names.fullname" .) | trunc 63 | trimSuffix "-" }}
+      namespace: {{ include "common.names.namespace" . | quote }}
+      labels:
+        {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 8 }}
+        spec:
+          restartPolicy: OnFailure
+          {{- if .Values.filer.podSecurityContext.enabled }}
+          securityContext:
+            {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.filer.podSecurityContext "context" $) | nindent 8 }}
+          {{- end }}
+          nodeSelector:
+            cosmotech.com/tier: services
+          tolerations:
+          - key: "vendor"
+            operator: "Equal"
+            value: "cosmotech"
+            effect: "NoSchedule"
+          containers:
+            - name: init-buckets
+              image: alpine
+              imagePullPolicy: IfNotPresent
+              {{- if .Values.filer.containerSecurityContext.enabled }}
+              securityContext:
+                {{- include "common.compatibility.renderSecurityContext" (dict "secContext" .Values.filer.containerSecurityContext "context" $) | nindent 12 }}
+              {{- end }}
+              command:
+                - /bin/sh
+              args:
+                - -exc
+                - |
+                  %{~ for bucket in S3_INIT_BUCKETS ~}
+                  if ! `wget --quiet -O /dev/null --spider ${FILER_ENDPOINT}/buckets/${bucket}/`
+                  then
+                    wget --quiet -O /dev/null --post-data= --header "Content-Type:" ${FILER_ENDPOINT}/buckets/${bucket}/
+                  fi
+                  %{~ endfor ~}
+
+# Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
+volumePermissions:
+  enabled: true
+  image:
+    repository: bitnamilegacy/os-shell
+  # containerSecurityContext:
+  #   enabled: true
