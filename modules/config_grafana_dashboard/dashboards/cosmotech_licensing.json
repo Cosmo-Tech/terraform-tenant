@@ -542,7 +542,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*)\n    FROM argo_archived_workflows\nWHERE ((workflow->>'metadata')::jsonb->>'labels')::jsonb->>'cosmotech.com/organizationId' = '$organization'\nAND ((workflow->>'metadata')::jsonb->>'labels')::jsonb->>'cosmotech.com/workspaceId' = '$workspace'\nAND startedat > $__timeFrom() and finishedat < $__timeTo()",
+          "rawSql": "SELECT COUNT(*)\n    FROM argo_archived_workflows\nWHERE ((workflow->>'metadata')::jsonb->>'labels')::jsonb->>'cosmotech.com/organizationId' = '$organization'\nAND name LIKE 'workflow-sr%'\nAND ((workflow->>'metadata')::jsonb->>'labels')::jsonb->>'cosmotech.com/workspaceId' = '$workspace'\nAND startedat > $__timeFrom() and finishedat < $__timeTo()",
           "refId": "A",
           "sql": {
             "columns": [
