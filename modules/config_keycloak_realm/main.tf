@@ -223,6 +223,24 @@ resource "keycloak_openid_client" "cosmotech_babylon" {
 }
 
 
+resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_babylon" {
+  realm_id        = keycloak_realm.realm.id
+  client_id       = keycloak_openid_client.cosmotech_babylon.id
+  name            = "realm roles"
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-usermodel-realm-role-mapper"
+  config = {
+    "id.token.claim" : "true",
+    "access.token.claim" : "true",
+    "claim.name" : "userRoles",
+    "jsonType.label" : "String",
+    "multivalued" : "true",
+    "userinfo.token.claim" : "true",
+    "introspection.token.claim" : "true"
+  }
+}
+
+
 # Secret that will be used directly from Babylon
 resource "kubernetes_secret" "babylon" {
   metadata {
@@ -235,8 +253,8 @@ resource "kubernetes_secret" "babylon" {
     "client_secret" : keycloak_openid_client.cosmotech_babylon.client_secret,
     "token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
     "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.tenant}/api",
-    # "grant_type" : "client_credentials",
-    # "scope" : "openid",
+    "grant_type" : "client_credentials",
+    "scope" : "openid",
   }
 
   type = "Opaque"
