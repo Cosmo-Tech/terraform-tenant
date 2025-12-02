@@ -8,7 +8,6 @@
 * working Kubernetes cluster (with admin access)
 * Linux (Debian/Ubuntu) workstation with:
     * [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-    * [jq](https://jqlang.org/)
 * if Azure: [azure-cli](https://github.com/Azure/azure-cli) installed and ready to use
 * if AWS: [aws-cli](https://github.com/aws/aws-cli) installed and ready to use
 

@@ -6,7 +6,7 @@
 
 
 # Stop script if missing dependency
-required_commands="terraform jq"
+required_commands="terraform"
 for command in $required_commands; do
 	if [ -z "$(command -v $command)" ]; then
 		echo "error: required command not found: \e[91m$command\e[97m"
