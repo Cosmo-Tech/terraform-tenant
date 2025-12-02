@@ -75,11 +75,9 @@ resource "helm_release" "seaweedfs" {
   namespace  = var.tenant
   name       = var.release
   repository = "https://charts.bitnami.com/bitnami"
-  # chart      = "seaweedfs"
-  # version    = "6.0.1"
-  # chart   = "/mnt/c/Users/EdonTafili/Desktop/charts/bitnami/seaweedfs"
-  chart   = "/home/ggontard/git_wsl/devops/charts_fixed/bitnami/seaweedfs"
-  version = "6.0.3"
+  chart      = "seaweedfs"
+  # chart   = "/local_clone_bitnami_chart_path/bitnami/seaweedfs"
+  version    = "6.0.4"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
