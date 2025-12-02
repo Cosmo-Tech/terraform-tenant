@@ -19,7 +19,7 @@
     cd terraform-tenant
     ```
 * deploy
-    * fill `terraform-cluster/terraform.tfvars` variables according to your needs
+    * fill `terraform.tfvars` variables according to your needs
     * run pre-configured script
         ```
         ./_run-terraform.sh
