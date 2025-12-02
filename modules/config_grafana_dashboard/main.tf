@@ -37,7 +37,7 @@ resource "grafana_data_source" "redis-datasource" {
   basic_auth_username = "default"
   secure_json_data_encoded = jsonencode({
     # Get password from existing kubernetes_secret if exists, or get if from current deployment if not
-    password = (data.kubernetes_secret.redis.data== null ? var.secret_redis : data.kubernetes_secret.redis.data["redis-password"])
+    password = (data.kubernetes_secret.redis.data == null ? var.secret_redis : data.kubernetes_secret.redis.data["redis-password"])
     # password = var.secret_redis
   })
 }

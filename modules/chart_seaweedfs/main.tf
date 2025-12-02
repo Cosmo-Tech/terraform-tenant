@@ -19,7 +19,7 @@ locals {
     "FILER_ENDPOINT"                   = "http://${var.release}-filer.${var.tenant}.svc.cluster.local:8888"
   }
 
-  s3_host = "${helm_release.seaweedfs.name}.${helm_release.seaweedfs.namespace}.svc.cluster.local"
+  s3_host = "${helm_release.seaweedfs.name}-s3.${helm_release.seaweedfs.namespace}.svc.cluster.local"
   s3_port = "8333"
 
   s3_argo_workflows_bucket              = "argo-workflows"
@@ -77,7 +77,7 @@ resource "helm_release" "seaweedfs" {
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "seaweedfs"
   # chart   = "/local_clone_bitnami_chart_path/bitnami/seaweedfs"
-  version    = "6.0.4"
+  version = "6.0.4"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
