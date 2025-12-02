@@ -7,7 +7,7 @@ locals {
     "KEYCLOAK_CLIENT_PASSWORD"   = var.keycloak_client_secret
     "REDIS_PASSWORD"             = data.kubernetes_secret.redis.data["redis-password"]
     "REDIS_PORT"                 = "6379"
-    "S3_ENDPOINT"                = "${var.s3_host}:${var.s3_port}"
+    "S3_ENDPOINT"                = "http://${var.s3_host}:${var.s3_port}"
     "S3_BUCKET"                  = var.s3_bucket
     "S3_USERNAME"                = data.kubernetes_secret.s3.data["${var.s3_secret_key_username}"]
     "S3_PASSWORD"                = data.kubernetes_secret.s3.data["${var.s3_secret_key_password}"]
