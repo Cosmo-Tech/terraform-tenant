@@ -107,7 +107,7 @@ esac
 
 
 # Dynamically replace the storage module block to call the right provider
-sed -i "s|\(.*/modules/kube-storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
+sed -i "s|\(.*/modules/storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
 
 
 # Deploy
