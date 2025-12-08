@@ -229,3 +229,11 @@ module "config_grafana_dashboard" {
   secret_redis         = module.chart_redis.redis_secret
   secret_postgresql    = module.chart_postgresql.postgresql_secret
 }
+
+
+module "config_harbor_project" {
+  source = "./modules/config_harbor_project"
+
+  tenant               = module.kube_namespace.tenant
+  cluster_domain       = var.cluster_domain
+}
