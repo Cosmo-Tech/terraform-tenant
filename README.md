@@ -3,13 +3,15 @@
 
 
 # Cosmo Tech tenant
+*install Cosmo Tech API and all its dependencies in a dedicated namespace*
 
 ## Requirements
-* working Kubernetes cluster (with admin access)
-* Linux (Debian/Ubuntu) workstation with:
-    * [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-* if Azure: [azure-cli](https://github.com/Azure/azure-cli) installed and ready to use
-* if AWS: [aws-cli](https://github.com/aws/aws-cli) installed and ready to use
+* working Kubernetes cluster deployed from Cosmo Tech terraform-provider (like terraform-azure for example)
+* [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+    > If using Windows, Terraform must be accessible from PATH
+* situational
+    * Azure: [azure-cli](https://github.com/Azure/azure-cli)
+    * AWS: [aws-cli](https://github.com/aws/aws-cli)
 
 ## How to
 * clone & open the repository
@@ -20,9 +22,15 @@
 * deploy
     * fill `terraform.tfvars` variables according to your needs
     * run pre-configured script
-        ```
-        ./_run-terraform.sh
-        ```
+        > ℹ️ comment/uncomment the terraform apply line at the end to get a plan without deploy anything
+        * Linux
+            ```
+            ./_run-terraform.sh
+            ```
+        * Windows
+            ```
+            ./_run-terraform.ps1
+            ```
     * Azure
         * will ask for the access key of the Azure Storage of "cosmotechstates"
             * go to Azure > Azure Storage > "cosmotechstates" > Access keys
@@ -48,7 +56,6 @@
 ## Developpers
 * modules
     * **terraform-tenant**
-        * *install Cosmo Tech API and all its dependencies in a dedicated namespace*
         * *chart_argo* = install Argo Workflows
         * *chart_cosmotech_api* = install Cosmo Tech API
         * *chart_postgresql* = install PostgreSQL (and configure it for Cosmo Tech API, SeaweedFS & Argo Workflows)
@@ -59,13 +66,12 @@
         * *kube_namespace* = create tenant namespace
         * *storage* = **[temporary]** dynamically create persistence storage for charts requiring it
 * Terraform **state**
-    * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called "cosmotech-states" or "cosmotechstates", depending on what the cloud provider allows in naming convention)
+    * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called `cosmotech-states` or `cosmotechstates`, depending on what the cloud provider allows in naming convention)
 * File **backend.tf**
-    * dynamically created at each run of _run-terraform.sh
+    * dynamically created at each run of `_run-terraform`
     * permit to have multi-cloud compatibility with Terraform
-    * it instanciate the needed Terraform providers based on the variable "cloud_provider" from terraform.tfvars
+    * it instanciate the needed Terraform providers based on the variable `cloud_provider` from terraform.tfvars
     * this file is a workaround to avoid having unwanted variables related to cloud providers not targetted in current deployment
-
 
 <br>
 <br>
