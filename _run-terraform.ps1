@@ -23,10 +23,9 @@ function get_var_value {
     $value = (cat $File | select-string $Variable | select-string '=' | select-string -Pattern '#.*' -NotMatch | select -first 1)
     $value -replace '.*=.*\"(.*)\".*','$1'
 }
-$cloud_provider = (get_var_value 'terraform.tfvars' 'cloud_provider')
-$cluster_region = (get_var_value 'terraform.tfvars' 'cluster_region')
-$cluster_name = (get_var_value 'terraform.tfvars' 'cluster_name')
-$state_file_name = "tfstate-shared-$cluster_name"
+$cloud_provider = (get_var_value terraform.tfvars cloud_provider)
+$cluster_region = (get_var_value terraform.tfvars cluster_region)
+$state_file_name = "tfstate-tenant-$(get_var_value terraform.tfvars tenant)"
 
 
 # Clear old data
