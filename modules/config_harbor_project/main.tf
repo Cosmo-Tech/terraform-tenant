@@ -8,7 +8,8 @@ terraform {
 }
 
 provider "harbor" {
-  url      = "http://${var.cluster_domain}/harbor"
+  url      = "http://${var.cluster_domain}"
+  # url      = "http://${var.cluster_domain}/harbor"
 
   username = "admin"
   password = data.kubernetes_secret.harbor.data["harbor_admin_password"]
@@ -24,4 +25,3 @@ data "kubernetes_secret" "harbor" {
 resource "harbor_project" "tenant" {
   name = var.tenant
 }
-
