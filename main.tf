@@ -86,13 +86,15 @@ module "storage" {
 }
 
 
-
 # Timer to wait for storage to be created before continue
-resource "null_resource" "timer" {
-  provisioner "local-exec" {
-    command = "sleep 30"
-  }
+resource "time_sleep" "timer" {
+  create_duration = "30s"
 }
+# resource "null_resource" "timer" {
+#   provisioner "local-exec" {
+#     command = "sleep 30"
+#   }
+# }
 
 
 module "chart_postgresql" {
@@ -106,7 +108,7 @@ module "chart_postgresql" {
   pvc_storage_class = local.storage_class_name
 
   depends_on = [
-    null_resource.timer,
+    time_sleep.timer,
   ]
 }
 
@@ -134,7 +136,7 @@ module "chart_seaweedfs" {
   database_seaweedfs_secret = module.chart_postgresql.database_seaweedfs_secret
 
   depends_on = [
-    null_resource.timer,
+    time_sleep.timer,
   ]
 }
 
@@ -159,7 +161,7 @@ module "chart_argo" {
   s3_secret_key_password = module.chart_seaweedfs.s3_secret_key_argo_workflows_password
 
   depends_on = [
-    null_resource.timer,
+    time_sleep.timer,
   ]
 }
 
@@ -179,7 +181,7 @@ module "chart_redis" {
   pvc_replica_storage_class = local.storage_class_name
 
   depends_on = [
-    null_resource.timer,
+    time_sleep.timer,
   ]
 }
 
@@ -213,7 +215,7 @@ module "chart_cosmotech_api" {
   keycloak_client_secret = module.config_keycloak_realm.keycloak_api_client_secret
 
   depends_on = [
-    null_resource.timer,
+    time_sleep.timer,
     module.chart_postgresql,
     module.chart_redis,
   ]
