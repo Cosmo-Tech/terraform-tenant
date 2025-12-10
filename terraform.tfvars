@@ -4,8 +4,8 @@ cluster_region        = "westeurope"
 cluster_name          = "aks-dev-devops"
 cluster_domain        = "aks-dev-devops.azure.platform.cosmotech.com"
 tenant                = "test0"
-azure_subscription_id = "a24b131f-bd0b-42e8-872a-bded9b91ab74"
-azure_entra_tenant_id = "e413b834-8be8-4822-a370-be619545cb49"
+azure_subscription_id = "xxxxxxxx_xxxx_xxxx_xxxx_xxxxxxxxxxxx"
+azure_entra_tenant_id = "xxxxxxxx_xxxx_xxxx_xxxx_xxxxxxxxxxxx"
 
 
 # ## VARIABLES EXAMPLE FOR AWS
@@ -19,7 +19,7 @@ azure_entra_tenant_id = "e413b834-8be8-4822-a370-be619545cb49"
 ## VARIABLES EXAMPLE FOR GCP
 # cloud_provider     = "gcp"
 # cluster_name       = "gke-dev-devops1"
-# cluster_domain     = "gke-dev-devops1.aws.platform.cosmotech.com"
+# cluster_domain     = "gke-dev-devops1.gcp.platform.cosmotech.com"
 # tenant             = "test0"
 
 ## VARIABLES EXAMPLE FOR BARE

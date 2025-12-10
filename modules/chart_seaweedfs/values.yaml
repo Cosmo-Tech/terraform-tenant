@@ -44,6 +44,7 @@ volume:
     mountPath: /data
     maxVolumes: 0
     persistence:
+      enabled: true
       existingClaim: "${PERSISTENCE_VOLUME_PVC}"
       size: "${PERSISTENCE_VOLUME_SIZE}"
       accessModes: ${PERSISTENCE_VOLUME_ACCESS_MODES}
