@@ -51,6 +51,37 @@ resource "keycloak_realm" "realm" {
 }
 
 
+# Organization.User
+resource "keycloak_role" "organization_user" {
+  realm_id = keycloak_realm.realm.id
+  name     = "Organization.User"
+
+  depends_on = [
+    keycloak_realm.realm,
+  ]
+}
+
+resource "keycloak_group" "organization_user" {
+  realm_id = keycloak_realm.realm.id
+  name     = "organization_user"
+}
+
+resource "keycloak_group_roles" "organization_user" {
+  realm_id = keycloak_realm.realm.id
+  group_id = keycloak_group.organization_user.id
+
+  role_ids = [
+    keycloak_role.organization_user.id,
+  ]
+
+  depends_on = [
+    keycloak_group.organization_user,
+    keycloak_role.organization_user
+  ]
+}
+
+
+# Platform.Admin
 resource "keycloak_role" "platform_admin" {
   realm_id = keycloak_realm.realm.id
   name     = "Platform.Admin"
@@ -60,13 +91,28 @@ resource "keycloak_role" "platform_admin" {
   ]
 }
 
-
-resource "keycloak_role" "organization_user" {
-  realm_id = keycloak_realm.realm.id
-  name     = "Organization.User"
+# The group is placed under Organization.User
+resource "keycloak_group" "platform_admin" {
+  realm_id  = keycloak_realm.realm.id
+  parent_id = keycloak_group.organization_user.id
+  name      = "platform_admin"
 
   depends_on = [
-    keycloak_realm.realm,
+    keycloak_group.organization_user
+  ]
+}
+
+resource "keycloak_group_roles" "platform_admin" {
+  realm_id = keycloak_realm.realm.id
+  group_id = keycloak_group.platform_admin.id
+
+  role_ids = [
+    keycloak_role.platform_admin.id,
+  ]
+
+  depends_on = [
+    keycloak_group.platform_admin,
+    keycloak_role.platform_admin
   ]
 }
 
