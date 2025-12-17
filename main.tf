@@ -14,11 +14,11 @@ locals {
       pvc  = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
     }
     redis-master = {
-      size = 32
+      size = 16
       pvc  = "pvc-${module.kube_namespace.tenant}-redis-master"
     }
     redis-replica = {
-      size = 32
+      size = 16
       pvc  = "pvc-${module.kube_namespace.tenant}-redis-replica"
     }
   }

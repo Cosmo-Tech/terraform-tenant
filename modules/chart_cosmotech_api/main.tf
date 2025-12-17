@@ -55,7 +55,7 @@ resource "helm_release" "cosmotech_api" {
   name       = "${var.release}-${var.tenant}"
   repository = "https://cosmo-tech.github.io/helm-charts"
   chart      = "cosmotech-api"
-  version    = "5.0.0-rc2"
+  version    = "5.0.0-rc3"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
