@@ -234,24 +234,6 @@ resource "kubernetes_secret" "babylon" {
 }
 
 
-resource "keycloak_group" "group_admin" {
-  realm_id = keycloak_realm.realm.id
-  name     = "tenant-admin"
-}
-
-
-resource "keycloak_group" "group_editor" {
-  realm_id = keycloak_realm.realm.id
-  name     = "tenant-editor"
-}
-
-
-resource "keycloak_group" "group_viewer" {
-  realm_id = keycloak_realm.realm.id
-  name     = "tenant-viewer"
-}
-
-
 data "keycloak_openid_client_scope" "client_scope_profile" {
   realm_id = keycloak_realm.realm.id
   name     = "profile"
