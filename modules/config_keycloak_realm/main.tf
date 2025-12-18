@@ -9,11 +9,10 @@ terraform {
 
 
 provider "keycloak" {
-  url       = "https://${var.cluster_domain}/keycloak/"
+  url       = "https://${var.cluster_domain}/keycloak"
   client_id = "admin-cli"
-  # username  = "admin"
-  username = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
-  password = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
+  username  = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
+  password  = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
 }
 
 
@@ -51,7 +50,7 @@ resource "keycloak_realm" "realm" {
 }
 
 
-# Organization.User
+# --- Role Organization.User ---
 resource "keycloak_role" "organization_user" {
   realm_id = keycloak_realm.realm.id
   name     = "Organization.User"
@@ -79,9 +78,10 @@ resource "keycloak_group_roles" "organization_user" {
     keycloak_role.organization_user
   ]
 }
+# --- Role Organization.User ---
 
 
-# Platform.Admin
+# -- Role Platform.Admin ---
 resource "keycloak_role" "platform_admin" {
   realm_id = keycloak_realm.realm.id
   name     = "Platform.Admin"
@@ -91,7 +91,7 @@ resource "keycloak_role" "platform_admin" {
   ]
 }
 
-# The group is placed under Organization.User
+# The group platform_admin is placed under the group organization_user
 resource "keycloak_group" "platform_admin" {
   realm_id  = keycloak_realm.realm.id
   parent_id = keycloak_group.organization_user.id
@@ -115,8 +115,10 @@ resource "keycloak_group_roles" "platform_admin" {
     keycloak_role.platform_admin
   ]
 }
+# -- Role Platform.Admin ---
 
 
+# --- Client cosmotech-client-api ---
 resource "keycloak_openid_client" "cosmotech_api" {
   enabled               = true
   realm_id              = keycloak_realm.realm.id
@@ -135,8 +137,10 @@ resource "keycloak_openid_client" "cosmotech_api" {
     keycloak_realm.realm,
   ]
 }
+# --- Client cosmotech-client-api ---
 
 
+# --- Client cosmotech-client-web ---
 resource "keycloak_openid_client" "cosmotech_web" {
   enabled               = true
   realm_id              = keycloak_realm.realm.id
@@ -171,26 +175,28 @@ resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_web" {
     "introspection.token.claim" : "true"
   }
 }
+# --- Client cosmotech-client-web ---
 
 
+# --- Client cosmotech-client-babylon ---
 resource "keycloak_openid_client" "cosmotech_babylon" {
-  enabled               = true
-  realm_id              = keycloak_realm.realm.id
-  client_id             = local.cosmotech_babylon
-  name                  = local.cosmotech_babylon
-  access_type           = local.access_type
-  full_scope_allowed    = local.full_scope_allowed
-  standard_flow_enabled = local.standard_flow_enabled
-  web_origins           = local.web_origins
-  root_url              = local.root_url
-  base_url              = local.base_url
-  valid_redirect_uris   = local.valid_redirect_uris
+  enabled                  = true
+  realm_id                 = keycloak_realm.realm.id
+  client_id                = local.cosmotech_babylon
+  name                     = local.cosmotech_babylon
+  access_type              = local.access_type
+  full_scope_allowed       = local.full_scope_allowed
+  standard_flow_enabled    = local.standard_flow_enabled
+  web_origins              = local.web_origins
+  root_url                 = local.root_url
+  base_url                 = local.base_url
+  valid_redirect_uris      = local.valid_redirect_uris
+  service_accounts_enabled = true
 
   depends_on = [
     keycloak_realm.realm,
   ]
 }
-
 
 resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_babylon" {
   realm_id        = keycloak_realm.realm.id
@@ -209,6 +215,11 @@ resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_babylon" {
   }
 }
 
+resource "keycloak_openid_client_service_account_realm_role" "cosmotech_babylon_service_account_role" {
+  realm_id                = keycloak_realm.realm.id
+  service_account_user_id = keycloak_openid_client.cosmotech_babylon.service_account_user_id
+  role                    = keycloak_role.platform_admin.name
+}
 
 # Secret that will be used directly from Babylon
 resource "kubernetes_secret" "babylon" {
@@ -222,8 +233,6 @@ resource "kubernetes_secret" "babylon" {
     "client_secret" : keycloak_openid_client.cosmotech_babylon.client_secret,
     "token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
     "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.tenant}/api",
-    "grant_type" : "client_credentials",
-    "scope" : "openid",
   }
 
   type = "Opaque"
@@ -232,13 +241,14 @@ resource "kubernetes_secret" "babylon" {
     keycloak_openid_client.cosmotech_babylon,
   ]
 }
+# --- Client cosmotech-client-babylon ---
 
 
+# --- Mapper for API ACL ---
 data "keycloak_openid_client_scope" "client_scope_profile" {
   realm_id = keycloak_realm.realm.id
   name     = "profile"
 }
-
 
 resource "keycloak_openid_group_membership_protocol_mapper" "group_membership_mapper" {
   realm_id        = keycloak_realm.realm.id
@@ -249,3 +259,5 @@ resource "keycloak_openid_group_membership_protocol_mapper" "group_membership_ma
 
   claim_name = "groups"
 }
+# --- Mapper for API ACL ---
+

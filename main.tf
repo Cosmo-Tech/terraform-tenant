@@ -236,6 +236,6 @@ module "config_grafana_dashboard" {
 module "config_harbor_project" {
   source = "./modules/config_harbor_project"
 
-  tenant               = module.kube_namespace.tenant
-  cluster_domain       = var.cluster_domain
+  tenant         = module.kube_namespace.tenant
+  cluster_domain = var.cluster_domain
 }
