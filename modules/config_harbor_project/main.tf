@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "harbor" {
-  url      = "http://${var.cluster_domain}"
+  url = "http://${var.cluster_domain}"
   # url      = "http://${var.cluster_domain}/harbor"
 
   username = "admin"
