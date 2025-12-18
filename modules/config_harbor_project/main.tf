@@ -32,7 +32,7 @@ resource "harbor_project" "tenant" {
 
 # --- User ---
 resource "random_password" "password" {
-  length      = 40
+  length      = 60
   min_lower   = 5
   min_upper   = 5
   min_numeric = 5
@@ -41,8 +41,8 @@ resource "random_password" "password" {
 
 resource "kubernetes_secret" "harbor_tenant" {
   metadata {
-    name      = "harbor-user"
     namespace = var.tenant
+    name      = "harbor"
   }
 
   data = {
@@ -56,15 +56,15 @@ resource "kubernetes_secret" "harbor_tenant" {
 }
 
 resource "harbor_user" "tenant" {
-  username = kubernetes_secret.harbor_tenant.data["username"]
-  password = kubernetes_secret.harbor_tenant.data["password"]
+  username  = kubernetes_secret.harbor_tenant.data["username"]
+  password  = kubernetes_secret.harbor_tenant.data["password"]
   full_name = kubernetes_secret.harbor_tenant.data["username"]
-  email = kubernetes_secret.harbor_tenant.data["email"]
+  email     = kubernetes_secret.harbor_tenant.data["email"]
 }
 
 resource "harbor_project_member_user" "tenant" {
-  project_id    = harbor_project.tenant.id
-  user_name     = harbor_user.tenant.username
-  role          = "developer"
+  project_id = harbor_project.tenant.id
+  user_name  = harbor_user.tenant.username
+  role       = "developer"
 }
 # --- User ---

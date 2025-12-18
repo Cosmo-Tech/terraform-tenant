@@ -19,9 +19,9 @@ locals {
     "POSTGRESQL_WRITER_PASSWORD" = var.postgresql_writer_password
     "POSTGRESQL_READER_USERNAME" = var.postgresql_reader_username
     "POSTGRESQL_READER_PASSWORD" = var.postgresql_reader_password
-    "REGISTRY_URL"               = "acrsphinxd38ygr.azurecr.io"
-    "REGISTRY_USERNAME"          = "acrsphinxd38ygr"
-    "REGISTRY_PASSWORD"          = ""
+    "REGISTRY_URL"               = var.cluster_domain
+    "REGISTRY_USERNAME"          = data.kubernetes_secret.registry.data["username"]
+    "REGISTRY_PASSWORD"          = data.kubernetes_secret.registry.data["password"]
   }
 }
 
@@ -46,6 +46,14 @@ data "kubernetes_secret" "keycloak" {
   metadata {
     namespace = var.tenant
     name      = "keycloak-cosmotech-client-api"
+  }
+}
+
+
+data "kubernetes_secret" "registry" {
+  metadata {
+    namespace = var.tenant
+    name      = "harbor"
   }
 }
 

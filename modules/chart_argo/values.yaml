@@ -176,3 +176,6 @@ externalDatabase:
   # password: ""
   database: "${DATABASE_NAME}"
   existingSecret: "${DATABASE_SECRET}"
+global:
+  security:
+    allowInsecureImages: true
