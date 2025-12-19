@@ -218,6 +218,7 @@ module "chart_cosmotech_api" {
     time_sleep.timer,
     module.chart_postgresql,
     module.chart_redis,
+    module.config_harbor_project,
   ]
 }
 

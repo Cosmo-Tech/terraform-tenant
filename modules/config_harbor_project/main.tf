@@ -22,6 +22,49 @@ data "kubernetes_secret" "harbor" {
   }
 }
 
+
+# -- Project ---
 resource "harbor_project" "tenant" {
   name = var.tenant
 }
+# -- Project ---
+
+
+# --- User ---
+resource "random_password" "password" {
+  length      = 60
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
+
+resource "kubernetes_secret" "harbor_tenant" {
+  metadata {
+    namespace = var.tenant
+    name      = "harbor"
+  }
+
+  data = {
+    "project" : var.tenant,
+    "username" : var.tenant,
+    "password" : random_password.password.result,
+    "email" : "${var.tenant}@${var.tenant}.local", # email is mandatory, this is just a fake one but it can be anything
+  }
+
+  type = "Opaque"
+}
+
+resource "harbor_user" "tenant" {
+  username  = kubernetes_secret.harbor_tenant.data["username"]
+  password  = kubernetes_secret.harbor_tenant.data["password"]
+  full_name = kubernetes_secret.harbor_tenant.data["username"]
+  email     = kubernetes_secret.harbor_tenant.data["email"]
+}
+
+resource "harbor_project_member_user" "tenant" {
+  project_id = harbor_project.tenant.id
+  user_name  = harbor_user.tenant.username
+  role       = "developer"
+}
+# --- User ---

@@ -9,14 +9,14 @@ api:
 image:
   repository: ghcr.io/cosmo-tech/cosmotech-api
   # tag: API_VERSION}
-# argo:
-#   imageCredentials:
-#     password: ACR_LOGIN_PASSWORD}
-#     registry: ACR_LOGIN_SERVER}
-#     username: ACR_LOGIN_USERNAME}
-#   storage:
-#     class:
-#       install: false
+argo:
+  imageCredentials:
+    registry: ${REGISTRY_URL}
+    username: ${REGISTRY_USERNAME}
+    password: ${REGISTRY_PASSWORD}
+  storage:
+    class:
+      install: false
 config:
   spring:
     servlet:
