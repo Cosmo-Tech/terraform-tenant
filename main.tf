@@ -1,4 +1,6 @@
 locals {
+  main_name          = "tenant-${var.tenant}"
+  cluster_domain     = "${var.cluster_name}.${var.domain_zone}"
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
@@ -35,7 +37,7 @@ module "config_keycloak_realm" {
   source = "./modules/config_keycloak_realm"
 
   tenant         = module.kube_namespace.tenant
-  cluster_domain = var.cluster_domain
+  cluster_domain = local.cluster_domain
 }
 
 
@@ -209,7 +211,7 @@ module "chart_cosmotech_api" {
   s3_secret_key_username = module.chart_seaweedfs.s3_secret_key_cosmotech_api_username
   s3_secret_key_password = module.chart_seaweedfs.s3_secret_key_cosmotech_api_password
 
-  cluster_domain = var.cluster_domain
+  cluster_domain = local.cluster_domain
 
   keycloak_client_id     = module.config_keycloak_realm.keycloak_api_client_id
   keycloak_client_secret = module.config_keycloak_realm.keycloak_api_client_secret
@@ -227,7 +229,7 @@ module "config_grafana_dashboard" {
   source = "./modules/config_grafana_dashboard"
 
   tenant               = module.kube_namespace.tenant
-  cluster_domain       = var.cluster_domain
+  cluster_domain       = local.cluster_domain
   namespace_monitoring = "monitoring"
   secret_redis         = module.chart_redis.redis_secret
   secret_postgresql    = module.chart_postgresql.postgresql_secret
@@ -238,5 +240,5 @@ module "config_harbor_project" {
   source = "./modules/config_harbor_project"
 
   tenant         = module.kube_namespace.tenant
-  cluster_domain = var.cluster_domain
+  cluster_domain = local.cluster_domain
 }

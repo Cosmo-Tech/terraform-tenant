@@ -44,7 +44,7 @@ case "$(echo $cloud_provider)" in
             features {}
             subscription_id = var.azure_subscription_id
             tenant_id       = var.azure_entra_tenant_id
-        }    
+        }
         terraform {
             backend \"azurerm\" {
                 key                  = \"$state_file_name\"
