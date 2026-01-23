@@ -1,7 +1,3 @@
-locals {
-  main_name = "tenant-${var.tenant}"
-}
-
 variable "cluster_name" {
   description = "Kubernetes cluster where to perform installation (must be one of the clusters (=/= context) in your kubectl config)"
   type        = string
@@ -22,8 +18,8 @@ variable "cloud_provider" {
   }
 }
 
-variable "cluster_domain" {
-  description = "Cluster domain"
+variable "domain_zone" {
+  description = "Cluster domain zone"
   type        = string
 }
 

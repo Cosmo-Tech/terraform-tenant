@@ -44,7 +44,7 @@ case "$(echo $cloud_provider)" in
             features {}
             subscription_id = var.azure_subscription_id
             tenant_id       = var.azure_entra_tenant_id
-        }    
+        }
         terraform {
             backend \"azurerm\" {
                 key                  = \"$state_file_name\"
@@ -114,7 +114,7 @@ sed -i "s|\(.*/modules/storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
 terraform fmt $backend_file
 terraform init -upgrade -reconfigure
 terraform plan -out .terraform.plan
-# terraform apply .terraform.plan
+terraform apply .terraform.plan
 
 
 exit

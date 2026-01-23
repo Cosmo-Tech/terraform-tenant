@@ -30,7 +30,7 @@ resource "helm_release" "argo" {
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "argo-workflows"
   # version    = "13.0.6" # This is the latest bitnamilegacy/argo-workflows, but it's installing argo-workflows 3.7.1 which has a bug when using "namespaced" argument (more info: https://github.com/argoproj/argo-workflows/issues/14806)
-  version    = "13.0.0"
+  version = "13.0.0"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
