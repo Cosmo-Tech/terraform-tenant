@@ -114,7 +114,7 @@ sed -i "s|\(.*/modules/storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
 terraform fmt $backend_file
 terraform init -upgrade -reconfigure
 terraform plan -out .terraform.plan
-terraform apply .terraform.plan
+# terraform apply .terraform.plan
 
 
 exit
