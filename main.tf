@@ -41,42 +41,58 @@ module "config_keycloak_realm" {
 }
 
 
-# module "storage-azure" {
-#   source = "./modules/kube-storage/azure"
+module "storage_azure" {
+  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
 
-#   # Fill the foreach loop with values only if right cloud provider is given
-#   for_each = var.cloud_provider == "azure" ? local.persistences : {}
+  for_each = var.cloud_provider == "azure" ? local.persistences : {}
 
-#   tenant             = module.kube_namespace.tenant
-#   resource           = each.key
-#   size               = each.value.size
-#   storage_class_name = local.storage_class_name
-#   region = var.region
-#   cluster_name = var.kubernetes_context
-#   cloud_provider = var.cloud_provider
-# }
-
-
-# module "storage-aws" {
-#   source = "./modules/kube-storage/azure"
-
-#   # Fill the foreach loop with values only if right cloud provider is given
-#   for_each = var.cloud_provider == "aws" ? local.persistences : {}
-
-#   tenant             = module.kube_namespace.tenant
-#   resource           = each.key
-#   size               = each.value.size
-#   storage_class_name = local.storage_class_name
-#   region = var.region
-#   cloud_provider = var.cloud_provider
-# }
+  tenant             = module.kube_namespace.tenant
+  resource           = each.key
+  size               = each.value.size
+  storage_class_name = local.storage_class_name
+  region             = var.cluster_region
+  cluster_name       = var.cluster_name
+  cloud_provider     = var.cloud_provider
+}
 
 
-module "storage" {
-  # The 'source' cannot use a variable, it's why it's dynamically replaced from ./_run-terraform.sh according to the variable cloud_provider
-  source = "./modules/storage/azure"
+module "storage_aws" {
+  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
+  # source = "git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage"
 
-  for_each = local.persistences
+  for_each = var.cloud_provider == "aws" ? local.persistences : {}
+
+  tenant             = module.kube_namespace.tenant
+  resource           = each.key
+  size               = each.value.size
+  storage_class_name = local.storage_class_name
+  region             = var.cluster_region
+  cluster_name       = var.cluster_name
+  cloud_provider     = var.cloud_provider
+}
+
+
+module "storage_gcp" {
+  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
+  # source = "git::https://github.com/cosmo-tech/terraform-gcp.git//terraform-cluster/modules/storage"
+
+  for_each = var.cloud_provider == "gcp" ? local.persistences : {}
+
+  tenant             = module.kube_namespace.tenant
+  resource           = each.key
+  size               = each.value.size
+  storage_class_name = local.storage_class_name
+  region             = var.cluster_region
+  cluster_name       = var.cluster_name
+  cloud_provider     = var.cloud_provider
+}
+
+
+module "storage_onprem" {
+  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
+  # source = "git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage"
+
+  for_each = var.cloud_provider == "onprem" ? local.persistences : {}
 
   tenant             = module.kube_namespace.tenant
   resource           = each.key
@@ -92,11 +108,6 @@ module "storage" {
 resource "time_sleep" "timer" {
   create_duration = "30s"
 }
-# resource "null_resource" "timer" {
-#   provisioner "local-exec" {
-#     command = "sleep 30"
-#   }
-# }
 
 
 module "chart_postgresql" {
