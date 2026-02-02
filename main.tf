@@ -46,8 +46,8 @@ module "storage_azure" {
 
   for_each = var.cloud_provider == "azure" ? local.persistences : {}
 
-  tenant             = module.kube_namespace.tenant
-  resource           = each.key
+  namespace          = module.kube_namespace.tenant
+  resource           = "${module.kube_namespace.tenant}-${each.key}"
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
@@ -62,8 +62,8 @@ module "storage_aws" {
 
   for_each = var.cloud_provider == "aws" ? local.persistences : {}
 
-  tenant             = module.kube_namespace.tenant
-  resource           = each.key
+  namespace          = module.kube_namespace.tenant
+  resource           = "${module.kube_namespace.tenant}-${each.key}"
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
@@ -78,8 +78,8 @@ module "storage_gcp" {
 
   for_each = var.cloud_provider == "gcp" ? local.persistences : {}
 
-  tenant             = module.kube_namespace.tenant
-  resource           = each.key
+  namespace          = module.kube_namespace.tenant
+  resource           = "${module.kube_namespace.tenant}-${each.key}"
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
@@ -94,8 +94,8 @@ module "storage_onprem" {
 
   for_each = var.cloud_provider == "onprem" ? local.persistences : {}
 
-  tenant             = module.kube_namespace.tenant
-  resource           = each.key
+  namespace          = module.kube_namespace.tenant
+  resource           = "${module.kube_namespace.tenant}-${each.key}"
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region

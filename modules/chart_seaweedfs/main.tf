@@ -77,8 +77,8 @@ resource "helm_release" "seaweedfs" {
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "seaweedfs"
   # chart      = "/local_clone_bitnami_chart_path/bitnami/seaweedfs"
-  version    = "6.0.4"
-  values     = [
+  version = "6.0.4"
+  values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]
 
