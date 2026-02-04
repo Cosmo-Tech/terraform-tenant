@@ -51,7 +51,6 @@ module "storage_azure" {
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
-  cluster_name       = var.cluster_name
   cloud_provider     = var.cloud_provider
 }
 
@@ -67,7 +66,6 @@ module "storage_aws" {
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
-  cluster_name       = var.cluster_name
   cloud_provider     = var.cloud_provider
 }
 
@@ -83,7 +81,6 @@ module "storage_gcp" {
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
-  cluster_name       = var.cluster_name
   cloud_provider     = var.cloud_provider
 }
 
@@ -99,7 +96,6 @@ module "storage_onprem" {
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
-  cluster_name       = var.cluster_name
   cloud_provider     = var.cloud_provider
 }
 
