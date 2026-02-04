@@ -106,10 +106,6 @@ case "$(echo $cloud_provider)" in
 esac
 
 
-# Dynamically replace the storage module block to call the right provider
-sed -i "s|\(.*/modules/storage/\).*\"\(.*\)|\1$cloud_provider\"\2|" main.tf
-
-
 # Deploy
 terraform fmt $backend_file
 terraform init -upgrade -reconfigure

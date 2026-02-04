@@ -109,12 +109,6 @@ switch ($cloud_provider) {
 ((Get-Content $backend_file) -join "`n") + "`n" | Set-Content -NoNewline $backend_file
 
 
-# Dynamically replace the storage module block to call the right provider
-$main_file = 'main.tf'
-(Get-Content $main_file) -replace '(.*/modules/storage/).*"(.*)', "`$1$cloud_provider`"$2" | Set-Content $main_file
-((Get-Content $main_file) -join "`n") + "`n" | Set-Content -NoNewline $main_file # Convert to UNIX format
-
-
 # Deploy
 terraform fmt $backend_file
 terraform init -lock=false -upgrade -reconfigure
