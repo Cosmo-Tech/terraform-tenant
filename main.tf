@@ -5,23 +5,23 @@ locals {
   persistences = {
     postgresql = {
       size = 8
-      pvc  = "pvc-${module.kube_namespace.tenant}-postgresql"
+      name = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
     }
     seaweedfs-master = {
       size = 32
-      pvc  = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
+      name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
     }
     seaweedfs-volume = {
       size = 32
-      pvc  = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
+      name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
     }
     redis-master = {
       size = 16
-      pvc  = "pvc-${module.kube_namespace.tenant}-redis-master"
+      name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
     }
     redis-replica = {
       size = 16
-      pvc  = "pvc-${module.kube_namespace.tenant}-redis-replica"
+      name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
     }
   }
 }
@@ -47,7 +47,7 @@ module "storage_azure" {
   for_each = var.cloud_provider == "azure" ? local.persistences : {}
 
   namespace          = module.kube_namespace.tenant
-  resource           = "${module.kube_namespace.tenant}-${each.key}"
+  resource           = each.value.name
   size               = each.value.size
   storage_class_name = local.storage_class_name
   region             = var.cluster_region
@@ -55,49 +55,46 @@ module "storage_azure" {
 }
 
 
-module "storage_aws" {
-  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
-  # source = "git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage"
+# module "storage_aws" {
+#   source = "git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage"
 
-  for_each = var.cloud_provider == "aws" ? local.persistences : {}
+#   for_each = var.cloud_provider == "aws" ? local.persistences : {}
 
-  namespace          = module.kube_namespace.tenant
-  resource           = "${module.kube_namespace.tenant}-${each.key}"
-  size               = each.value.size
-  storage_class_name = local.storage_class_name
-  region             = var.cluster_region
-  cloud_provider     = var.cloud_provider
-}
-
-
-module "storage_gcp" {
-  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
-  # source = "git::https://github.com/cosmo-tech/terraform-gcp.git//terraform-cluster/modules/storage"
-
-  for_each = var.cloud_provider == "gcp" ? local.persistences : {}
-
-  namespace          = module.kube_namespace.tenant
-  resource           = "${module.kube_namespace.tenant}-${each.key}"
-  size               = each.value.size
-  storage_class_name = local.storage_class_name
-  region             = var.cluster_region
-  cloud_provider     = var.cloud_provider
-}
+#   namespace          = module.kube_namespace.tenant
+#   resource           = each.value.name
+#   size               = each.value.size
+#   storage_class_name = local.storage_class_name
+#   region             = var.cluster_region
+#   cloud_provider     = var.cloud_provider
+# }
 
 
-module "storage_onprem" {
-  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
-  # source = "git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage"
+# module "storage_gcp" {
+#   source = "git::https://github.com/cosmo-tech/terraform-gcp.git//terraform-cluster/modules/storage"
 
-  for_each = var.cloud_provider == "onprem" ? local.persistences : {}
+#   for_each = var.cloud_provider == "gcp" ? local.persistences : {}
 
-  namespace          = module.kube_namespace.tenant
-  resource           = "${module.kube_namespace.tenant}-${each.key}"
-  size               = each.value.size
-  storage_class_name = local.storage_class_name
-  region             = var.cluster_region
-  cloud_provider     = var.cloud_provider
-}
+#   namespace          = module.kube_namespace.tenant
+#   resource           = each.value.name
+#   size               = each.value.size
+#   storage_class_name = local.storage_class_name
+#   region             = var.cluster_region
+#   cloud_provider     = var.cloud_provider
+# }
+
+
+# module "storage_onprem" {
+#   source = "git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage"
+
+#   for_each = var.cloud_provider == "onprem" ? local.persistences : {}
+
+#   namespace          = module.kube_namespace.tenant
+#   resource           = each.value.name
+#   size               = each.value.size
+#   storage_class_name = local.storage_class_name
+#   region             = var.cluster_region
+#   cloud_provider     = var.cloud_provider
+# }
 
 
 # Timer to wait for storage to be created before continue
@@ -113,7 +110,7 @@ module "chart_postgresql" {
   tenant  = module.kube_namespace.tenant
 
   size              = local.persistences.postgresql["size"]
-  pvc               = local.persistences.postgresql["pvc"]
+  pvc               = "pvc-${local.persistences.postgresql["name"]}"
   pvc_storage_class = local.storage_class_name
 
   depends_on = [
@@ -129,12 +126,12 @@ module "chart_seaweedfs" {
   tenant  = module.kube_namespace.tenant
 
   size_master              = local.persistences.seaweedfs-master["size"]
-  pvc_master               = local.persistences.seaweedfs-master["pvc"]
+  pvc_master               = "pvc-${local.persistences.seaweedfs-master["name"]}"
   pvc_master_access_modes  = "ReadWriteOnce"
   pvc_master_storage_class = local.storage_class_name
 
   size_volume              = local.persistences.seaweedfs-volume["size"]
-  pvc_volume               = local.persistences.seaweedfs-volume["pvc"]
+  pvc_volume               = "pvc-${local.persistences.seaweedfs-volume["name"]}"
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
@@ -182,11 +179,11 @@ module "chart_redis" {
   tenant  = module.kube_namespace.tenant
 
   size_master              = local.persistences.redis-master["size"]
-  pvc_master               = local.persistences.redis-master["pvc"]
+  pvc_master               = "pvc-${local.persistences.redis-master["name"]}"
   pvc_master_storage_class = local.storage_class_name
 
   size_replica              = local.persistences.redis-replica["size"]
-  pvc_replica               = local.persistences.redis-replica["pvc"]
+  pvc_replica               = "pvc-${local.persistences.redis-replica["name"]}"
   pvc_replica_storage_class = local.storage_class_name
 
   depends_on = [
