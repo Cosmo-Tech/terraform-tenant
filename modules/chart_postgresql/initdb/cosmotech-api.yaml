@@ -38,9 +38,7 @@ spec:
 
                 export PGPASSWORD="$ADMIN_PASS"
                 psql -U $ADMIN_USER -d $DB_NAME -c "CREATE SCHEMA inputs AUTHORIZATION $WRITER_USER;"
-                psql -U $ADMIN_USER -d $DB_NAME -c "CREATE SCHEMA outputs AUTHORIZATION $WRITER_USER;"
                 psql -U $ADMIN_USER -d $DB_NAME -c "GRANT USAGE ON SCHEMA inputs TO $READER_USER;"
-                psql -U $ADMIN_USER -d $DB_NAME -c "GRANT USAGE ON SCHEMA outputs TO $READER_USER;"
               else
                 echo "Database $DB_NAME already exists, skipping."
               fi
