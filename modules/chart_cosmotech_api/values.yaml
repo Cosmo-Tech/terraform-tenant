@@ -1,42 +1,43 @@
 replicaCount: 1
+
 api:
   version: api
   multiTenant: true
   servletContextPath: /
   tlsTruststore:
     enabled: false
+  serviceMonitor:
+    name: cosmotech-api-${NAMESPACE}
+    enabled: true
+    namespace: ${NAMESPACE_MONITORING}
 
 image:
   repository: ghcr.io/cosmo-tech/cosmotech-api
-  # tag: API_VERSION}
+
 argo:
   imageCredentials:
     registry: ${REGISTRY_URL}
     username: ${REGISTRY_USERNAME}
     password: ${REGISTRY_PASSWORD}
-  storage:
-    class:
-      install: false
+
+# Note : This is a comment but is kept for future use if more logging information is needed
+# logging:
+#     level:
+#       com.cosmotech: DEBUG
+#       web: WARN
+#       org.springframework: WARN
+#       com.redis: WARN
+# server:
+#     error:
+#       include-stacktrace: always
+
 config:
-  spring:
-    servlet:
-      multipart:
-        max-file-size: "1MB"
-        max-request-size: "10MB"
-  api:
-    serviceMonitor:
-      name: cosmotech-api-${NAMESPACE}
-      enabled: true
-      namespace: ${NAMESPACE_MONITORING}
-  logging:
-    level:
-      com.cosmotech: DEBUG
-      web: WARN
-      org.springframework: WARN
-      com.redis: WARN
-  server:
-    error:
-      include-stacktrace: always
+  # Note : keep this comment it is for customer configuration by default 50MB
+  # spring:
+  #   servlet:
+  #     multipart:
+  #       max-file-size: "1MB"
+  #       max-request-size: "10MB"
   csm:
     platform:
       containerRegistry:
@@ -56,16 +57,9 @@ config:
           clientId: "${KEYCLOAK_CLIENT_ID}"
           clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
           tenantId: "${NAMESPACE}"
-        tls:
-          enabled: false
       namespace: ${NAMESPACE}
-      loki:
-        baseUrl: http://loki.${NAMESPACE_MONITORING}.svc.cluster.local:3100
       argo:
         base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
-        workflows:
-          namespace: ${NAMESPACE}
-          service-account-name: argo-workflows
       s3:
         endpointUrl: ${S3_ENDPOINT}
         bucketName: ${S3_BUCKET}
@@ -73,45 +67,12 @@ config:
         secretAccessKey: ${S3_PASSWORD}
       authorization:
         allowed-tenants: ${NAMESPACE}
-        allowedApiKeyConsumers:
-          - apiKey: ""
-            associatedRole: ""
-            name: ""
-            securedUris: []
-      # azure:
-      #   appIdUri: APP_ID_URI}
-      #   containerRegistries:
-      #     solutions: ACR_LOGIN_SERVER}
-      #   credentials:
-      #     clientId: CLIENT_ID}
-      #     clientSecret: CLIENT_SECRET}
-      #     customer:
-      #       clientId: NETWORK_ADT_CLIENTID}
-      #       clientSecret: NETWORK_ADT_PASSWORD}
-      #       tenantId: TENANT_ID}
-      #     tenantId: TENANT_ID}
-      #   dataWarehouseCluster:
-      #     baseUri: ADX_URI}
-      #     options:
-      #       ingestionUri: ADX_INGESTION_URI}
-      #   eventBus:
-      #     baseUri: EVENTBUS_URI}
-      #   storage:
-      #     account-key: STORAGE_ACCOUNT_KEY}
-      #     account-name: STORAGE_ACCOUNT_NAME}
       databases:
         resources:
           host: "redis-master.${NAMESPACE}.svc.cluster.local"
           port: "${REDIS_PORT}"
           username: "default"
           password: "${REDIS_PASSWORD}"
-          tls:
-            enabled: false
-            bundle: ""
-          run:
-            defaultPageSize: 200
-          runner:
-            defaultPageSize: 200
         data:
           host: "${POSTGRESQL_DATABASE_HOST}"
           port: 5432
@@ -125,18 +86,29 @@ config:
           admin:
             username: "${POSTGRESQL_ADMIN_USERNAME}"
             password: "${POSTGRESQL_ADMIN_PASSWORD}"
-      upload:
-        authorized-mime-types:
-          workspace:
-            - application/zip
-            - application/xml
-            - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-            - application/x-tika-ooxml
-            - text/csv
-            - text/plain
-            - text/x-yaml
-            - application/json
-            - application/gzip
+      # Note : keep this comment it is for customer configuration
+      # upload:
+      #   authorized-mime-types:
+      #     workspaces:
+      #       - application/zip
+      #       - application/xml
+      #       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      #       - application/x-tika-ooxml
+      #       - text/csv
+      #       - text/plain
+      #       - text/x-yaml
+      #       - application/json
+      #       - application/vnd.apache.parquet
+      #     datasets:
+      #       - application/zip
+      #       - application/xml
+      #       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      #       - application/x-tika-ooxml
+      #       - text/csv
+      #       - text/plain
+      #       - text/x-yaml
+      #       - application/json
+      #       - application/vnd.apache.parquet
 ingress:
   enabled: true
   annotations:
