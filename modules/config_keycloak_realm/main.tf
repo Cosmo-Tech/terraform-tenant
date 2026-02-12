@@ -17,9 +17,10 @@ provider "keycloak" {
 
 
 locals {
-  cosmotech_api     = "cosmotech-client-api"
-  cosmotech_web     = "cosmotech-client-web"
-  cosmotech_babylon = "cosmotech-client-babylon"
+  cosmotech_api      = "cosmotech-client-api"
+  cosmotech_web      = "cosmotech-client-web"
+  cosmotech_superset = "cosmotech-client-superset"
+  cosmotech_babylon  = "cosmotech-client-babylon"
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
@@ -218,6 +219,28 @@ resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_web_groups" {
 }
 
 # --- Client cosmotech-client-web ---
+
+# --- Client cosmotech-client-superset ---
+resource "keycloak_openid_client" "cosmotech_superset" {
+  enabled                  = true
+  realm_id                 = keycloak_realm.realm.id
+  client_id                = local.cosmotech_superset
+  name                     = local.cosmotech_superset
+  access_type              = local.access_type
+  full_scope_allowed       = local.full_scope_allowed
+  standard_flow_enabled    = local.standard_flow_enabled
+  service_accounts_enabled = true
+  web_origins              = ["https://${var.cluster_domain}", "https://superset-${var.cluster_domain}"]
+  root_url                 = "https://superset-${var.cluster_domain}"
+  valid_redirect_uris      = ["https://${var.cluster_domain}/oauth-authorized/${var.tenant}",
+    "https://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}"]
+
+  depends_on = [
+    keycloak_realm.realm,
+  ]
+}
+
+# --- Client cosmotech-client-superset ---
 
 
 # --- Client cosmotech-client-babylon ---
