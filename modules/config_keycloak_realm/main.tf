@@ -240,6 +240,23 @@ resource "keycloak_openid_client" "cosmotech_superset" {
   ]
 }
 
+resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_superset" {
+  realm_id        = keycloak_realm.realm.id
+  client_id       = keycloak_openid_client.cosmotech_superset.id
+  name            = "realm roles"
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-usermodel-realm-role-mapper"
+  config = {
+    "id.token.claim" : "true",
+    "access.token.claim" : "true",
+    "claim.name" : "userRoles",
+    "jsonType.label" : "String",
+    "multivalued" : "true",
+    "userinfo.token.claim" : "true",
+    "introspection.token.claim" : "true"
+  }
+}
+
 # --- Client cosmotech-client-superset ---
 
 
