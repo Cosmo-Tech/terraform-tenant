@@ -1,0 +1,15 @@
+[
+  {
+    "name": "${TENANT_NAME}",
+    "icon": "fa-key",
+    "token_key": "access_token",
+    "remote_app": {
+      "client_id": "${COSMOTECH_SUPERSET_CLIENT_ID}",
+      "client_secret": "${SUPERSET_CLIENT_SECRET}",
+      "client_kwargs": {
+        "scope": "openid profile email"
+      },
+      "server_metadata_url": "${OAUTH_PROVIDER_METADATA_URL}"
+    }
+  }
+]

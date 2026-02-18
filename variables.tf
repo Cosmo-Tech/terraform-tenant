@@ -27,3 +27,7 @@ variable "cluster_region" {
   description = "Region where to store tenant objects (like disks for example)"
   type        = string
 }
+
+variable "superset_client_secret" {
+  type        = string
+}
