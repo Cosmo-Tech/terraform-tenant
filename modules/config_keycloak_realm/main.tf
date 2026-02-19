@@ -20,6 +20,7 @@ locals {
   cosmotech_api      = "cosmotech-client-api"
   cosmotech_web      = "cosmotech-client-web"
   cosmotech_superset = "cosmotech-client-superset"
+  keycloak_superset_secret_name = "superset-keycloak-client-secret"
   cosmotech_babylon  = "cosmotech-client-babylon"
 
   access_type           = "CONFIDENTIAL"
@@ -221,10 +222,34 @@ resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_web_groups" {
 # --- Client cosmotech-client-web ---
 
 # --- Client cosmotech-client-superset ---
+
+resource "random_password" "keycloak_superset_secret" {
+  length  = 40
+  special = false
+}
+
+resource "kubernetes_secret" "keycloak_superset_client_secret" {
+  metadata {
+    name      = local.keycloak_superset_secret_name
+    namespace = var.tenant
+  }
+
+  data = {
+    superset-client-secret = random_password.keycloak_superset_secret.result
+  }
+
+  type = "Opaque"
+
+  depends_on = [
+    random_password.keycloak_superset_secret
+  ]
+}
+
 resource "keycloak_openid_client" "cosmotech_superset" {
   enabled                  = true
   realm_id                 = keycloak_realm.realm.id
   client_id                = local.cosmotech_superset
+  client_secret            = random_password.keycloak_superset_secret.result
   name                     = local.cosmotech_superset
   access_type              = local.access_type
   full_scope_allowed       = local.full_scope_allowed
@@ -233,10 +258,14 @@ resource "keycloak_openid_client" "cosmotech_superset" {
   web_origins              = ["https://${var.cluster_domain}", "https://superset-${var.cluster_domain}"]
   root_url                 = "https://superset-${var.cluster_domain}"
   valid_redirect_uris      = ["https://${var.cluster_domain}/oauth-authorized/${var.tenant}",
-    "https://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}"]
+    "https://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}",
+    "http://${var.cluster_domain}/oauth-authorized/${var.tenant}",
+    "http://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}",
+  ]
 
   depends_on = [
     keycloak_realm.realm,
+    kubernetes_secret.keycloak_superset_client_secret
   ]
 }
 

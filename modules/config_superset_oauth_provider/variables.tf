@@ -21,6 +21,7 @@ variable "superset_keycloak_client_name" {
   default = "cosmotech-client-superset"
 }
 
-variable "cosmotech_superset_client_secret" {
+variable "superset_keycloak_client_secret_name" {
   type = string
+  default = "superset-keycloak-client-secret"
 }

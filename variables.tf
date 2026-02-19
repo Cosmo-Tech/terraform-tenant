@@ -28,6 +28,3 @@ variable "cluster_region" {
   type        = string
 }
 
-variable "superset_client_secret" {
-  type        = string
-}

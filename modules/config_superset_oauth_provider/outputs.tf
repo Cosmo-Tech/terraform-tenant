@@ -1,4 +1,4 @@
 output "superset_oauth_providers" {
-  value = kubernetes_config_map.superset_oauth_providers.data
+  value = kubectl_manifest.superset_oauth_providers.yaml_body
 }
 

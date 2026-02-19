@@ -253,5 +253,7 @@ module "config_superset_oauth_provider" {
 
   tenant         = module.kube_namespace.tenant
   cluster_domain = local.cluster_domain
-  cosmotech_superset_client_secret = var.superset_client_secret
+  depends_on = [
+    module.config_keycloak_realm
+  ]
 }
