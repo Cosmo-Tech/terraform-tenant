@@ -57,6 +57,8 @@ You must also have access configured so the provider can reach the target Kubern
   `https://<cluster_domain>/keycloak/realms/<tenant>/.well-known/openid-configuration`
 
 - The resulting ConfigMap is applied with `kubectl_manifest`. This will update the ConfigMap content to include the new provider.
+- Superset oauth providers are stored in a ConfigMap named **`superset-oauth-providers`** in the **`superset`** namespace. 
+  Every time a tenant is added, superset-web deployment needs to be restarted to take in account the new provider.
 
 ---
 ## Module files

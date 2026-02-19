@@ -48,4 +48,20 @@ resource "kubectl_manifest" "superset_oauth_providers" {
   yaml_body = local.superset_oauth_providers_configmap_descriptor
 }
 
+resource "null_resource" "restart_superset" {
+
+  triggers = {
+    sha1-configmap-data = sha1(data.kubernetes_config_map.superset_oauth_providers.data["oauth-providers"])
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl rollout restart deployment superset-web -n superset"
+  }
+
+  depends_on = [
+    kubectl_manifest.superset_oauth_providers
+  ]
+
+}
+
 
