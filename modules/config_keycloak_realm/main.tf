@@ -17,11 +17,11 @@ provider "keycloak" {
 
 
 locals {
-  cosmotech_api      = "cosmotech-client-api"
-  cosmotech_web      = "cosmotech-client-web"
-  cosmotech_superset = "cosmotech-client-superset"
+  cosmotech_api                 = "cosmotech-client-api"
+  cosmotech_web                 = "cosmotech-client-web"
+  cosmotech_superset            = "cosmotech-client-superset"
   keycloak_superset_secret_name = "superset-keycloak-client-secret"
-  cosmotech_babylon  = "cosmotech-client-babylon"
+  cosmotech_babylon             = "cosmotech-client-babylon"
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
@@ -122,17 +122,17 @@ resource "keycloak_group_roles" "platform_admin" {
 
 # --- Client cosmotech-client-api ---
 resource "keycloak_openid_client" "cosmotech_api" {
-  enabled               = true
-  realm_id              = keycloak_realm.realm.id
-  client_id             = local.cosmotech_api
-  name                  = local.cosmotech_api
-  access_type           = local.access_type
-  full_scope_allowed    = local.full_scope_allowed
-  standard_flow_enabled = local.standard_flow_enabled
-  web_origins           = local.web_origins
-  root_url              = local.root_url
-  base_url              = local.base_url
-  valid_redirect_uris   = local.valid_redirect_uris
+  enabled                  = true
+  realm_id                 = keycloak_realm.realm.id
+  client_id                = local.cosmotech_api
+  name                     = local.cosmotech_api
+  access_type              = local.access_type
+  full_scope_allowed       = local.full_scope_allowed
+  standard_flow_enabled    = local.standard_flow_enabled
+  web_origins              = local.web_origins
+  root_url                 = local.root_url
+  base_url                 = local.base_url
+  valid_redirect_uris      = local.valid_redirect_uris
   service_accounts_enabled = true
 
 
@@ -257,7 +257,7 @@ resource "keycloak_openid_client" "cosmotech_superset" {
   service_accounts_enabled = true
   web_origins              = ["https://${var.cluster_domain}", "https://superset-${var.cluster_domain}"]
   root_url                 = "https://superset-${var.cluster_domain}"
-  valid_redirect_uris      = ["https://${var.cluster_domain}/oauth-authorized/${var.tenant}",
+  valid_redirect_uris = ["https://${var.cluster_domain}/oauth-authorized/${var.tenant}",
     "https://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}",
     "http://${var.cluster_domain}/oauth-authorized/${var.tenant}",
     "http://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}",
