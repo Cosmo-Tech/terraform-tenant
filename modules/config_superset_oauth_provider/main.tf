@@ -51,7 +51,7 @@ resource "kubectl_manifest" "superset_oauth_providers" {
 resource "null_resource" "restart_superset" {
 
   triggers = {
-    sha1-configmap-data = sha1(data.kubernetes_config_map.superset_oauth_providers.data["oauth-providers"])
+    sha1-configmap-data = sha1(kubectl_manifest.superset_oauth_providers.yaml_body)
   }
 
   provisioner "local-exec" {
@@ -61,7 +61,4 @@ resource "null_resource" "restart_superset" {
   depends_on = [
     kubectl_manifest.superset_oauth_providers
   ]
-
 }
-
-
