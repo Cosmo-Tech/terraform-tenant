@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  oauth-providers: '${SUPERSET_OAUTH_PROVIDERS_CONFIG}'
+immutable: false
+kind: ConfigMap
+metadata:
+  name: '${SUPERSET_OAUTH_PROVIDERS_CONFIGMAP_NAME}'
+  namespace: '${SUPERSET_NAMESPACE}'
