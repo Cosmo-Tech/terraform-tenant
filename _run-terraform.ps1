@@ -25,7 +25,8 @@ function get_var_value {
 }
 $cloud_provider = (get_var_value terraform.tfvars cloud_provider)
 $cluster_region = (get_var_value terraform.tfvars cluster_region)
-$state_file_name = "tfstate-tenant-$(get_var_value terraform.tfvars tenant)"
+$cluster_name = (get_var_value terraform.tfvars cluster_name)
+$state_file_name = "tfstate-$cluster_name-tenant-$(get_var_value terraform.tfvars tenant)"
 
 
 # Clear old data
@@ -39,7 +40,6 @@ rm -Recurse -Confirm:$false terraform.tfstate*
 $backend_file = 'backend.tf'
 switch ($cloud_provider) {
     "azure" {
-        $state_storage_name = 'cosmotechstates'
         echo "
         terraform {
             backend ""azurerm"" {
@@ -58,6 +58,11 @@ switch ($cloud_provider) {
 
         variable ""azure_subscription_id"" { type = string }
         variable ""azure_entra_tenant_id"" { type = string }
+
+        data ""azurerm_kubernetes_cluster"" ""cluster"" {
+          name                = ""$cluster_name""
+          resource_group_name = ""$cluster_name""
+        }
         " > $backend_file
     }
 
