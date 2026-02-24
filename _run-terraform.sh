@@ -41,11 +41,6 @@ backend_file="backend.tf"
 case "$(echo $cloud_provider)" in
   'azure')
     echo " \
-        provider \"azurerm\" {
-            features {}
-            subscription_id = var.azure_subscription_id
-            tenant_id       = var.azure_entra_tenant_id
-        }
         terraform {
             backend \"azurerm\" {
                 key                  = \"$state_file_name\"
@@ -54,6 +49,13 @@ case "$(echo $cloud_provider)" in
                 resource_group_name  = \"cosmotechstates\"
             }
         }
+
+        provider \"azurerm\" {
+            features {}
+            subscription_id = var.azure_subscription_id
+            tenant_id       = var.azure_entra_tenant_id
+        }
+
         variable \"azure_subscription_id\" { type = string }
         variable \"azure_entra_tenant_id\" { type = string }
 
