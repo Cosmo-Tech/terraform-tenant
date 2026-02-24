@@ -62,6 +62,7 @@ config:
         base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
         workflows:
           namespace: "${NAMESPACE}"
+          service-account-name: argo-workflows
       s3:
         endpointUrl: ${S3_ENDPOINT}
         bucketName: ${S3_BUCKET}
