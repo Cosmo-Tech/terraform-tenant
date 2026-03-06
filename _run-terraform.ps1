@@ -94,6 +94,57 @@ switch ([string]$cloud_provider) {
         Write-Host "error: unknown or empty cloud_provider from terraform.tfvars" -ForegroundColor Red
         exit
     }
+
+    "kob" {
+        $state_url = "$(get_var_value terraform.tfvars state_host)/$state_file_name"
+
+        if (([string]::IsNullOrEmpty($TF_HTTP_USERNAME)) -or ([string]::IsNullOrEmpty($TF_HTTP_PASSWORD))) {
+            echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
+            echo '  $TF_HTTP_USERNAME = ""'
+            echo '  $TF_HTTP_PASSWORD = ""'
+            exit
+        } else {
+            echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
+        }
+
+        $env:TF_CLI_ARGS += ';-lock=false'
+
+        echo "
+            terraform {
+                backend ""http"" {
+                update_method = ""PUT""
+                lock_method   = ""POST""
+                unlock_method = ""DELETE""
+                skip_cert_verification = true
+
+                address = ""$state_url""
+                lock_address = ""$state_url/lock""
+                unlock_address = ""$state_url/lock""
+                }
+            }
+
+            variable ""state_host"" { type = string }
+
+            locals {
+                cloud_identity = {}
+                lb_annotations = {}
+                lb_ip = """"
+            }
+
+            module ""storage"" {
+                source = ""git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage""
+
+                for_each = var.cloud_provider == ""kob"" ? local.persistences : {}
+
+                namespace          = module.kube_namespace.tenant
+                resource           = each.value.name
+                size               = each.value.size
+                storage_class_name = local.storage_class_name
+                region             = var.cluster_region
+                cloud_provider     = var.cloud_provider
+            }
+        " > $backend_file
+    }
 }
 
 
