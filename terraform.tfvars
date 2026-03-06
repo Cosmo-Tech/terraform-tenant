@@ -1,4 +1,4 @@
-## VARIABLES EXAMPLE FOR AZURE
+# # VARIABLES EXAMPLE FOR AZURE
 # cloud_provider        = "azure"
 # cluster_region        = "westeurope"
 # cluster_name          = "aks-dev-devops"
@@ -23,9 +23,9 @@
 # tenant             = "test0"
 
 
-## VARIABLES EXAMPLE FOR KOB (= On-Premise)
-cloud_provider = "kob"
-cluster_name   = "kubernetes"
-domain_zone    = "onpremise.platform.cosmotech.com"
-tenant         = "test0"
-state_host     = "https://cosmotechstates.onpremise.platform.cosmotech.com"
+# ## VARIABLES EXAMPLE FOR KOB (= On-Premise)
+# cloud_provider = "kob"
+# cluster_name   = "kubernetes"
+# domain_zone    = "onpremise.platform.cosmotech.com"
+# tenant         = "test0"
+# state_host     = "https://cosmotechstates.onpremise.platform.cosmotech.com"
