@@ -67,11 +67,15 @@
         * *storage* = **[temporary]** dynamically create persistence storage for charts requiring it
 * Terraform **state**
     * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called `cosmotech-states` or `cosmotechstates`, depending on what the cloud provider allows in naming convention)
-* File **backend.tf**
-    * dynamically created at each run of `_run-terraform`
-    * permit to have multi-cloud compatibility with Terraform
-    * it instanciate the needed Terraform providers based on the variable `cloud_provider` from terraform.tfvars
-    * this file is a workaround to avoid having unwanted variables related to cloud providers not targetted in current deployment
+* Scripts **_run-terraform.***
+    * Automatically detect hosting target (cloud provider name, on-premise...), and adapt the Terraform module to work with it
+    * Terraform modules can work without the scripts, but will require some additional manual steps.
+* File **target.tf**
+    * Allow to have multi-cloud compatibility with Terraform
+    * This file is dynamically created at each run of `_run-terraform`
+    * It instanciates the needed Terraform configuration based on the variable `cloud_provider` from terraform.tfvars
+        > `$TEMPLATE_` variables in files stored in `targets/` are automatically replaced with values from `terraform.tfvars`
+    * This file is a workaround to avoid having unwanted variables related to cloud providers not targetted in current deployment
 
 <br>
 <br>

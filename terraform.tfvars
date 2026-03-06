@@ -1,4 +1,4 @@
-## VARIABLES EXAMPLE FOR AZURE
+# ## VARIABLES EXAMPLE FOR AZURE
 # cloud_provider        = "azure"
 # cluster_region        = "westeurope"
 # cluster_name          = "aks-dev-devops"
@@ -16,7 +16,7 @@
 # tenant             = "test0"
 
 
-## VARIABLES EXAMPLE FOR GCP
+# ## VARIABLES EXAMPLE FOR GCP
 # cloud_provider     = "gcp"
 # cluster_name       = "gke-dev-devops"
 # domain_zone        = "gcp.platform.cosmotech.com"
