@@ -77,3 +77,24 @@ variable "keycloak_client_id" {
 variable "keycloak_client_secret" {
   type = string
 }
+
+variable "cosmotech_api_connect_timeout" {
+  type = string
+  default = "30s"
+}
+
+variable "cosmotech_api_query_timeout" {
+  type = string
+  default = "60s"
+}
+
+variable "cosmotech_api_buffer_size" {
+  type = string
+  default = "16K"
+}
+
+variable "cosmotech_api_max_file_size" {
+  type = string
+  default = "50m"
+}
+
