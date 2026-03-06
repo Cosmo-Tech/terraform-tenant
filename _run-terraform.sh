@@ -98,9 +98,9 @@ esac
 
 
 # Deploy
-# terraform fmt $target_file
-# terraform init -upgrade -reconfigure
-# terraform plan -out .terraform.plan
+terraform fmt $target_file
+terraform init -upgrade -reconfigure
+terraform plan -out .terraform.plan
 # # terraform apply .terraform.plan
 
 
