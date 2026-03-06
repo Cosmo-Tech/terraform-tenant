@@ -44,6 +44,10 @@ module "config_keycloak_realm" {
 # Timer to wait for storage to be created before continue
 resource "time_sleep" "timer" {
   create_duration = "30s"
+
+  depends_on = [
+    module.storage,
+  ]
 }
 
 

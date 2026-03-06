@@ -64,7 +64,7 @@ case "$(echo $cloud_provider)" in
           resource_group_name = \"$cluster_name\"
         }
 
-        module \"storage_azure\" {
+        module \"storage\" {
           source = \"git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage\"
 
           for_each = var.cloud_provider == \"azure\" ? local.persistences : {}
@@ -93,7 +93,7 @@ case "$(echo $cloud_provider)" in
             }
         }
 
-      module \"storage_aws\" {
+      module \"storage\" {
         source = \"git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage\"
 
         for_each = var.cloud_provider == \"aws\" ? local.persistences : {}
@@ -135,7 +135,7 @@ case "$(echo $cloud_provider)" in
 
         data \"google_client_config\" \"current\" {}
 
-        module \"storage_gcp\" {
+        module \"storage\" {
           source = \"git::https://github.com/cosmo-tech/terraform-gcp.git//terraform-cluster/modules/storage\"
 
           for_each = var.cloud_provider == \"gcp\" ? local.persistences : {}
@@ -186,14 +186,14 @@ case "$(echo $cloud_provider)" in
         lb_ip = \"\"
       }
 
-      module \"storage_kob\" {
+      module \"storage\" {
         # source = \"git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage\"
         source = \"git::https://github.com/cosmo-tech/terraform-onprem//terraform-cluster/modules/storage?ref=standardization\"
 
         for_each = var.cloud_provider == \"kob\" ? local.persistences : {}
 
         namespace          = module.kube_namespace.tenant
-        resource           = \"\${var.cluster_name}-\${each.key}\"
+        resource           = each.value.name
         size               = each.value.size
         storage_class_name = local.storage_class_name
         region             = var.cluster_region
@@ -201,6 +201,7 @@ case "$(echo $cloud_provider)" in
       }
 
     " > "$backend_file";;
+
   *)
     echo "error: unknown or empty \e[91mcloud_provider\e[0m from terraform.tfvars"
     exit
