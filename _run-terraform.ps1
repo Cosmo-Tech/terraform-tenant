@@ -34,91 +34,125 @@ rm -Recurse -Confirm:$false .terraform*
 rm -Recurse -Confirm:$false terraform.tfstate*
 
 
+# Automatically detect all the $TEMPLATE variables from a given a file,
+# and replace them with the value that the same variable has in the current script.
+# Usage: prepare_target_file <source file> <target file>
+function prepare_target_file {
+    param ([string]$source_file, [string]$target_file)
+
+    if (Test-Path $target_file) { Remove-Item $target_file -Force}
+    Copy-Item $source_file $target_file -Force
+
+    $content = Get-Content $target_file -Raw
+    $needed_variables = [regex]::Matches($content, 'TEMPLATE_([a-zA-Z_]+)') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+    foreach ($var in $needed_variables) {
+        # Declare the TEMPLATE_variable
+        $value = (Get-Variable -Name $var -ErrorAction SilentlyContinue).Value
+
+        # Replace TEMPLATE with the actual value
+        $content = $content -replace [regex]::Escape("`$TEMPLATE_$var"), $value
+    }
+    $content | Set-Content $target_file
+}
+$target_file = 'target.tf'
+
+
 # The trick here is to write configuration in a dynamic file created at the begin of the
 # execution, containing the config that the concerned provider is waiting for Terraform backend.
 # Then, Terraform will automatically detects it from its .tf extension.
-$backend_file = 'backend.tf'
-switch ($cloud_provider) {
+switch ([string]$cloud_provider) {
     "azure" {
-        echo "
-        terraform {
-            backend ""azurerm"" {
-                key                  = ""$state_file_name""
-                storage_account_name = ""cosmotechstates""
-                container_name       = ""cosmotechstates""
-                resource_group_name  = ""cosmotechstates""
-            }
-        }
-
-        provider ""azurerm"" {
-            features {}
-            subscription_id = var.azure_subscription_id
-            tenant_id       = var.azure_entra_tenant_id
-        }
-
-        variable ""azure_subscription_id"" { type = string }
-        variable ""azure_entra_tenant_id"" { type = string }
-
-        data ""azurerm_kubernetes_cluster"" ""cluster"" {
-          name                = ""$cluster_name""
-          resource_group_name = ""$cluster_name""
-        }
-        " > $backend_file
+        prepare_target_file "targets/$cloud_provider.target.tf" $target_file
     }
 
     "aws" {
-        $state_storage_name = 'cosmotech-states'
-        echo "
-            provider ""aws"" {
-                region = var.region
-            }
-            terraform {
-                backend ""s3"" {
-                    key    = ""$state_file_name""
-                    bucket = ""cosmotech-states""
-                    region = ""$cluster_region""
-                }
-            }
-        " > $backend_file
+        prepare_target_file "targets/$cloud_provider.target.tf" $target_file
     }
 
     "gcp" {
-        $state_storage_name = 'cosmotech-states'
+        prepare_target_file "targets/$cloud_provider.target.tf" $target_file
+    }
+
+    "kob" {
+        $state_url = "$(get_var_value terraform.tfvars state_host)/$state_file_name"
+
+        if (([string]::IsNullOrEmpty($TF_HTTP_USERNAME)) -or ([string]::IsNullOrEmpty($TF_HTTP_PASSWORD))) {
+            echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
+            echo '  $TF_HTTP_USERNAME = ""'
+            echo '  $TF_HTTP_PASSWORD = ""'
+            exit
+        } else {
+            echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
+        }
+
+        $env:TF_CLI_ARGS += ';-lock=false'
+
+        prepare_target_file "targets/$cloud_provider.target.tf" $target_file
+    }
+
+    default {
+        Write-Host "error: unknown or empty cloud_provider from terraform.tfvars" -ForegroundColor Red
+        exit
+    }
+
+    "kob" {
+        $state_url = "$(get_var_value terraform.tfvars state_host)/$state_file_name"
+
+        if (([string]::IsNullOrEmpty($TF_HTTP_USERNAME)) -or ([string]::IsNullOrEmpty($TF_HTTP_PASSWORD))) {
+            echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
+            echo '  $TF_HTTP_USERNAME = ""'
+            echo '  $TF_HTTP_PASSWORD = ""'
+            exit
+        } else {
+            echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
+        }
+
+        $env:TF_CLI_ARGS += ';-lock=false'
+
         echo "
             terraform {
-                backend ""gcs"" {
-                    bucket = $state_storage_name
-                    prefix = ""$state_file_name""
+                backend ""http"" {
+                update_method = ""PUT""
+                lock_method   = ""POST""
+                unlock_method = ""DELETE""
+                skip_cert_verification = true
+
+                address = ""$state_url""
+                lock_address = ""$state_url/lock""
+                unlock_address = ""$state_url/lock""
                 }
             }
 
-            provider ""google"" {
-                project = var.project_id
-                region  = var.cluster_region
+            variable ""state_host"" { type = string }
+
+            locals {
+                cloud_identity = {}
+                lb_annotations = {}
+                lb_ip = """"
             }
 
-            variable ""project_id"" { type = string }
+            module ""storage"" {
+                source = ""git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage""
 
-            data ""terraform_remote_state"" ""terraform_cluster"" {
-                backend = ""gcs""
-                config = {
-                    bucket = $state_storage_name
-                }
+                for_each = var.cloud_provider == ""kob"" ? local.persistences : {}
+
+                namespace          = module.kube_namespace.tenant
+                resource           = each.value.name
+                size               = each.value.size
+                storage_class_name = local.storage_class_name
+                region             = var.cluster_region
+                cloud_provider     = var.cloud_provider
             }
-
-            data ""google_client_config"" ""current"" {}
         " > $backend_file
     }
 }
-# Convert backend_file to UNIX format, otherwise Terraform will not be able to read it
-((Get-Content $backend_file) -join "`n") + "`n" | Set-Content -NoNewline $backend_file
 
 
 # Deploy
-terraform fmt $backend_file
+terraform fmt $target_file
 terraform init -lock=false -upgrade -reconfigure
 terraform plan -lock=false -out .terraform.plan
-# terraform apply -lock=false .terraform.plan
+# # terraform apply -lock=false .terraform.plan
 
 
 echo ''

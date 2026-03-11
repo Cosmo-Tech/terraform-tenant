@@ -41,66 +41,13 @@ module "config_keycloak_realm" {
 }
 
 
-module "storage_azure" {
-  source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
-
-  for_each = var.cloud_provider == "azure" ? local.persistences : {}
-
-  namespace          = module.kube_namespace.tenant
-  resource           = each.value.name
-  size               = each.value.size
-  resource_group     = data.azurerm_kubernetes_cluster.cluster.node_resource_group
-  storage_class_name = local.storage_class_name
-  region             = var.cluster_region
-  cloud_provider     = var.cloud_provider
-}
-
-
-# module "storage_aws" {
-#   source = "git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage"
-
-#   for_each = var.cloud_provider == "aws" ? local.persistences : {}
-
-#   namespace          = module.kube_namespace.tenant
-#   resource           = each.value.name
-#   size               = each.value.size
-#   storage_class_name = local.storage_class_name
-#   region             = var.cluster_region
-#   cloud_provider     = var.cloud_provider
-# }
-
-
-# module "storage_gcp" {
-#   source = "git::https://github.com/cosmo-tech/terraform-gcp.git//terraform-cluster/modules/storage"
-
-#   for_each = var.cloud_provider == "gcp" ? local.persistences : {}
-
-#   namespace          = module.kube_namespace.tenant
-#   resource           = each.value.name
-#   size               = each.value.size
-#   storage_class_name = local.storage_class_name
-#   region             = var.cluster_region
-#   cloud_provider     = var.cloud_provider
-# }
-
-
-# module "storage_onprem" {
-#   source = "git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage"
-
-#   for_each = var.cloud_provider == "onprem" ? local.persistences : {}
-
-#   namespace          = module.kube_namespace.tenant
-#   resource           = each.value.name
-#   size               = each.value.size
-#   storage_class_name = local.storage_class_name
-#   region             = var.cluster_region
-#   cloud_provider     = var.cloud_provider
-# }
-
-
 # Timer to wait for storage to be created before continue
 resource "time_sleep" "timer" {
   create_duration = "30s"
+
+  depends_on = [
+    module.storage,
+  ]
 }
 
 
