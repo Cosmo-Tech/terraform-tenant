@@ -1,9 +1,9 @@
 terraform {
   backend "azurerm" {
     key                  = "$TEMPLATE_state_file_name"
-    storage_account_name = "cosmotechstates"
-    container_name       = "cosmotechstates"
-    resource_group_name  = "cosmotechstates"
+    resource_group_name  = "$TEMPLATE_state_storage_name"
+    storage_account_name = "$TEMPLATE_state_storage_name"
+    container_name       = "$TEMPLATE_state_storage_name"
   }
 }
 
