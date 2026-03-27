@@ -95,6 +95,5 @@ variable "cosmotech_api_buffer_size" {
 
 variable "cosmotech_api_max_file_size" {
   type = string
-  default = "50m"
+  default = "300m"
 }
-
