@@ -111,7 +111,7 @@ Expected keys:
 | `cosmotech_api_connect_timeout` | `string` | `"30s"` | no | NGINX ingress connect timeout. |
 | `cosmotech_api_query_timeout` | `string` | `"60s"` | no | NGINX ingress read/send timeout. |
 | `cosmotech_api_buffer_size` | `string` | `"16K"` | no | NGINX client body buffer size. |
-| `cosmotech_api_max_file_size` | `string` | `"50m"` | no | Maximum request / upload body size. |
+| `cosmotech_api_max_file_size` | `string` | `"300m"` | no | Maximum request / upload body size. |
 
 ---
 

@@ -63,6 +63,8 @@ config:
         workflows:
           namespace: "${NAMESPACE}"
           service-account-name: argo-workflows
+          requests:
+            storage: 20Gi
       s3:
         endpointUrl: ${S3_ENDPOINT}
         bucketName: ${S3_BUCKET}

@@ -67,7 +67,7 @@ resource "grafana_data_source" "postgresql-datasource" {
     sslmode = "disable"
   })
 
-  database_name = "argo_workflows"
+  database_name = "argo"
 }
 
 

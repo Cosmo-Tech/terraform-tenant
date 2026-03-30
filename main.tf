@@ -172,7 +172,7 @@ module "chart_cosmotech_api" {
   cosmotech_api_connect_timeout    = "30s"
   cosmotech_api_query_timeout      = "60s"
   cosmotech_api_buffer_size        = "16K"
-  cosmotech_api_max_file_size      = "50m"
+  cosmotech_api_max_file_size      = "300m"
 
   depends_on = [
     time_sleep.timer,
