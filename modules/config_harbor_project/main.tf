@@ -55,6 +55,28 @@ resource "kubernetes_secret" "harbor_tenant" {
   type = "Opaque"
 }
 
+# This secret (under that form/type) is used by the APIs and submitted Argo workflows to access the needed images
+resource "kubernetes_secret" "harbor_tenant_docker" {
+  metadata {
+    namespace = var.tenant
+    name      = "harbor-docker"
+  }
+
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "${var.cluster_domain}" = {
+          "username" = var.tenant
+          "password" = random_password.password.result
+          "auth"     = base64encode("${var.tenant}:${random_password.password.result}")
+        }
+      }
+    })
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
+}
+
 resource "harbor_user" "tenant" {
   username  = kubernetes_secret.harbor_tenant.data["username"]
   password  = kubernetes_secret.harbor_tenant.data["password"]
