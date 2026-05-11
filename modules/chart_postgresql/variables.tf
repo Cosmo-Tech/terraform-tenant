@@ -17,3 +17,15 @@ variable "pvc" {
 variable "pvc_storage_class" {
   type = string
 }
+
+variable "postgresql_version" {
+  type = string
+}
+
+variable "postgresql_repository" {
+  type = string
+}
+
+variable "registry" {
+  type = string
+}

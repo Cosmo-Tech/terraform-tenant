@@ -11,6 +11,7 @@ locals {
     "S3_SECRET"              = var.s3_secret
     "S3_SECRET_KEY_USERNAME" = var.s3_secret_key_username
     "S3_SECRET_KEY_PASSWORD" = var.s3_secret_key_password
+    "REGISTRY"               = var.registry
   }
 }
 
@@ -27,10 +28,10 @@ resource "random_password" "password" {
 resource "helm_release" "argo" {
   namespace  = var.tenant
   name       = var.release
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "oci://cgr.dev/cosmotech/iamguarded-charts"
   chart      = "argo-workflows"
   # version    = "13.0.6" # This is the latest bitnamilegacy/argo-workflows, but it's installing argo-workflows 3.7.1 which has a bug when using "namespaced" argument (more info: https://github.com/argoproj/argo-workflows/issues/14806)
-  version = "13.0.0"
+  version = "13.0.6"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

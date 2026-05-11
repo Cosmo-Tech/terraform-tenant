@@ -17,6 +17,7 @@ locals {
     "S3_SECRET"                        = kubernetes_secret.s3_secret.metadata[0].name
     "S3_PORT"                          = local.s3_port
     "FILER_ENDPOINT"                   = "http://${var.release}-filer.${var.tenant}.svc.cluster.local:8888"
+    "REGISTRY"                         = var.registry
   }
 
   s3_host = "${helm_release.seaweedfs.name}-s3.${helm_release.seaweedfs.namespace}.svc.cluster.local"
@@ -74,7 +75,7 @@ resource "kubernetes_secret" "s3_secret" {
 resource "helm_release" "seaweedfs" {
   namespace  = var.tenant
   name       = var.release
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "oci://cgr.dev/cosmotech/iamguarded-charts"
   chart      = "seaweedfs"
   # chart      = "/local_clone_bitnami_chart_path/bitnami/seaweedfs"
   version = "6.0.4"

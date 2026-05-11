@@ -58,3 +58,6 @@ variable "database_seaweedfs_secret" {
   type = string
 }
 
+variable "registry" {
+  type = string
+}

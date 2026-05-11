@@ -1,15 +1,12 @@
-
-
-global:
-  security:
-    allowInsecureImages: true
 image:
-  repository: bitnamilegacy/seaweedfs
-  pullPolicy: IfNotPresent 
+  registry: "${REGISTRY}"
+  repository: "cosmotech/seaweedfs-iamguarded"
+  pullPolicy: "IfNotPresent"
 postgresql:
   image:
-    repository: bitnamilegacy/postgresql
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: "cosmotech/postgres-iamguarded"
+    pullPolicy: "IfNotPresent"
   enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
 master:
   persistence:
@@ -57,7 +54,7 @@ volume:
       value: "cosmotech"
       effect: "NoSchedule"
 filer:
-  resourcesPreset: medium
+  resourcesPreset: "medium"
   nodeSelector:
     cosmotech.com/tier: "services"
   tolerations:
@@ -137,11 +134,14 @@ extraDeploy:
                     wget --quiet -O /dev/null --post-data= --header "Content-Type:" ${FILER_ENDPOINT}/buckets/${bucket}/
                   fi
                   %{~ endfor ~}
-
 # Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
 volumePermissions:
   enabled: true
   image:
-    repository: bitnamilegacy/os-shell
-  # containerSecurityContext:
-  #   enabled: true
+    registry: "${REGISTRY}"
+    repository: "cosmotech/os-shell-iamguarded"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
+global:
+  imagePullSecrets:
+    - name: "registry-authentication"

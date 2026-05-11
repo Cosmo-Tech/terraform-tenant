@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgresql-init-seaweedfs
-          image: postgres:17-trixie
+          image: ${registry}/${postgresql_repository}:${postgresql_version}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:

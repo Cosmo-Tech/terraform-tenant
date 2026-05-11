@@ -4,6 +4,9 @@ locals {
     "PERSISTENCE_PVC"           = var.pvc
     "PERSISTENCE_STORAGE_CLASS" = var.pvc_storage_class
     "POSTGRESQL_SECRET_CONFIG"  = kubernetes_secret.postgresql-config.metadata[0].name
+    "POSTGRESQL_REPOSITORY"     = var.postgresql_repository
+    "POSTGRESQL_VERSION"        = var.postgresql_version
+    "REGISTRY"                  = var.registry
   }
 
   database_host = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
@@ -102,9 +105,9 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
 resource "helm_release" "postgresql" {
   namespace  = var.tenant
   name       = var.release
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "oci://cgr.dev/cosmotech/iamguarded-charts"
   chart      = "postgresql"
-  version    = "16.7.27"
+  version    = "17.1.0"
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

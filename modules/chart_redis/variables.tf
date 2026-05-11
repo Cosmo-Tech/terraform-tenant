@@ -29,3 +29,7 @@ variable "pvc_replica" {
 variable "pvc_replica_storage_class" {
   type = string
 }
+
+variable "registry" {
+  type = string
+}

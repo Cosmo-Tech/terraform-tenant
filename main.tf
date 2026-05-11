@@ -1,6 +1,7 @@
 locals {
   main_name          = "tenant-${var.tenant}"
   cluster_domain     = "${var.cluster_name}.${var.domain_zone}"
+  registry           = "cgr.dev"
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
@@ -33,6 +34,11 @@ module "kube_namespace" {
 }
 
 
+# module "config_registry_auth" {
+#   source = "./modules/config_registry_auth"
+# }
+
+
 module "config_keycloak_realm" {
   source = "./modules/config_keycloak_realm"
 
@@ -54,8 +60,12 @@ resource "time_sleep" "timer" {
 module "chart_postgresql" {
   source = "./modules/chart_postgresql"
 
-  release = "postgresql"
-  tenant  = module.kube_namespace.tenant
+  release  = "postgresql"
+  tenant   = module.kube_namespace.tenant
+  registry = local.registry
+
+  postgresql_repository = "cosmotech/postgres-iamguarded"
+  postgresql_version    = "17"
 
   size              = local.persistences.postgresql["size"]
   pvc               = "pvc-${local.persistences.postgresql["name"]}"
@@ -70,8 +80,9 @@ module "chart_postgresql" {
 module "chart_seaweedfs" {
   source = "./modules/chart_seaweedfs"
 
-  release = "seaweedfs"
-  tenant  = module.kube_namespace.tenant
+  release  = "seaweedfs"
+  tenant   = module.kube_namespace.tenant
+  registry = local.registry
 
   size_master              = local.persistences.seaweedfs-master["size"]
   pvc_master               = "pvc-${local.persistences.seaweedfs-master["name"]}"
@@ -98,8 +109,9 @@ module "chart_seaweedfs" {
 module "chart_argo" {
   source = "./modules/chart_argo"
 
-  release = "argo-workflows"
-  tenant  = module.kube_namespace.tenant
+  release  = "argo-workflows"
+  tenant   = module.kube_namespace.tenant
+  registry = local.registry
 
   database_host   = module.chart_postgresql.database_host
   database_port   = module.chart_postgresql.database_port
@@ -123,8 +135,9 @@ module "chart_argo" {
 module "chart_redis" {
   source = "./modules/chart_redis"
 
-  release = "redis"
-  tenant  = module.kube_namespace.tenant
+  release  = "redis"
+  tenant   = module.kube_namespace.tenant
+  registry = local.registry
 
   size_master              = local.persistences.redis-master["size"]
   pvc_master               = "pvc-${local.persistences.redis-master["name"]}"
@@ -169,10 +182,10 @@ module "chart_cosmotech_api" {
   keycloak_client_secret = module.config_keycloak_realm.keycloak_api_client_secret
 
   # Ingress
-  cosmotech_api_connect_timeout    = "30s"
-  cosmotech_api_query_timeout      = "60s"
-  cosmotech_api_buffer_size        = "16K"
-  cosmotech_api_max_file_size      = "300m"
+  cosmotech_api_connect_timeout = "30s"
+  cosmotech_api_query_timeout   = "60s"
+  cosmotech_api_buffer_size     = "16K"
+  cosmotech_api_max_file_size   = "300m"
 
   depends_on = [
     time_sleep.timer,
@@ -200,6 +213,7 @@ module "config_harbor_project" {
   tenant         = module.kube_namespace.tenant
   cluster_domain = local.cluster_domain
 }
+
 
 module "config_superset_oauth_provider" {
   source = "./modules/config_superset_oauth_provider"

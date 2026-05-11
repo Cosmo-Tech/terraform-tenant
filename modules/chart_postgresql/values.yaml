@@ -1,20 +1,22 @@
 image:
   debug: true
-  repository: bitnamilegacy/postgresql
-  pullPolicy: IfNotPresent
+  registry: "${REGISTRY}"
+  repository: "${POSTGRESQL_REPOSITORY}"
+  tag: "${POSTGRESQL_VERSION}"
+  pullPolicy: "IfNotPresent"
 auth:
   enablePostgresUser: true
-  database: postgres
-  existingSecret: ${POSTGRESQL_SECRET_CONFIG}
+  database: "postgres"
+  existingSecret: "${POSTGRESQL_SECRET_CONFIG}"
   secretKeys:
-    adminPasswordKey: postgres-password
+    adminPasswordKey: "postgres-password"
 primary:
   containerSecurityContext:
     enabled: true
     runAsNonRoot: true
     # runAsNonRoot: false
     seccompProfile:
-      type: RuntimeDefault
+      type: "RuntimeDefault"
     capabilities:
       drop:
         - ALL
@@ -22,7 +24,7 @@ primary:
   podSecurityContext:
     enabled: true
     seccompProfile:
-      type: RuntimeDefault
+      type: "RuntimeDefault"
   podLabels:
     "networking/traffic-allowed": "yes"
   tolerations:
@@ -34,9 +36,9 @@ primary:
     "cosmotech.com/tier": "db"
   persistence:
     enabled: true
-    size: ${PERSISTENCE_SIZE}
-    existingClaim: ${PERSISTENCE_PVC}
-    storageClass: ${PERSISTENCE_STORAGE_CLASS}
+    size: "${PERSISTENCE_SIZE}"
+    existingClaim: "${PERSISTENCE_PVC}"
+    storageClass: "${PERSISTENCE_STORAGE_CLASS}"
   resources:
     requests:
       memory: "64Mi"
@@ -58,8 +60,9 @@ metrics:
   #   interval: 30s
   #   scrapeTimeout: 10s
   image:
-    repository: bitnamilegacy/postgres-exporter
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: "cosmotech/prometheus-postgres-exporter-iamguarded"
+    pullPolicy: "IfNotPresent"
   resources:
     requests:
       memory: "64Mi"
@@ -72,4 +75,10 @@ metrics:
 volumePermissions:
   enabled: true
   image:
-    repository: bitnamilegacy/os-shell
+    registry: "${REGISTRY}"
+    repository: "cosmotech/os-shell-iamguarded"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
+global:
+  imagePullSecrets:
+    - name: "registry-authentication"

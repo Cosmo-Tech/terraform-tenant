@@ -1,30 +1,26 @@
-global:
-  security:
-    allowInsecureImages: true
 auth:
-  password: ${REDIS_PASSWORD}
+  password: "${REDIS_PASSWORD}"
   # existingSecret: REDIS_SECRET}
 serviceBindings: 
   enabled: true
 image:
-  registry: ghcr.io
-  repository: cosmo-tech/cosmotech-redis
-  tag: "${REDIS_VERSION_COSMOTECH}"
-  pullPolicy: IfNotPresent
+  registry: "${REGISTRY}"
+  repository: "cosmotech/redis"
+  pullPolicy: "IfNotPresent"
 volumePermissions:
   enabled: false
   # enabled: true
   image:
-    registry: docker.io
-    repository: bitnamilegacy/os-shell
-    tag: latest
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: cosmotech/os-shell-iamguarded
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
 sysctl:
   image:
-    registry: docker.io
-    repository: bitnamilegacy/os-shell
-    tag: latest
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: "cosmotech/os-shell-iamguarded"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
 master:
   podSecurityContext:
     enabled: true
@@ -37,7 +33,7 @@ master:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     seccompProfile:
-      type: RuntimeDefault
+      type: "RuntimeDefault"
     capabilities:
       drop: ["ALL"]
   persistence:
@@ -73,7 +69,7 @@ replica:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     seccompProfile:
-      type: RuntimeDefault
+      type: "RuntimeDefault"
     capabilities:
       drop: ["ALL"]
   replicaCount: 1
@@ -103,3 +99,6 @@ commonConfiguration: |-
   loadmodule /opt/bitnami/redis/modules/redistimeseries.so DUPLICATE_POLICY LAST
   loadmodule /opt/bitnami/redis/modules/rejson.so
   loadmodule /opt/bitnami/redis/modules/redisearch.so
+global:
+  imagePullSecrets:
+    - name: "registry-authentication"

@@ -10,6 +10,10 @@ terraform {
 resource "kubectl_manifest" "initdb_seaweedfs" {
   yaml_body = templatefile("${path.module}/initdb/seaweedfs.yaml",
     {
+      postgresql_repository = var.postgresql_repository
+      postgresql_version    = var.postgresql_version
+      registry              = var.registry
+
       namespace         = var.tenant
       postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
       db_host           = local.database_host
@@ -25,6 +29,10 @@ resource "kubectl_manifest" "initdb_seaweedfs" {
 resource "kubectl_manifest" "initdb_argo" {
   yaml_body = templatefile("${path.module}/initdb/argo.yaml",
     {
+      postgresql_repository = var.postgresql_repository
+      postgresql_version    = var.postgresql_version
+      registry              = var.registry
+
       namespace         = var.tenant
       postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
       db_host           = local.database_host
@@ -40,6 +48,10 @@ resource "kubectl_manifest" "initdb_argo" {
 resource "kubectl_manifest" "initdb_cosmotechapi" {
   yaml_body = templatefile("${path.module}/initdb/cosmotech-api.yaml",
     {
+      postgresql_repository = var.postgresql_repository
+      postgresql_version    = var.postgresql_version
+      registry              = var.registry
+
       namespace         = var.tenant
       postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
       db_host           = local.database_host

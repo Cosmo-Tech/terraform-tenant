@@ -3,10 +3,11 @@ rbac:
 createAggregateRoles: false
 server:
   image:
-    repository: bitnamilegacy/argo-workflow-cli
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: "cosmotech/argo-workflow-cli"
+    pullPolicy: "IfNotPresent"
   auth:
-    mode: server
+    mode: "server"
   clusterWorkflowTemplates:
     enabled: false
   serviceAccount:
@@ -23,8 +24,9 @@ server:
       http: 2746
 controller:
   image:
-    repository: bitnamilegacy/argo-workflow-controller
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: "cosmotech/argo-workflow-controller"
+    pullPolicy: "IfNotPresent"
   persistence:
     archive:
       enabled: true
@@ -109,10 +111,10 @@ controller:
         runAsNonRoot: true
         runAsUser: 1001
         fsGroup: 1001
-        fsGroupChangePolicy: Always
+        fsGroupChangePolicy: "Always"
         seLinuxOptions: {}
         seccompProfile:
-          type: RuntimeDefault
+          type: "RuntimeDefault"
       # make sure workflows do not run forever. Default limit set is 7 days (604800 seconds)
       activeDeadlineSeconds: 604800
       ttlStrategy:
@@ -126,14 +128,14 @@ controller:
         # Delete pods when workflows are successful.
         # We can still access their logs and artifacts since they are archived.
         # One of "OnPodCompletion", "OnPodSuccess", "OnWorkflowCompletion", "OnWorkflowSuccess"
-        strategy: OnWorkflowSuccess
+        strategy: "OnWorkflowSuccess"
       volumeClaimGC:
         # Delete PVCs when workflows are done. However, due to Kubernetes PVC Protection,
         # such PVCs will just be marked as Terminating, until no pod is using them.
         # Pod deletion (either via the Pod GC strategy or the TTL strategy) will allow to free up
         # attached PVCs.
         # One of "OnWorkflowCompletion", "OnWorkflowSuccess"
-        strategy: OnWorkflowCompletion
+        strategy: "OnWorkflowCompletion"
   serviceAccount:
     automountServiceAccountToken: true
   nodeSelector:
@@ -145,18 +147,19 @@ controller:
       effect: "NoSchedule"
 executor:
   image:
-    repository: bitnamilegacy/argo-workflow-exec
-    pullPolicy: IfNotPresent
+    registry: "${REGISTRY}"
+    repository: "cosmotech/argo-workflow-exec"
+    pullPolicy: "IfNotPresent"
   resources: {}
   ## Init container's resource requests and limits
   ## @param executor.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if executor.resources is set (executor.resources is recommended for production).
   ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
-  resourcesPreset: nano
+  resourcesPreset: "nano"
   extraEnvVars:
-    - name: RESOURCE_STATE_CHECK_INTERVAL
-      value: 1s
-    - name: WAIT_CONTAINER_STATUS_CHECK_INTERVAL
-      value: 1s
+    - name: "RESOURCE_STATE_CHECK_INTERVAL"
+      value: "1s"
+    - name: "WAIT_CONTAINER_STATUS_CHECK_INTERVAL"
+      value: "1s"
 ingress:
   enabled: false
 workflows:
@@ -175,5 +178,5 @@ externalDatabase:
   database: "${DATABASE_NAME}"
   existingSecret: "${DATABASE_SECRET}"
 global:
-  security:
-    allowInsecureImages: true
+  imagePullSecrets:
+    - name: "registry-authentication"

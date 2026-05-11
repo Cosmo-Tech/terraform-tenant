@@ -49,3 +49,7 @@ variable "s3_secret_key_username" {
 variable "s3_secret_key_password" {
   type = string
 }
+
+variable "registry" {
+  type = string
+}
