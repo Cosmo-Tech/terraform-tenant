@@ -1,22 +1,21 @@
 image:
   debug: true
-  registry: "${REGISTRY}"
-  repository: "${POSTGRESQL_REPOSITORY}"
-  tag: "${POSTGRESQL_VERSION}"
-  pullPolicy: "IfNotPresent"
+  registry: ${IMAGE_REGISTRY}
+  repository: ${POSTGRESQL_IMAGE_REPOSITORY}
+  tag: ${POSTGRESQL_IMAGE_TAG}
+  pullPolicy: IfNotPresent
 auth:
   enablePostgresUser: true
-  database: "postgres"
-  existingSecret: "${POSTGRESQL_SECRET_CONFIG}"
+  database: postgres
+  existingSecret: ${POSTGRESQL_SECRET_CONFIG}
   secretKeys:
-    adminPasswordKey: "postgres-password"
+    adminPasswordKey: postgres-password
 primary:
   containerSecurityContext:
     enabled: true
     runAsNonRoot: true
-    # runAsNonRoot: false
     seccompProfile:
-      type: "RuntimeDefault"
+      type: RuntimeDefault
     capabilities:
       drop:
         - ALL
@@ -24,28 +23,28 @@ primary:
   podSecurityContext:
     enabled: true
     seccompProfile:
-      type: "RuntimeDefault"
+      type: RuntimeDefault
   podLabels:
-    "networking/traffic-allowed": "yes"
+    networking/traffic-allowed: "yes"
   tolerations:
-  - key: "vendor"
-    operator: "Equal"
-    value: "cosmotech"
-    effect: "NoSchedule"
+  - key: vendor
+    operator: Equal
+    value: cosmotech
+    effect: NoSchedule
   nodeSelector:
-    "cosmotech.com/tier": "db"
+    cosmotech.com/tier: db
   persistence:
     enabled: true
-    size: "${PERSISTENCE_SIZE}"
-    existingClaim: "${PERSISTENCE_PVC}"
-    storageClass: "${PERSISTENCE_STORAGE_CLASS}"
+    size: ${PERSISTENCE_SIZE}
+    existingClaim: ${PERSISTENCE_PVC}
+    storageClass: ${PERSISTENCE_STORAGE_CLASS}
   resources:
     requests:
-      memory: "64Mi"
-      cpu: "250m"
+      memory: 64Mi
+      cpu: 250m
     limits:
-      memory: "256Mi"
-      cpu: "1"
+      memory: 256Mi
+      cpu: 1
 metrics:
   enabled: true
   # containerSecurityContext:
@@ -60,25 +59,24 @@ metrics:
   #   interval: 30s
   #   scrapeTimeout: 10s
   image:
-    registry: "${REGISTRY}"
-    repository: "cosmotech/prometheus-postgres-exporter-iamguarded"
-    pullPolicy: "IfNotPresent"
+    registry: ${IMAGE_REGISTRY}
+    repository: cosmotech/prometheus-postgres-exporter-iamguarded
+    pullPolicy: IfNotPresent
   resources:
     requests:
-      memory: "64Mi"
-      cpu: "250m"
+      memory: 64Mi
+      cpu: 250m
     limits:
-      memory: "256Mi"
-      cpu: "1"
-
-# Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
+      memory: 256Mi
+      cpu: 1
+# Fix permission denied (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
 volumePermissions:
   enabled: true
   image:
-    registry: "${REGISTRY}"
-    repository: "cosmotech/os-shell-iamguarded"
-    tag: "latest"
-    pullPolicy: "IfNotPresent"
+    registry: ${IMAGE_REGISTRY}
+    repository: cosmotech/os-shell-iamguarded
+    tag: latest
+    pullPolicy: IfNotPresent
 global:
   imagePullSecrets:
-    - name: "registry-authentication"
+    - name: ${IMAGE_REGISTRY_AUTH_SECRET}

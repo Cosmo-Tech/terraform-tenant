@@ -1,12 +1,13 @@
 locals {
   chart_values = {
-    "PERSISTENCE_SIZE"          = var.size
-    "PERSISTENCE_PVC"           = var.pvc
-    "PERSISTENCE_STORAGE_CLASS" = var.pvc_storage_class
-    "POSTGRESQL_SECRET_CONFIG"  = kubernetes_secret.postgresql-config.metadata[0].name
-    "POSTGRESQL_REPOSITORY"     = var.postgresql_repository
-    "POSTGRESQL_VERSION"        = var.postgresql_version
-    "REGISTRY"                  = var.registry
+    "PERSISTENCE_SIZE"            = var.size
+    "PERSISTENCE_PVC"             = var.pvc
+    "PERSISTENCE_STORAGE_CLASS"   = var.pvc_storage_class
+    "POSTGRESQL_SECRET_CONFIG"    = kubernetes_secret.postgresql-config.metadata[0].name
+    "POSTGRESQL_IMAGE_REPOSITORY" = var.postgresql_image_repository
+    "POSTGRESQL_IMAGE_TAG"        = var.postgresql_image_tag
+    "IMAGE_REGISTRY"              = var.image_registry
+    "IMAGE_REGISTRY_AUTH_SECRET"  = var.image_registry_auth_secret
   }
 
   database_host = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
@@ -104,10 +105,10 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
 
 resource "helm_release" "postgresql" {
   namespace  = var.tenant
-  name       = var.release
-  repository = "oci://cgr.dev/cosmotech/iamguarded-charts"
-  chart      = "postgresql"
-  version    = "17.1.0"
+  name       = var.chart_release
+  repository = var.chart_repository
+  chart      = var.chart_name
+  version    = var.chart_tag
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

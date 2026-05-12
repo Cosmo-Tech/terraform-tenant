@@ -1,11 +1,11 @@
 locals {
-  main_name          = "tenant-${var.tenant}"
-  cluster_domain     = "${var.cluster_name}.${var.domain_zone}"
-  registry           = "cgr.dev"
+  main_name      = "tenant-${var.tenant}"
+  cluster_domain = "${var.cluster_name}.${var.domain_zone}"
+
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      size = 8
+      size = var.postgresql_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
     }
     seaweedfs-master = {
@@ -13,19 +13,20 @@ locals {
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
     }
     seaweedfs-volume = {
-      size = 32
+      size = var.seaweedfs_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
     }
     redis-master = {
-      size = 16
+      size = var.redis_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
     }
     redis-replica = {
-      size = 16
+      size = var.redis_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
     }
   }
 }
+
 
 module "kube_namespace" {
   source = "./modules/kube_namespace"
@@ -34,8 +35,8 @@ module "kube_namespace" {
 }
 
 
-# module "config_registry_auth" {
-#   source = "./modules/config_registry_auth"
+# module "config_image_registry_auth" {
+#   source = "./modules/config_image_registry_auth"
 # }
 
 
@@ -60,16 +61,22 @@ resource "time_sleep" "timer" {
 module "chart_postgresql" {
   source = "./modules/chart_postgresql"
 
-  release  = "postgresql"
-  tenant   = module.kube_namespace.tenant
-  registry = local.registry
+  tenant = module.kube_namespace.tenant
 
-  postgresql_repository = "cosmotech/postgres-iamguarded"
-  postgresql_version    = "17"
+  image_registry             = var.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.postgresql_chart_repository
+  chart_name       = var.postgresql_chart_name
+  chart_tag        = var.postgresql_chart_tag
+  chart_release    = "postgresql"
 
   size              = local.persistences.postgresql["size"]
   pvc               = "pvc-${local.persistences.postgresql["name"]}"
   pvc_storage_class = local.storage_class_name
+
+  postgresql_image_repository = var.postgresql_image_repository
+  postgresql_image_tag        = var.postgresql_image_tag
 
   depends_on = [
     time_sleep.timer,
@@ -80,9 +87,15 @@ module "chart_postgresql" {
 module "chart_seaweedfs" {
   source = "./modules/chart_seaweedfs"
 
-  release  = "seaweedfs"
-  tenant   = module.kube_namespace.tenant
-  registry = local.registry
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = var.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.seaweedfs_chart_repository
+  chart_name       = var.seaweedfs_chart_name
+  chart_tag        = var.seaweedfs_chart_tag
+  chart_release    = "seaweedfs"
 
   size_master              = local.persistences.seaweedfs-master["size"]
   pvc_master               = "pvc-${local.persistences.seaweedfs-master["name"]}"
@@ -100,6 +113,9 @@ module "chart_seaweedfs" {
   database_seaweedfs_user   = module.chart_postgresql.database_seaweedfs_user
   database_seaweedfs_secret = module.chart_postgresql.database_seaweedfs_secret
 
+  postgresql_image_repository = var.postgresql_image_repository
+  postgresql_image_tag        = var.postgresql_image_tag
+
   depends_on = [
     time_sleep.timer,
   ]
@@ -109,9 +125,15 @@ module "chart_seaweedfs" {
 module "chart_argo" {
   source = "./modules/chart_argo"
 
-  release  = "argo-workflows"
-  tenant   = module.kube_namespace.tenant
-  registry = local.registry
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = var.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.argo_chart_repository
+  chart_name       = var.argo_chart_name
+  chart_tag        = var.argo_chart_tag
+  chart_release    = "argo-workflows"
 
   database_host   = module.chart_postgresql.database_host
   database_port   = module.chart_postgresql.database_port
@@ -135,9 +157,15 @@ module "chart_argo" {
 module "chart_redis" {
   source = "./modules/chart_redis"
 
-  release  = "redis"
-  tenant   = module.kube_namespace.tenant
-  registry = local.registry
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = var.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.redis_chart_repository
+  chart_name       = var.redis_chart_name
+  chart_tag        = var.redis_chart_tag
+  chart_release    = "redis"
 
   size_master              = local.persistences.redis-master["size"]
   pvc_master               = "pvc-${local.persistences.redis-master["name"]}"
@@ -156,8 +184,15 @@ module "chart_redis" {
 module "chart_cosmotech_api" {
   source = "./modules/chart_cosmotech_api"
 
-  release = "cosmotech-api"
-  tenant  = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant
+
+  # image_registry             = var.image_registry
+  # image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.cosmotechapi_chart_repository
+  chart_name       = var.cosmotechapi_chart_name
+  chart_tag        = var.cosmotechapi_chart_tag
+  chart_release    = "cosmotech-api"
 
   postgresql_host            = module.chart_postgresql.database_host
   postgresql_port            = module.chart_postgresql.database_port
@@ -215,12 +250,12 @@ module "config_harbor_project" {
 }
 
 
-module "config_superset_oauth_provider" {
-  source = "./modules/config_superset_oauth_provider"
+# module "config_superset_oauth_provider" {
+#   source = "./modules/config_superset_oauth_provider"
 
-  tenant         = module.kube_namespace.tenant
-  cluster_domain = local.cluster_domain
-  depends_on = [
-    module.config_keycloak_realm
-  ]
-}
+#   tenant         = module.kube_namespace.tenant
+#   cluster_domain = local.cluster_domain
+#   depends_on = [
+#     module.config_keycloak_realm
+#   ]
+# }

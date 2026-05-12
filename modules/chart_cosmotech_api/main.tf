@@ -64,10 +64,10 @@ data "kubernetes_secret" "registry" {
 
 resource "helm_release" "cosmotech_api" {
   namespace  = var.tenant
-  name       = "${var.release}-${var.tenant}"
-  repository = "https://cosmo-tech.github.io/helm-charts"
-  chart      = "cosmotech-api"
-  version    = "5.0.1"
+  name       = "${var.chart_release}-${var.tenant}"
+  repository = var.chart_repository
+  chart      = var.chart_name
+  version    = var.chart_tag
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

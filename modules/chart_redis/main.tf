@@ -9,7 +9,8 @@ locals {
     "REDIS_SECRET"                      = kubernetes_secret.redis.metadata[0].name
     "REDIS_PASSWORD"                    = kubernetes_secret.redis.data.password
     "REDIS_VERSION_COSMOTECH"           = "1.0.13"
-    "REGISTRY"                          = var.registry
+    "IMAGE_REGISTRY"                    = var.image_registry
+    "IMAGE_REGISTRY_AUTH_SECRET"        = var.image_registry_auth_secret
   }
 }
 
@@ -26,7 +27,7 @@ resource "random_password" "password" {
 resource "kubernetes_secret" "redis" {
   metadata {
     namespace = var.tenant
-    name      = "${var.release}-config"
+    name      = "${var.chart_release}-config"
   }
 
   data = {
@@ -39,10 +40,10 @@ resource "kubernetes_secret" "redis" {
 
 resource "helm_release" "redis" {
   namespace  = var.tenant
-  name       = var.release
-  repository = "oci://cgr.dev/cosmotech/iamguarded-charts"
-  chart      = "redis"
-  version    = "25.3.8"
+  name       = var.chart_release
+  repository = var.chart_repository
+  chart      = var.chart_name
+  version    = var.chart_tag
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

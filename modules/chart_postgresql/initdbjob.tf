@@ -10,9 +10,11 @@ terraform {
 resource "kubectl_manifest" "initdb_seaweedfs" {
   yaml_body = templatefile("${path.module}/initdb/seaweedfs.yaml",
     {
-      postgresql_repository = var.postgresql_repository
-      postgresql_version    = var.postgresql_version
-      registry              = var.registry
+      image_registry             = var.image_registry
+      image_registry_auth_secret = var.image_registry_auth_secret
+
+      postgresql_image_repository = var.postgresql_image_repository
+      postgresql_image_tag        = var.postgresql_image_tag
 
       namespace         = var.tenant
       postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
@@ -29,9 +31,11 @@ resource "kubectl_manifest" "initdb_seaweedfs" {
 resource "kubectl_manifest" "initdb_argo" {
   yaml_body = templatefile("${path.module}/initdb/argo.yaml",
     {
-      postgresql_repository = var.postgresql_repository
-      postgresql_version    = var.postgresql_version
-      registry              = var.registry
+      image_registry             = var.image_registry
+      image_registry_auth_secret = var.image_registry_auth_secret
+
+      postgresql_image_repository = var.postgresql_image_repository
+      postgresql_image_tag        = var.postgresql_image_tag
 
       namespace         = var.tenant
       postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
@@ -48,9 +52,11 @@ resource "kubectl_manifest" "initdb_argo" {
 resource "kubectl_manifest" "initdb_cosmotechapi" {
   yaml_body = templatefile("${path.module}/initdb/cosmotech-api.yaml",
     {
-      postgresql_repository = var.postgresql_repository
-      postgresql_version    = var.postgresql_version
-      registry              = var.registry
+      image_registry             = var.image_registry
+      image_registry_auth_secret = var.image_registry_auth_secret
+
+      postgresql_image_repository = var.postgresql_image_repository
+      postgresql_image_tag        = var.postgresql_image_tag
 
       namespace         = var.tenant
       postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]

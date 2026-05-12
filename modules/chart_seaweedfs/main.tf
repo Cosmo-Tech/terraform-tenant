@@ -16,8 +16,11 @@ locals {
     "S3_INIT_BUCKETS"                  = ["${local.s3_argo_workflows_bucket}", "${local.s3_cosmotech_api_bucket}"]
     "S3_SECRET"                        = kubernetes_secret.s3_secret.metadata[0].name
     "S3_PORT"                          = local.s3_port
-    "FILER_ENDPOINT"                   = "http://${var.release}-filer.${var.tenant}.svc.cluster.local:8888"
-    "REGISTRY"                         = var.registry
+    "FILER_ENDPOINT"                   = "http://${var.chart_release}-filer.${var.tenant}.svc.cluster.local:8888"
+    "IMAGE_REGISTRY"                   = var.image_registry
+    "IMAGE_REGISTRY_AUTH_SECRET"       = var.image_registry_auth_secret
+    "POSTGRESQL_IMAGE_REPOSITORY"      = var.postgresql_image_repository
+    "POSTGRESQL_IMAGE_TAG"             = var.postgresql_image_tag
   }
 
   s3_host = "${helm_release.seaweedfs.name}-s3.${helm_release.seaweedfs.namespace}.svc.cluster.local"
@@ -52,7 +55,7 @@ resource "random_password" "password" {
 resource "kubernetes_secret" "s3_secret" {
   metadata {
     namespace = var.tenant
-    name      = "${var.release}-s3"
+    name      = "${var.chart_release}-s3"
   }
 
   data = {
@@ -74,11 +77,10 @@ resource "kubernetes_secret" "s3_secret" {
 
 resource "helm_release" "seaweedfs" {
   namespace  = var.tenant
-  name       = var.release
-  repository = "oci://cgr.dev/cosmotech/iamguarded-charts"
-  chart      = "seaweedfs"
-  # chart      = "/local_clone_bitnami_chart_path/bitnami/seaweedfs"
-  version = "6.0.4"
+  name       = var.chart_release
+  repository = var.chart_repository
+  chart      = var.chart_name
+  version    = var.chart_tag
   values = [
     templatefile("${path.module}/values.yaml", local.chart_values)
   ]

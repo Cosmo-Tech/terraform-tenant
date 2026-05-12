@@ -1,21 +1,22 @@
 replicaCount: 1
 api:
-  version: "api"
+  version: api
   multiTenant: true
-  servletContextPath: "/"
+  servletContextPath: /
   tlsTruststore:
     enabled: false
   serviceMonitor:
-    name: "cosmotech-api-${NAMESPACE}"
+    name: cosmotech-api-${NAMESPACE}
     enabled: true
-    namespace: "${NAMESPACE_MONITORING}"
+    namespace: ${NAMESPACE_MONITORING}
 image:
-  repository: "ghcr.io/cosmo-tech/cosmotech-api"
+  repository: ghcr.io/cosmo-tech/cosmotech-api
+  pullPolicy: IfNotPresent
 argo:
   imageCredentials:
-    registry: "${REGISTRY_URL}"
-    username: "${REGISTRY_USERNAME}"
-    password: "${REGISTRY_PASSWORD}"
+    registry: ${REGISTRY_URL}
+    username: ${REGISTRY_USERNAME}
+    password: ${REGISTRY_PASSWORD}
 # Note : This is a comment but is kept for future use if more logging information is needed
 # logging:
 #     level:
@@ -32,61 +33,61 @@ config:
   # spring:
   #   servlet:
   #     multipart:
-  #       max-file-size: "1MB"
-  #       max-request-size: "10MB"
+  #       max-file-size: 1MB
+  #       max-request-size: 10MB
   csm:
     platform:
       containerRegistry:
-        scheme: "https"
-        host: "${REGISTRY_URL}"
-        username: "${REGISTRY_USERNAME}"
-        password: "${REGISTRY_PASSWORD}"
+        scheme: https
+        host: ${REGISTRY_URL}
+        username: ${REGISTRY_USERNAME}
+        password: ${REGISTRY_PASSWORD}
       identityProvider:
-        audience: "account"
-        code: "keycloak"
-        serverBaseUrl: "https://${CLUSTER_DOMAIN}/keycloak"
-        authorizationUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth"
-        tokenUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token"
+        audience: account
+        code: keycloak
+        serverBaseUrl: https://${CLUSTER_DOMAIN}/keycloak
+        authorizationUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth
+        tokenUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token
         defaultScopes:
           openid: "OpenId Scope"
         identity:
-          clientId: "${KEYCLOAK_CLIENT_ID}"
-          clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
-          tenantId: "${NAMESPACE}"
+          clientId: ${KEYCLOAK_CLIENT_ID}
+          clientSecret: ${KEYCLOAK_CLIENT_PASSWORD}
+          tenantId: ${NAMESPACE}
       namespace: ${NAMESPACE}
       argo:
-        base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
+        base-uri: http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746
         workflows:
-          namespace: "${NAMESPACE}"
-          service-account-name: "argo-workflows"
+          namespace: ${NAMESPACE}
+          service-account-name: argo-workflows
           requests:
-            storage: "20Gi"
+            storage: 20Gi
       s3:
-        endpointUrl: "${S3_ENDPOINT}"
-        bucketName: "${S3_BUCKET}"
-        accessKeyId: "${S3_USERNAME}"
-        secretAccessKey: "${S3_PASSWORD}"
+        endpointUrl: ${S3_ENDPOINT}
+        bucketName: ${S3_BUCKET}
+        accessKeyId: ${S3_USERNAME}
+        secretAccessKey: ${S3_PASSWORD}
       authorization:
-        allowed-tenants: "${NAMESPACE}"
+        allowed-tenants: ${NAMESPACE}
       databases:
         resources:
-          host: "redis-master.${NAMESPACE}.svc.cluster.local"
-          port: "${REDIS_PORT}"
-          username: "default"
-          password: "${REDIS_PASSWORD}"
+          host: redis-master.${NAMESPACE}.svc.cluster.local
+          port: ${REDIS_PORT}
+          username: default
+          password: ${REDIS_PASSWORD}
         data:
-          host: "${POSTGRESQL_DATABASE_HOST}"
+          host: ${POSTGRESQL_DATABASE_HOST}
           port: 5432
-          database: "${POSTGRESQL_DATABASE_NAME}"
+          database: ${POSTGRESQL_DATABASE_NAME}
           reader:
-            username: "${POSTGRESQL_READER_USERNAME}"
-            password: "${POSTGRESQL_READER_PASSWORD}"
+            username: ${POSTGRESQL_READER_USERNAME}
+            password: ${POSTGRESQL_READER_PASSWORD}
           writer:
-            username: "${POSTGRESQL_WRITER_USERNAME}"
-            password: "${POSTGRESQL_WRITER_PASSWORD}"
+            username: ${POSTGRESQL_WRITER_USERNAME}
+            password: ${POSTGRESQL_WRITER_PASSWORD}
           admin:
-            username: "${POSTGRESQL_ADMIN_USERNAME}"
-            password: "${POSTGRESQL_ADMIN_PASSWORD}"
+            username: ${POSTGRESQL_ADMIN_USERNAME}
+            password: ${POSTGRESQL_ADMIN_PASSWORD}
       # Note : keep this comment it is for customer configuration
       # upload:
       #   authorized-mime-types:
@@ -113,36 +114,36 @@ config:
 ingress:
   enabled: true
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-${NAMESPACE}"
-    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: letsencrypt-prod-${NAMESPACE}
+    kubernetes.io/ingress.class: nginx
     ## Define timeout to allow long-running queries
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "${COSMOTECH_API_CONNECT_TIMEOUT}"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "${COSMOTECH_API_QUERY_TIMEOUT}"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "${COSMOTECH_API_QUERY_TIMEOUT}"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: ${COSMOTECH_API_CONNECT_TIMEOUT}
+    nginx.ingress.kubernetes.io/proxy-read-timeout: ${COSMOTECH_API_QUERY_TIMEOUT}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: ${COSMOTECH_API_QUERY_TIMEOUT}
     ## Define body sizes for large data file exchanges.
-    nginx.ingress.kubernetes.io/client_max_body_size: "${COSMOTECH_API_MAX_FILE_SIZE}"
-    nginx.ingress.kubernetes.io/proxy-body-size: "${COSMOTECH_API_MAX_FILE_SIZE}"
-    nginx.ingress.kubernetes.io/client-body-buffer-size: "${COSMOTECH_API_BUFFER_SIZE}"
+    nginx.ingress.kubernetes.io/client_max_body_size: ${COSMOTECH_API_MAX_FILE_SIZE}
+    nginx.ingress.kubernetes.io/proxy-body-size: ${COSMOTECH_API_MAX_FILE_SIZE}
+    nginx.ingress.kubernetes.io/client-body-buffer-size: ${COSMOTECH_API_BUFFER_SIZE}
   hosts:
-    - host: "${CLUSTER_DOMAIN}"
+    - host: ${CLUSTER_DOMAIN}
   tls:
-    - secretName: "letsencrypt-prod-${NAMESPACE}"
+    - secretName: letsencrypt-prod-${NAMESPACE}
       hosts: ["${CLUSTER_DOMAIN}"]
 resources:
   limits:
-    memory: "2Gi"
+    memory: 2Gi
   requests:
-    memory: "1Gi"
+    memory: 1Gi
 tolerations:
-- key: "vendor"
-  operator: "Equal"
-  value: "cosmotech"
-  effect: "NoSchedule"
+- key: vendor
+  operator: Equal
+  value: cosmotech
+  effect: NoSchedule
 nodeSelector:
-  "cosmotech.com/tier": "services"
+  cosmotech.com/tier: services
 podSecurityContext:
   seccompProfile:
-    type: "RuntimeDefault"
+    type: RuntimeDefault
 securityContext:
   capabilities:
     drop:

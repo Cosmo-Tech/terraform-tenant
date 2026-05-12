@@ -2,15 +2,27 @@ variable "tenant" {
   type = string
 }
 
-variable "release" {
+# variable "image_registry" {
+#    type = string
+# }
+
+# variable "image_registry_auth_secret" {
+#    type = string
+# }
+
+variable "chart_repository" {
   type = string
 }
 
-variable "postgresql_host" {
+variable "chart_name" {
   type = string
 }
 
-variable "postgresql_port" {
+variable "chart_tag" {
+  type = string
+}
+
+variable "chart_release" {
   type = string
 }
 
@@ -35,6 +47,14 @@ variable "s3_secret_key_username" {
 }
 
 variable "s3_secret_key_password" {
+  type = string
+}
+
+variable "postgresql_host" {
+  type = string
+}
+
+variable "postgresql_port" {
   type = string
 }
 
@@ -66,10 +86,6 @@ variable "postgresql_reader_password" {
   type = string
 }
 
-variable "cluster_domain" {
-  type = string
-}
-
 variable "keycloak_client_id" {
   type = string
 }
@@ -79,21 +95,21 @@ variable "keycloak_client_secret" {
 }
 
 variable "cosmotech_api_connect_timeout" {
-  type    = string
   default = "30s"
 }
 
 variable "cosmotech_api_query_timeout" {
-  type    = string
   default = "60s"
 }
 
 variable "cosmotech_api_buffer_size" {
-  type    = string
   default = "16K"
 }
 
 variable "cosmotech_api_max_file_size" {
-  type    = string
   default = "300m"
+}
+
+variable "cluster_domain" {
+  type = string
 }
