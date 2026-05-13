@@ -99,7 +99,6 @@ replica:
       memory: "4Gi"
       cpu: "2000m"
 commonConfiguration: |-
-  loadmodule /opt/bitnami/redis/modules/redisgraph.so
   loadmodule /opt/bitnami/redis/modules/redistimeseries.so DUPLICATE_POLICY LAST
   loadmodule /opt/bitnami/redis/modules/rejson.so
   loadmodule /opt/bitnami/redis/modules/redisearch.so
