@@ -22,15 +22,26 @@
 * deploy
     * fill `terraform.tfvars` variables according to your needs
     * run pre-configured script
-        > ℹ️ comment/uncomment the terraform apply line at the end to get a plan without deploy anything
-        * Linux
-            ```
-            ./_run-terraform.sh
-            ```
-        * Windows
-            ```
-            ./_run-terraform.ps1
-            ```
+        * plan
+            > get an execution plan to preview the changes without applying
+            * Linux
+                ```
+                ./_run-terraform.sh
+                ```
+            * Windows
+                ```
+                ./_run-terraform.ps1
+                ```
+        * apply
+            > executes the operations proposed in the plan
+            * Linux
+                ```
+                ./_run-terraform.sh --apply
+                ```
+            * Windows
+                ```
+                ./_run-terraform.ps1 --apply
+                ```
 
 ## Known errors
 * Error: Provider configuration not present
