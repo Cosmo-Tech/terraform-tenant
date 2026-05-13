@@ -78,10 +78,10 @@ resource "kubernetes_secret" "harbor_tenant_docker" {
 }
 
 resource "harbor_user" "tenant" {
-  username  = kubernetes_secret.harbor_tenant.data["username"]
-  full_name = kubernetes_secret.harbor_tenant.data["username"]
-  email     = kubernetes_secret.harbor_tenant.data["email"]
-  password_wo  = kubernetes_secret.harbor_tenant.data["password"]
+  username            = kubernetes_secret.harbor_tenant.data["username"]
+  full_name           = kubernetes_secret.harbor_tenant.data["username"]
+  email               = kubernetes_secret.harbor_tenant.data["email"]
+  password_wo         = kubernetes_secret.harbor_tenant.data["password"]
   password_wo_version = 1
 }
 
