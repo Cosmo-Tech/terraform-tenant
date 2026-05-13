@@ -31,14 +31,6 @@
             ```
             ./_run-terraform.ps1
             ```
-    * Azure
-        * will ask for the access key of the Azure Storage of "cosmotechstates"
-            * go to Azure > Azure Storage > "cosmotechstates" > Access keys
-            * copy/paste "Key" from "key1" or "key2" in the terraform input
-    * AWS
-        * to fill
-    * GCP
-        * to fill
 
 ## Known errors
 * Error: Provider configuration not present
@@ -61,12 +53,14 @@
         * *chart_postgresql* = install PostgreSQL (and configure it for Cosmo Tech API, SeaweedFS & Argo Workflows)
         * *chart_redis* = install Redis
         * *chart_seaweedfs* = install SeaweedFS
-        * *config_grafana_dashboard* = create tenant configuration on existing Grafana instance
-        * *config_keycloak_realm* = create tenant configuration on existing Keycloak instance
+        * *config_grafana_dashboard* = create tenant configuration on existing Grafana instance (add custom dashboards)
+        * *config_harbor_project* = create tenant configuration on existing Harbor instance (add dedicated project+user to host the tenant simulators)
+        * *config_keycloak_realm* = create tenant configuration on existing Keycloak instance (create a dedicated tenant realm, and differents clients for the tenant)
+        * *config_superset_oauth_provider* = create tenant configuration on existing Superset instance (add authentication from Keycloak)
         * *kube_namespace* = create tenant namespace
         * *storage* = **[temporary]** dynamically create persistence storage for charts requiring it
 * Terraform **state**
-    * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called `cosmotech-states` or `cosmotechstates`, depending on what the cloud provider allows in naming convention)
+    * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called `csmstates<id>` or `cosmotech-states`, depending on what the cloud provider allows in naming convention)
 * Scripts **_run-terraform.***
     * Automatically detect hosting target (cloud provider name, on-premise...), and adapt the Terraform module to work with it
     * Terraform modules can work without the scripts, but will require some additional manual steps.
