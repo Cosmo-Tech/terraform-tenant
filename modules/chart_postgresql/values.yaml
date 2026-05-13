@@ -1,6 +1,6 @@
 image:
   debug: true
-  registry: ${IMAGE_REGISTRY}
+  # registry: ${IMAGE_REGISTRY}
   repository: ${POSTGRESQL_IMAGE_REPOSITORY}
   tag: ${POSTGRESQL_IMAGE_TAG}
   pullPolicy: IfNotPresent
@@ -59,7 +59,7 @@ metrics:
   #   interval: 30s
   #   scrapeTimeout: 10s
   image:
-    registry: ${IMAGE_REGISTRY}
+    # registry: ${IMAGE_REGISTRY}
     repository: cosmotech/prometheus-postgres-exporter-iamguarded
     pullPolicy: IfNotPresent
   resources:
@@ -73,10 +73,11 @@ metrics:
 volumePermissions:
   enabled: true
   image:
-    registry: ${IMAGE_REGISTRY}
+    # registry: ${IMAGE_REGISTRY}
     repository: cosmotech/os-shell-iamguarded
     tag: latest
     pullPolicy: IfNotPresent
 global:
+  imageRegistry: ${IMAGE_REGISTRY}
   imagePullSecrets:
     - name: ${IMAGE_REGISTRY_AUTH_SECRET}

@@ -16,7 +16,7 @@ variable "postgresql_image_tag" { default = "17" }                              
 
 
 # SeaweedFS
-variable "seaweedfs_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-chart" }
+variable "seaweedfs_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
 variable "seaweedfs_chart_name" { default = "seaweedfs" }
 variable "seaweedfs_chart_tag" { default = "6.0.4" }
 variable "seaweedfs_storage_size" { default = 32 }
@@ -25,14 +25,15 @@ variable "seaweedfs_storage_size" { default = 32 }
 # Argo Workflows
 variable "argo_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
 variable "argo_chart_name" { default = "argo-workflows" }
-# "13.0.6" is the latest bitnamilegacy/argo-workflows, but it's installing argo-workflows 3.7.1 which has a bug when using "namespaced" argument (more info: https://github.com/argoproj/argo-workflows/issues/14806)
-variable "argo_chart_tag" { default = "13.0.6" }
+variable "argo_chart_tag" { default = "13.0.6" } # "13.0.6" is the latest bitnamilegacy/argo-workflows, but it's installing argo-workflows 3.7.1 which has a bug when using "namespaced" argument (more info: https://github.com/argoproj/argo-workflows/issues/14806)
 
 
 # Redis
-variable "redis_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
+# variable "redis_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
+variable "redis_chart_repository" { default = "https://charts.bitnami.com/bitnami" }
 variable "redis_chart_name" { default = "redis" }
-variable "redis_chart_tag" { default = "25.3.8" }
+# variable "redis_chart_tag" { default = "25.3.8" }
+variable "redis_chart_tag" { default = "23.2.1" }
 variable "redis_storage_size" { default = 16 }
 
 

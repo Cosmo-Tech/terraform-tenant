@@ -3,8 +3,7 @@ rbac:
 createAggregateRoles: false
 server:
   image:
-    registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/argo-workflow-cli
+    repository: cosmotech/argo-workflow-cli-iamguarded
     pullPolicy: IfNotPresent
   auth:
     mode: server
@@ -13,19 +12,18 @@ server:
   serviceAccount:
     automountServiceAccountToken: true
   nodeSelector:
-    cosmotech.com/tier: services
+    "cosmotech.com/tier": "services"
   tolerations:
-    - key: vendor
-      operator: Equal
-      value: cosmotech
-      effect: NoSchedule
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
   service:
     ports:
       http: 2746
 controller:
   image:
-    registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/argo-workflow-controller
+    repository: cosmotech/argo-workflow-controller-iamguarded
     pullPolicy: IfNotPresent
   persistence:
     archive:
@@ -127,28 +125,27 @@ controller:
       podGC:
         # Delete pods when workflows are successful.
         # We can still access their logs and artifacts since they are archived.
-        # One of OnPodCompletion, OnPodSuccess, OnWorkflowCompletion, OnWorkflowSuccess
+        # One of "OnPodCompletion", "OnPodSuccess", "OnWorkflowCompletion", "OnWorkflowSuccess"
         strategy: OnWorkflowSuccess
       volumeClaimGC:
         # Delete PVCs when workflows are done. However, due to Kubernetes PVC Protection,
         # such PVCs will just be marked as Terminating, until no pod is using them.
         # Pod deletion (either via the Pod GC strategy or the TTL strategy) will allow to free up
         # attached PVCs.
-        # One of OnWorkflowCompletion, OnWorkflowSuccess
+        # One of "OnWorkflowCompletion", "OnWorkflowSuccess"
         strategy: OnWorkflowCompletion
   serviceAccount:
     automountServiceAccountToken: true
   nodeSelector:
-    cosmotech.com/tier: services
+    "cosmotech.com/tier": "services"
   tolerations:
-    - key: vendor
-      operator: Equal
-      value: cosmotech
-      effect: NoSchedule
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
 executor:
   image:
-    registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/argo-workflow-exec
+    repository: cosmotech/argo-workflow-exec-iamguarded
     pullPolicy: IfNotPresent
   resources: {}
   ## Init container's resource requests and limits
@@ -164,18 +161,20 @@ ingress:
   enabled: false
 workflows:
   serviceAccount:
-    name: ${SERVICE_ACCOUNT}
+    name: "${SERVICE_ACCOUNT}"
     automountServiceAccountToken: true
 postgresql:
   enabled: false
 externalDatabase:
   enabled: true
-  type: postgresql
-  host: ${DATABASE_HOST}
-  port: ${DATABASE_PORT}
-  username: ${DATABASE_USER}
-  database: ${DATABASE_NAME}
-  existingSecret: ${DATABASE_SECRET}
+  type: "postgresql"
+  host: "${DATABASE_HOST}"
+  port: "${DATABASE_PORT}"
+  username: "${DATABASE_USER}"
+  # password: ""
+  database: "${DATABASE_NAME}"
+  existingSecret: "${DATABASE_SECRET}"
 global:
+  imageRegistry: ${IMAGE_REGISTRY}
   imagePullSecrets:
     - name: ${IMAGE_REGISTRY_AUTH_SECRET}

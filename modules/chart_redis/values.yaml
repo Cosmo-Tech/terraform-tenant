@@ -1,24 +1,28 @@
+global:
+  security:
+    allowInsecureImages: true
 auth:
   password: ${REDIS_PASSWORD}
   # existingSecret: REDIS_SECRET}
 serviceBindings: 
   enabled: true
 image:
-  registry: ${IMAGE_REGISTRY}
-  repository: cosmotech/redis
+  registry: ghcr.io
+  repository: cosmo-tech/cosmotech-redis
+  tag: "${REDIS_VERSION_COSMOTECH}"
   pullPolicy: IfNotPresent
 volumePermissions:
   enabled: false
   # enabled: true
   image:
-    registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/os-shell-iamguarded
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
     tag: latest
     pullPolicy: IfNotPresent
 sysctl:
   image:
-    registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/os-shell-iamguarded
+    registry: docker.io
+    repository: bitnamilegacy/os-shell
     tag: latest
     pullPolicy: IfNotPresent
 master:
@@ -38,25 +42,25 @@ master:
       drop: ["ALL"]
   persistence:
     enabled: true
-    size: ${PERSISTENCE_MASTER_SIZE}
-    storageClass: ${PERSISTENCE_MASTER_STORAGE_CLASS}
-    existingClaim: ${PERSISTENCE_MASTER_PVC}
+    size: "${PERSISTENCE_MASTER_SIZE}"
+    storageClass: "${PERSISTENCE_MASTER_STORAGE_CLASS}"
+    existingClaim: "${PERSISTENCE_MASTER_PVC}"
   podLabels:
     networking/traffic-allowed: "yes"
   tolerations:
-  - key: vendor
-    operator: Equal
-    value: cosmotech
-    effect: NoSchedule
+  - key: "vendor"
+    operator: "Equal"
+    value: "cosmotech"
+    effect: "NoSchedule"
   nodeSelector:
-    cosmotech.com/tier: db
+    "cosmotech.com/tier": "db"
   resources:
     requests:
-      memory: 4Gi
-      cpu: 2000m
+      memory: "4Gi"
+      cpu: "2000m"
     limits:
-      memory: 4Gi
-      cpu: 2000m
+      memory: "4Gi"
+      cpu: "2000m"
 replica:
   podSecurityContext:
     enabled: true
@@ -77,28 +81,25 @@ replica:
     networking/traffic-allowed: "yes"
   persistence:
     enabled: true
-    size: ${PERSISTENCE_REPLICA_SIZE}
-    storageClass: ${PERSISTENCE_REPLICA_STORAGE_CLASS}
-    existingClaim: ${PERSISTENCE_REPLICA_PVC}
+    size: "${PERSISTENCE_REPLICA_SIZE}"
+    storageClass: "${PERSISTENCE_REPLICA_STORAGE_CLASS}"
+    existingClaim: "${PERSISTENCE_REPLICA_PVC}"
   tolerations:
-  - key: vendor
-    operator: Equal
-    value: cosmotech
-    effect: NoSchedule
+  - key: "vendor"
+    operator: "Equal"
+    value: "cosmotech"
+    effect: "NoSchedule"
   nodeSelector:
-    cosmotech.com/tier: db
+    "cosmotech.com/tier": "db"
   resources:
     requests:
-      memory: 4Gi
-      cpu: 2000m
+      memory: "4Gi"
+      cpu: "2000m"
     limits:
-      memory: 4Gi
-      cpu: 2000m
+      memory: "4Gi"
+      cpu: "2000m"
 commonConfiguration: |-
   loadmodule /opt/bitnami/redis/modules/redisgraph.so
   loadmodule /opt/bitnami/redis/modules/redistimeseries.so DUPLICATE_POLICY LAST
   loadmodule /opt/bitnami/redis/modules/rejson.so
   loadmodule /opt/bitnami/redis/modules/redisearch.so
-global:
-  imagePullSecrets:
-    - name: ${IMAGE_REGISTRY_AUTH_SECRET}

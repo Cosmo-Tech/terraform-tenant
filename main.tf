@@ -226,7 +226,9 @@ module "chart_cosmotech_api" {
     time_sleep.timer,
     module.chart_postgresql,
     module.chart_redis,
+    module.chart_argo,
     module.config_harbor_project,
+    module.config_keycloak_realm,
   ]
 }
 
