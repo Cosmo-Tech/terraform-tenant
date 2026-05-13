@@ -161,6 +161,15 @@ terraform init -lock=false -upgrade -reconfigure
 terraform plan -lock=false -out .terraform.plan
 # terraform apply -lock=false .terraform.plan
 
+$option_apply = '--apply'
+if ($args[0] -eq $option_apply) {
+    terraform apply -lock=false .terraform.plan
+} else {
+    echo ''
+    echo "Terraform plan can be applied with:"
+    echo "  $0 $option_apply"
+}
+
 
 echo ''
 exit 0
