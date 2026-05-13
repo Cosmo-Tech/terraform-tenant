@@ -29,21 +29,21 @@ argo:
     username: ${REGISTRY_USERNAME}
     password: ${REGISTRY_PASSWORD}
 # Note : This is a comment but is kept for future use if more logging information is needed
-logging:
-    level:
-      com.cosmotech: DEBUG
-      web: WARN
-      org.springframework: WARN
-      com.redis: WARN
-server:
-    error:
-      include-stacktrace: always
+# logging:
+#     level:
+#       com.cosmotech: DEBUG
+#       web: WARN
+#       org.springframework: WARN
+#       com.redis: WARN
+# server:
+#     error:
+#       include-stacktrace: always
 ingress:
   enabled: true
-  ingressClassName: nginx
+  # ingressClassName: nginx
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod-${NAMESPACE}
-    # kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: nginx
     ## Define timeout to allow long-running queries
     nginx.ingress.kubernetes.io/proxy-connect-timeout: ${COSMOTECH_API_CONNECT_TIMEOUT}
     nginx.ingress.kubernetes.io/proxy-read-timeout: ${COSMOTECH_API_QUERY_TIMEOUT}

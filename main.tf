@@ -252,12 +252,12 @@ module "config_harbor_project" {
 }
 
 
-# module "config_superset_oauth_provider" {
-#   source = "./modules/config_superset_oauth_provider"
+module "config_superset_oauth_provider" {
+  source = "./modules/config_superset_oauth_provider"
 
-#   tenant         = module.kube_namespace.tenant
-#   cluster_domain = local.cluster_domain
-#   depends_on = [
-#     module.config_keycloak_realm
-#   ]
-# }
+  tenant         = module.kube_namespace.tenant
+  cluster_domain = local.cluster_domain
+  depends_on = [
+    module.config_keycloak_realm
+  ]
+}
