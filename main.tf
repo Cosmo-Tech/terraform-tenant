@@ -261,9 +261,3 @@ module "config_superset_oauth_provider" {
     module.config_keycloak_realm
   ]
 }
-
-
-# Simple output to display the tenant name on the terminal to ensure the modification are not on a wrong deployment ;)
-output "tenant_name" {
-  value = local.main_name
-}
