@@ -2,8 +2,8 @@
 
 
 # Registry
-variable "image_registry" { default = "cgr.dev" }
-variable "image_registry_auth_secret" { default = "registry-authentication" }
+# variable "image_registry" { default = "cgr.dev" }
+variable "image_registry_auth_secret" { default = "registry-auth-cgrdev" }
 
 
 # PostgreSQL

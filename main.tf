@@ -25,6 +25,8 @@ locals {
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
     }
   }
+
+  image_registry = module.kube_namespace.image_registry
 }
 
 
@@ -32,12 +34,9 @@ module "kube_namespace" {
   source = "./modules/kube_namespace"
 
   tenant = var.tenant
+
+  image_registry_auth_secret = var.image_registry_auth_secret
 }
-
-
-# module "config_image_registry_auth" {
-#   source = "./modules/config_image_registry_auth"
-# }
 
 
 module "config_keycloak_realm" {
@@ -48,7 +47,8 @@ module "config_keycloak_realm" {
 }
 
 
-# Timer to wait for storage to be created before continue
+# Timer to wait for storage to be created before continue.
+# Also used a general gateway before install next modules.
 resource "time_sleep" "timer" {
   create_duration = "30s"
 
@@ -63,7 +63,7 @@ module "chart_postgresql" {
 
   tenant = module.kube_namespace.tenant
 
-  image_registry             = var.image_registry
+  image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
 
   chart_repository = var.postgresql_chart_repository
@@ -89,7 +89,7 @@ module "chart_seaweedfs" {
 
   tenant = module.kube_namespace.tenant
 
-  image_registry             = var.image_registry
+  image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
 
   chart_repository = var.seaweedfs_chart_repository
@@ -127,7 +127,7 @@ module "chart_argo" {
 
   tenant = module.kube_namespace.tenant
 
-  image_registry             = var.image_registry
+  image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
 
   chart_repository = var.argo_chart_repository
@@ -159,7 +159,7 @@ module "chart_redis" {
 
   tenant = module.kube_namespace.tenant
 
-  image_registry             = var.image_registry
+  image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
 
   chart_repository = var.redis_chart_repository
@@ -186,7 +186,7 @@ module "chart_cosmotech_api" {
 
   tenant = module.kube_namespace.tenant
 
-  # image_registry             = var.image_registry
+  # image_registry             = local.image_registry
   # image_registry_auth_secret = var.image_registry_auth_secret
 
   chart_repository = var.cosmotechapi_chart_repository
