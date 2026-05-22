@@ -4,12 +4,12 @@
     "icon": "fa-key",
     "token_key": "access_token",
     "remote_app": {
-      "client_id": "${COSMOTECH_SUPERSET_CLIENT_ID}",
-      "client_secret": "${SUPERSET_CLIENT_SECRET}",
+      "client_id": "${KEYCLOAK_CLIENT_NAME}",
+      "client_secret": "${KEYCLOAK_CLIENT_SECRET}",
       "client_kwargs": {
         "scope": "openid profile email"
       },
-      "server_metadata_url": "${OAUTH_PROVIDER_METADATA_URL}"
+      "server_metadata_url": "${KEYCLOAK_METADATA_URL}"
     }
   }
 ]
