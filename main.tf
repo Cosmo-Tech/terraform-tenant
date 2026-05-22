@@ -175,6 +175,9 @@ module "chart_redis" {
   pvc_replica               = "pvc-${local.persistences.redis-replica["name"]}"
   pvc_replica_storage_class = local.storage_class_name
 
+  redis_image_repository = var.redis_image_repository
+  redis_image_tag        = var.redis_image_tag
+
   depends_on = [
     time_sleep.timer,
   ]

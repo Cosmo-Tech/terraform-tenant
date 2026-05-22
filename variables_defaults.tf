@@ -2,7 +2,6 @@
 
 
 # Registry
-# variable "image_registry" { default = "cgr.dev" }
 variable "image_registry_auth_secret" { default = "registry-auth-cgrdev" }
 
 
@@ -25,16 +24,16 @@ variable "seaweedfs_storage_size" { default = 32 }
 # Argo Workflows
 variable "argo_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
 variable "argo_chart_name" { default = "argo-workflows" }
-variable "argo_chart_tag" { default = "13.0.6" } # "13.0.6" is the latest bitnamilegacy/argo-workflows, but it's installing argo-workflows 3.7.1 which has a bug when using "namespaced" argument (more info: https://github.com/argoproj/argo-workflows/issues/14806)
+variable "argo_chart_tag" { default = "13.0.6" }
 
 
 # Redis
-# variable "redis_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
-variable "redis_chart_repository" { default = "https://charts.bitnami.com/bitnami" }
+variable "redis_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
 variable "redis_chart_name" { default = "redis" }
-# variable "redis_chart_tag" { default = "25.3.8" }
-variable "redis_chart_tag" { default = "23.2.1" }
+variable "redis_chart_tag" { default = "25.3.8" }
 variable "redis_storage_size" { default = 16 }
+variable "redis_image_repository" { default = "cosmotech/redis-server-iamguarded" }
+variable "redis_image_tag" { default = "8.6.3" }
 
 
 # Cosmo Tech API

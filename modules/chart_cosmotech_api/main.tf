@@ -61,12 +61,14 @@ data "kubernetes_secret" "registry" {
   }
 }
 
+
 data "kubernetes_secret" "certificate" {
   metadata {
     name      = "letsencrypt-prod"
     namespace = "cert-manager"
   }
 }
+
 
 resource "kubernetes_secret" "api_cert" {
   metadata {
@@ -78,6 +80,8 @@ resource "kubernetes_secret" "api_cert" {
 
   data = data.kubernetes_secret.certificate.data
 }
+
+
 resource "helm_release" "cosmotech_api" {
   namespace  = var.tenant
   name       = "${var.chart_release}-${var.tenant}"

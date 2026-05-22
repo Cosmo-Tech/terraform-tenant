@@ -8,7 +8,8 @@ locals {
     "PERSISTENCE_REPLICA_STORAGE_CLASS" = var.pvc_replica_storage_class
     "REDIS_SECRET"                      = kubernetes_secret.redis.metadata[0].name
     "REDIS_PASSWORD"                    = kubernetes_secret.redis.data.password
-    "REDIS_VERSION_COSMOTECH"           = "1.0.13"
+    "REDIS_IMAGE_REPOSITORY"            = var.redis_image_repository
+    "REDIS_IMAGE_TAG"                   = var.redis_image_tag
     "IMAGE_REGISTRY"                    = var.image_registry
     "IMAGE_REGISTRY_AUTH_SECRET"        = var.image_registry_auth_secret
   }

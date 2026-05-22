@@ -49,3 +49,11 @@ variable "pvc_replica" {
 variable "pvc_replica_storage_class" {
   type = string
 }
+
+variable "redis_image_repository" {
+  type = string
+}
+
+variable "redis_image_tag" {
+  type = string
+}
