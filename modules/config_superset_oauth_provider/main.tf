@@ -8,57 +8,103 @@ terraform {
 }
 
 locals {
-  cosmotech_superset_client_secret = data.kubernetes_secret.superset_keycloak_client_secret.data["superset-client-secret"]
-  oauth_provider_metadata_url      = "https://${var.cluster_domain}/keycloak/realms/${var.tenant}/.well-known/openid-configuration"
-  new_oauth_providers = concat(
-    jsondecode(
-      data.kubernetes_config_map.superset_oauth_providers.data != null ? data.kubernetes_config_map.superset_oauth_providers.data["oauth-providers"] : "[]"
-    ),
-    jsondecode(templatefile("${path.module}/templates/oauth_providers.json",
-      {
-        TENANT_NAME                  = var.tenant,
-        SUPERSET_CLIENT_SECRET       = local.cosmotech_superset_client_secret,
-        OAUTH_PROVIDER_METADATA_URL  = local.oauth_provider_metadata_url,
-        COSMOTECH_SUPERSET_CLIENT_ID = var.superset_keycloak_client_name
-    }))
+  keycloak_client        = "cosmotech-client-superset"
+  keycloak_client_secret = data.kubernetes_secret.keycloak_client_secret.data["client-secret"]
+  keycloak_metadata_url  = "https://${var.cluster_domain}/keycloak/realms/${var.tenant}/.well-known/openid-configuration"
+
+  superset_namespace             = "superset"
+  oauth_providers_configmap_name = "superset-oauth-providers"
+  # new_oauth_providers = concat(
+  #   jsondecode(data.kubernetes_config_map.oauth_providers.data == null ? "[]" : data.kubernetes_config_map.oauth_providers.data["oauth-providers"]),
+  #   jsondecode(templatefile("${path.module}/templates/oauth_providers.json", {
+  #     TENANT_NAME            = var.tenant,
+  #     KEYCLOAK_METADATA_URL  = local.keycloak_metadata_url,
+  #     KEYCLOAK_CLIENT_NAME   = local.keycloak_client
+  #     KEYCLOAK_CLIENT_SECRET = local.keycloak_client_secret,
+  #   }))
+  # )
+
+  # Create new oauth provider for the tenant
+  tenant_oauth_provider = jsondecode(templatefile("${path.module}/templates/oauth_providers.json", {
+    TENANT_NAME            = var.tenant,
+    KEYCLOAK_METADATA_URL  = local.keycloak_metadata_url,
+    KEYCLOAK_CLIENT_NAME   = local.keycloak_client,
+    KEYCLOAK_CLIENT_SECRET = local.keycloak_client_secret,
+  }))
+
+  # # Get current oauth providers list (empty list if the configmap doesn't exist)
+  current_oauth_providers_list = jsondecode(
+    data.kubernetes_config_map.oauth_providers.data == null ? "[]" :
+    lookup(data.kubernetes_config_map.oauth_providers.data, "oauth-providers", "[]")
   )
-  superset_oauth_providers_configmap_descriptor = templatefile("${path.module}/templates/configmap_oauth_poviders.yaml",
-    {
-      SUPERSET_OAUTH_PROVIDERS_CONFIG         = jsonencode(local.new_oauth_providers),
-      SUPERSET_OAUTH_PROVIDERS_CONFIGMAP_NAME = var.superset_oauth_providers_configmap_name,
-      SUPERSET_NAMESPACE                      = var.superset_namespace,
+
+  # Replace the existing tenant oauth provider in the list
+  new_oauth_providers_list = concat(
+    [for provider in local.current_oauth_providers_list : provider if provider.name != var.tenant],
+    local.tenant_oauth_provider
+  )
+
+  # Fill the configmap template
+  oauth_providers_configmap_descriptor = templatefile("${path.module}/templates/configmap_oauth_poviders.yaml", {
+    CONFIGMAP_NAME       = local.oauth_providers_configmap_name,
+    CONFIGMAP_NAMESPACE  = local.superset_namespace,
+    OAUTH_PROVIDERS_LIST = jsonencode(local.new_oauth_providers_list),
   })
 }
 
-data "kubernetes_config_map" "superset_oauth_providers" {
+
+data "kubernetes_config_map" "oauth_providers" {
   metadata {
-    name      = var.superset_oauth_providers_configmap_name
-    namespace = var.superset_namespace
+    name      = local.oauth_providers_configmap_name
+    namespace = local.superset_namespace
   }
 }
 
-data "kubernetes_secret" "superset_keycloak_client_secret" {
+data "kubernetes_secret" "keycloak_client_secret" {
   metadata {
-    name      = var.superset_keycloak_client_secret_name
+    name      = "keycloak-superset"
     namespace = var.tenant
   }
 }
 
-resource "kubectl_manifest" "superset_oauth_providers" {
-  yaml_body = local.superset_oauth_providers_configmap_descriptor
+
+resource "kubectl_manifest" "oauth_providers" {
+  yaml_body = local.oauth_providers_configmap_descriptor
 }
 
-resource "null_resource" "restart_superset" {
 
+
+# Restart Superset to use the new configmap (only if the new configmap is different from the previous one)
+resource "null_resource" "restart_superset" {
   triggers = {
-    sha1-configmap-data = sha1(kubectl_manifest.superset_oauth_providers.yaml_body)
+    sha1-configmap-data = sha1(kubectl_manifest.oauth_providers.yaml_body)
   }
 
   provisioner "local-exec" {
-    command = "kubectl rollout restart deployment superset-web -n superset"
+    command = "kubectl -n ${local.superset_namespace} rollout restart deployment superset-web"
   }
 
   depends_on = [
-    kubectl_manifest.superset_oauth_providers
+    data.kubernetes_config_map.oauth_providers,
   ]
 }
+
+
+
+# # Restart Superset to use the new configmap (only if the new configmap is different from the previous one)
+# resource "terraform_data" "restart_superset" {
+
+#   triggers_replace = {
+#     configmap_changed = local.oauth_providers_configmap_descriptor != (
+#       data.kubernetes_config_map.oauth_providers.data == null ? "" : jsonencode(data.kubernetes_config_map.oauth_providers.data)
+#     )
+#   }
+
+#   provisioner "local-exec" {
+#     command = self.output.configmap_changed ? "kubectl -n ${local.superset_namespace} rollout restart deployment superset-web" : "echo 'No config change, skipping restart'"
+#   }
+
+#   depends_on = [
+#     kubectl_manifest.oauth_providers
+#   ]
+# }
