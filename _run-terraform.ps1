@@ -23,10 +23,10 @@ function get_var_value {
     $value = (cat $File | select-string $Variable | select-string '=' | select-string -Pattern '#.*' -NotMatch | select -first 1)
     $value -replace '.*=.*\"(.*)\".*','$1'
 }
-$cloud_provider = (get_var_value terraform.tfvars cloud_provider)
-$cluster_region = (get_var_value terraform.tfvars cluster_region)
-$cluster_name = (get_var_value terraform.tfvars cluster_name)
-$state_file_name = "tfstate-$cluster_name-tenant-$(get_var_value terraform.tfvars tenant)"
+$cloud_provider = (get_var_value 'terraform.tfvars' 'cloud_provider')
+$cluster_region = (get_var_value 'terraform.tfvars' 'cluster_region')
+$cluster_name = (get_var_value 'terraform.tfvars' 'cluster_name')
+$state_file_name = "tfstate-$cluster_name-tenant-$('get_var_value' 'terraform.tfvars' 'tenant')"
 
 
 # Clear old data
@@ -84,8 +84,8 @@ switch ([string]$cloud_provider) {
 
         if (([string]::IsNullOrEmpty($TF_HTTP_USERNAME)) -or ([string]::IsNullOrEmpty($TF_HTTP_PASSWORD))) {
             echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
-            echo '  $TF_HTTP_USERNAME = ""'
-            echo '  $TF_HTTP_PASSWORD = ""'
+            echo '  $Env:TF_HTTP_USERNAME = ""'
+            echo '  $Env:TF_HTTP_PASSWORD = ""'
             exit
         } else {
             echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
