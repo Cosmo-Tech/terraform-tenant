@@ -1,13 +1,14 @@
 locals {
+  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
   chart_values = {
-    "PERSISTENCE_SIZE"            = var.size
-    "PERSISTENCE_PVC"             = var.pvc
-    "PERSISTENCE_STORAGE_CLASS"   = var.pvc_storage_class
-    "POSTGRESQL_SECRET_CONFIG"    = kubernetes_secret.postgresql-config.metadata[0].name
-    "POSTGRESQL_IMAGE_REPOSITORY" = var.postgresql_image_repository
-    "POSTGRESQL_IMAGE_TAG"        = var.postgresql_image_tag
-    "IMAGE_REGISTRY"              = var.image_registry
-    "IMAGE_REGISTRY_AUTH_SECRET"  = var.image_registry_auth_secret
+    PERSISTENCE_SIZE            = var.size
+    PERSISTENCE_PVC             = var.pvc
+    PERSISTENCE_STORAGE_CLASS   = var.pvc_storage_class
+    POSTGRESQL_SECRET_CONFIG    = kubernetes_secret.postgresql-config.metadata[0].name
+    POSTGRESQL_IMAGE_REPOSITORY = var.postgresql_image_repository
+    POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
+    IMAGE_REGISTRY              = var.image_registry
+    IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
   }
 
   database_host = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
@@ -109,13 +110,20 @@ resource "helm_release" "postgresql" {
   repository = var.chart_repository
   chart      = var.chart_name
   version    = var.chart_tag
+
   values = [
-    templatefile("${path.module}/values.yaml", local.chart_values)
+    local.chart_values_file
   ]
 
-  reset_values = true
-  replace      = true
-  force_update = true
+  force_update  = true
+  recreate_pods = true
+  # replace       = true
+
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.helm_release_trigger,
+    ]
+  }
 
   depends_on = [
     var.tenant,
@@ -124,4 +132,11 @@ resource "helm_release" "postgresql" {
     kubernetes_secret.postgresql-seaweedfs,
     kubernetes_secret.postgresql-argo,
   ]
+}
+
+resource "terraform_data" "helm_release_trigger" {
+  input = {
+    version     = var.chart_tag
+    values_sha1 = sha1(local.chart_values_file)
+  }
 }

@@ -1,17 +1,18 @@
 locals {
+  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
   chart_values = {
-    "PERSISTENCE_MASTER_SIZE"           = var.size_master
-    "PERSISTENCE_MASTER_PVC"            = var.pvc_master
-    "PERSISTENCE_MASTER_STORAGE_CLASS"  = var.pvc_master_storage_class
-    "PERSISTENCE_REPLICA_SIZE"          = var.size_replica
-    "PERSISTENCE_REPLICA_PVC"           = var.pvc_replica
-    "PERSISTENCE_REPLICA_STORAGE_CLASS" = var.pvc_replica_storage_class
-    "REDIS_SECRET"                      = kubernetes_secret.redis.metadata[0].name
-    "REDIS_PASSWORD"                    = kubernetes_secret.redis.data.password
-    "REDIS_IMAGE_REPOSITORY"            = var.redis_image_repository
-    "REDIS_IMAGE_TAG"                   = var.redis_image_tag
-    "IMAGE_REGISTRY"                    = var.image_registry
-    "IMAGE_REGISTRY_AUTH_SECRET"        = var.image_registry_auth_secret
+    PERSISTENCE_MASTER_SIZE           = var.size_master
+    PERSISTENCE_MASTER_PVC            = var.pvc_master
+    PERSISTENCE_MASTER_STORAGE_CLASS  = var.pvc_master_storage_class
+    PERSISTENCE_REPLICA_SIZE          = var.size_replica
+    PERSISTENCE_REPLICA_PVC           = var.pvc_replica
+    PERSISTENCE_REPLICA_STORAGE_CLASS = var.pvc_replica_storage_class
+    REDIS_SECRET                      = kubernetes_secret.redis.metadata[0].name
+    REDIS_PASSWORD                    = kubernetes_secret.redis.data.password
+    REDIS_IMAGE_REPOSITORY            = var.redis_image_repository
+    REDIS_IMAGE_TAG                   = var.redis_image_tag
+    IMAGE_REGISTRY                    = var.image_registry
+    IMAGE_REGISTRY_AUTH_SECRET        = var.image_registry_auth_secret
   }
 }
 
@@ -45,13 +46,20 @@ resource "helm_release" "redis" {
   repository = var.chart_repository
   chart      = var.chart_name
   version    = var.chart_tag
+
   values = [
-    templatefile("${path.module}/values.yaml", local.chart_values)
+    local.chart_values_file
   ]
 
-  reset_values = true
-  replace      = true
-  force_update = true
+  force_update  = true
+  recreate_pods = true
+  # replace       = true
+
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.helm_release_trigger,
+    ]
+  }
 
   depends_on = [
     var.tenant,
@@ -59,4 +67,11 @@ resource "helm_release" "redis" {
     var.pvc_replica,
     kubernetes_secret.redis,
   ]
+}
+
+resource "terraform_data" "helm_release_trigger" {
+  input = {
+    version     = var.chart_tag
+    values_sha1 = sha1(local.chart_values_file)
+  }
 }

@@ -219,11 +219,11 @@ module "chart_cosmotech_api" {
   keycloak_client_id     = module.config_keycloak_realm.keycloak_api_client_id
   keycloak_client_secret = module.config_keycloak_realm.keycloak_api_client_secret
 
-  # Ingress
-  cosmotech_api_connect_timeout = "30s"
-  cosmotech_api_query_timeout   = "60s"
-  cosmotech_api_buffer_size     = "16K"
-  cosmotech_api_max_file_size   = "300m"
+  ## Ingress Nginx
+  # cosmotech_api_connect_timeout = "30s"
+  # cosmotech_api_query_timeout   = "60s"
+  # cosmotech_api_buffer_size     = "16K"
+  # cosmotech_api_max_file_size   = "300m"
 
   depends_on = [
     time_sleep.timer,
