@@ -104,7 +104,7 @@ config:
         allowed-tenants: ${NAMESPACE}
       databases:
         resources:
-          host: redis-master.${NAMESPACE}.svc.cluster.local
+          host: redis-headless.${NAMESPACE}.svc.cluster.local
           port: ${REDIS_PORT}
           username: default
           password: ${REDIS_PASSWORD}

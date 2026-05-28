@@ -84,7 +84,10 @@ resource "kubectl_manifest" "initdb_seaweedfs" {
 }
 
 resource "terraform_data" "initdb_seaweedfs_trigger" {
-  input = sha1(local.job_seaweedfs_file)
+  input = {
+    values = local.job_seaweedfs_file
+    # values_sha1 = sha1(local.job_seaweedfs_file)
+  }
 }
 
 
@@ -101,7 +104,10 @@ resource "kubectl_manifest" "initdb_argo" {
 }
 
 resource "terraform_data" "initdb_argo_trigger" {
-  input = sha1(local.job_argo_file)
+  input = {
+    values = local.job_argo_file
+    # values_sha1 = sha1(local.job_argo_file)
+  }
 }
 
 
@@ -118,5 +124,8 @@ resource "kubectl_manifest" "initdb_cosmotechapi" {
 }
 
 resource "terraform_data" "initdb_cosmotechapi_trigger" {
-  input = sha1(local.job_cosmotechapi_file)
+  input = {
+    values = local.job_cosmotechapi_file
+    # values_sha1 = sha1(local.job_cosmotechapi_file)
+  }
 }

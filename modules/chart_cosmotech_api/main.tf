@@ -111,7 +111,8 @@ resource "helm_release" "cosmotech_api" {
 
 resource "terraform_data" "helm_release_trigger" {
   input = {
-    version     = var.chart_tag
-    values_sha1 = sha1(local.chart_values_file)
+    version = var.chart_tag
+    values  = local.chart_values_file
+    # values_sha1 = sha1(local.chart_values_file)
   }
 }

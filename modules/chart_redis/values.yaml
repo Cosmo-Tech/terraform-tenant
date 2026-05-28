@@ -1,12 +1,14 @@
 commonConfiguration: |-
-  # Enable ReJSON, Redisearch, redistimeseries
+  ## Enable ReJSON, Redisearch, redistimeseries
   loadmodule /opt/iamguarded/redis/lib/redis/modules/redisearch.so
   loadmodule /opt/iamguarded/redis/lib/redis/modules/rejson.so
-  loadmodule /opt/iamguarded/redis/lib/redis/modules/redistimeseries.so DUPLICATE_POLICY LAST
-  # Enable AOF https://redis.io/topics/persistence#append-only-file
-  appendonly yes
-  # Disable RDB persistence, AOF persistence already enabled.
-  save ""
+  loadmodule /opt/iamguarded/redis/lib/redis/modules/redistimeseries.so ts-duplicate-policy LAST
+  ## AOF persistence (commented = disabled)
+  # appendonly yes
+  ## RDB persistence (commented = enabled)
+  # save ""
+  ## AOF & RDB persistences can be enabled together without problem.
+  ## Only RDB was enabled in previous versions of this Terraform module (it was also Redis 7) -> to ensure data continuity, RDB must remains enabled.
 
 auth:
   password: ${REDIS_PASSWORD}
