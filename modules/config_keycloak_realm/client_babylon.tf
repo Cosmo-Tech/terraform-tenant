@@ -41,18 +41,29 @@ resource "keycloak_openid_client_service_account_realm_role" "cosmotech_babylon_
 }
 
 
+data "kubernetes_secret" "superset" {
+  metadata {
+    namespace = "superset"
+    name      = "superset"
+  }
+}
+
+
 # Secret that will be used directly from Babylon
 resource "kubernetes_secret" "babylon" {
   metadata {
-    name      = "keycloak-babylon"
+    name      = "babylon-config"
     namespace = var.tenant
   }
 
   data = {
-    "client_id" : keycloak_openid_client.cosmotech_babylon.client_id,
-    "client_secret" : keycloak_openid_client.cosmotech_babylon.client_secret,
-    "token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
     "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.tenant}/api",
+    "keycloak_token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
+    "keycloak_client_id" : keycloak_openid_client.cosmotech_babylon.client_id,
+    "keycloak_client_secret" : keycloak_openid_client.cosmotech_babylon.client_secret,
+    "superset_url" : "https://superset-${var.cluster_domain}",
+    "superset_admin_username" : "admin",
+    "superset_admin_password" : data.kubernetes_secret.superset.data.superset-password,
   }
 
   type = "Opaque"
