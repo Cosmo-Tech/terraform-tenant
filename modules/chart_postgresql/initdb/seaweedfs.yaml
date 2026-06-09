@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgresql-init-seaweedfs
-          image: postgres:17-trixie
+          image: ${image_registry}/${postgresql_image_repository}:${postgresql_image_tag}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
@@ -49,3 +49,5 @@ spec:
           value: "cosmotech"
           effect: "NoSchedule"
       dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: ${image_registry_auth_secret}

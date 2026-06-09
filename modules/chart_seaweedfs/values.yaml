@@ -1,41 +1,37 @@
-
-
-global:
-  security:
-    allowInsecureImages: true
 image:
-  repository: bitnamilegacy/seaweedfs
-  pullPolicy: IfNotPresent 
+  # registry: ${IMAGE_REGISTRY}
+  repository: cosmotech/seaweedfs-iamguarded
+  pullPolicy: IfNotPresent
 postgresql:
   image:
-    repository: bitnamilegacy/postgresql
+    # registry: ${IMAGE_REGISTRY}
+    repository: ${POSTGRESQL_IMAGE_REPOSITORY}
+    tag: ${POSTGRESQL_IMAGE_TAG}
     pullPolicy: IfNotPresent
   enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
 master:
   persistence:
-    existingClaim: "${PERSISTENCE_MASTER_PVC}"
-    size: "${PERSISTENCE_MASTER_SIZE}"
+    existingClaim: ${PERSISTENCE_MASTER_PVC}
+    size: ${PERSISTENCE_MASTER_SIZE}
     accessModes: ${PERSISTENCE_MASTER_ACCESS_MODES}
-    storageClass: "${PERSISTENCE_MASTER_STORAGE_CLASS}"
+    storageClass: ${PERSISTENCE_MASTER_STORAGE_CLASS}
   nodeSelector:
-    cosmotech.com/tier: "services"
+    cosmotech.com/tier: services
   tolerations:
-    - key: "vendor"
-      operator: "Equal"
-      value: "cosmotech"
-      effect: "NoSchedule"
+    - key: vendor
+      operator: Equal
+      value: cosmotech
+      effect: NoSchedule
 mariadb:
   enabled: false
 externalDatabase:
   enabled: true
-  store: "postgresql"
-  host: "${DATABASE_HOST}"
+  store: postgresql
+  host: ${DATABASE_HOST}
   port: ${DATABASE_PORT}
-  database: "${DATABASE_NAME}"
-  user: "${DATABASE_USER}"
-  existingSecret: "${DATABASE_SECRET}"
-  # initDatabaseJob:
-  #   enabled: true
+  database: ${DATABASE_NAME}
+  user: ${DATABASE_USER}
+  existingSecret: ${DATABASE_SECRET}
 volume:
   dataVolumes:
   # - name: data-0
@@ -45,46 +41,45 @@ volume:
     maxVolumes: 0
     persistence:
       enabled: true
-      existingClaim: "${PERSISTENCE_VOLUME_PVC}"
-      size: "${PERSISTENCE_VOLUME_SIZE}"
+      existingClaim: ${PERSISTENCE_VOLUME_PVC}
+      size: ${PERSISTENCE_VOLUME_SIZE}
       accessModes: ${PERSISTENCE_VOLUME_ACCESS_MODES}
-      storageClass: "${PERSISTENCE_VOLUME_STORAGE_CLASS}"
+      storageClass: ${PERSISTENCE_VOLUME_STORAGE_CLASS}
   nodeSelector:
-    cosmotech.com/tier: "db"
+    cosmotech.com/tier: db
   tolerations:
-    - key: "vendor"
-      operator: "Equal"
-      value: "cosmotech"
-      effect: "NoSchedule"
+    - key: vendor
+      operator: Equal
+      value: cosmotech
+      effect: NoSchedule
 filer:
   resourcesPreset: medium
   nodeSelector:
-    cosmotech.com/tier: "services"
+    cosmotech.com/tier: services
   tolerations:
-    - key: "vendor"
-      operator: "Equal"
-      value: "cosmotech"
-      effect: "NoSchedule"
+    - key: vendor
+      operator: Equal
+      value: cosmotech
+      effect: NoSchedule
   podLabels:
-    "networking/traffic-allowed": "yes"
+    networking/traffic-allowed: "yes"
 s3:
   enabled: true
   nodeSelector:
-    cosmotech.com/tier: "services"
+    cosmotech.com/tier: services
   tolerations:
-    - key: "vendor"
-      operator: "Equal"
-      value: "cosmotech"
-      effect: "NoSchedule"
+    - key: vendor
+      operator: Equal
+      value: cosmotech
+      effect: NoSchedule
   service:
     ports:
-      http: "${S3_PORT}"
+      http: ${S3_PORT}
   containerPorts:
-    http: "${S3_PORT}"
+    http: ${S3_PORT}
   auth:
     enabled: true
-    existingSecret: "${S3_SECRET}"
-    # existingSecretConfigKey: "S3_CONFIG_SECRET}"
+    existingSecret: ${S3_SECRET}
   allowEmptyFolder: false
 extraDeploy:
   # There are no value entries to setup initial s3-buckets/http-folders
@@ -137,11 +132,15 @@ extraDeploy:
                     wget --quiet -O /dev/null --post-data= --header "Content-Type:" ${FILER_ENDPOINT}/buckets/${bucket}/
                   fi
                   %{~ endfor ~}
-
 # Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
 volumePermissions:
   enabled: true
   image:
-    repository: bitnamilegacy/os-shell
-  # containerSecurityContext:
-  #   enabled: true
+    # registry: ${IMAGE_REGISTRY}
+    repository: cosmotech/os-shell-iamguarded
+    tag: latest
+    pullPolicy: IfNotPresent
+global:
+  imageRegistry: ${IMAGE_REGISTRY}
+  imagePullSecrets:
+    - name: ${IMAGE_REGISTRY_AUTH_SECRET}

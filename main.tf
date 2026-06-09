@@ -1,10 +1,11 @@
 locals {
-  main_name          = "tenant-${var.tenant}"
-  cluster_domain     = "${var.cluster_name}.${var.domain_zone}"
+  main_name      = "tenant-${var.tenant}"
+  cluster_domain = "${var.cluster_name}.${var.domain_zone}"
+
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      size = 8
+      size = var.postgresql_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
     }
     seaweedfs-master = {
@@ -12,24 +13,29 @@ locals {
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
     }
     seaweedfs-volume = {
-      size = 32
+      size = var.seaweedfs_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
     }
     redis-master = {
-      size = 16
+      size = var.redis_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
     }
     redis-replica = {
-      size = 16
+      size = var.redis_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
     }
   }
+
+  image_registry = module.kube_namespace.image_registry
 }
+
 
 module "kube_namespace" {
   source = "./modules/kube_namespace"
 
   tenant = var.tenant
+
+  image_registry_auth_secret = var.image_registry_auth_secret
 }
 
 
@@ -41,7 +47,8 @@ module "config_keycloak_realm" {
 }
 
 
-# Timer to wait for storage to be created before continue
+# Timer to wait for storage to be created before continue.
+# Also used a general gateway before install next modules.
 resource "time_sleep" "timer" {
   create_duration = "30s"
 
@@ -54,12 +61,22 @@ resource "time_sleep" "timer" {
 module "chart_postgresql" {
   source = "./modules/chart_postgresql"
 
-  release = "postgresql"
-  tenant  = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.postgresql_chart_repository
+  chart_name       = var.postgresql_chart_name
+  chart_tag        = var.postgresql_chart_tag
+  chart_release    = "postgresql"
 
   size              = local.persistences.postgresql["size"]
   pvc               = "pvc-${local.persistences.postgresql["name"]}"
   pvc_storage_class = local.storage_class_name
+
+  postgresql_image_repository = var.postgresql_image_repository
+  postgresql_image_tag        = var.postgresql_image_tag
 
   depends_on = [
     time_sleep.timer,
@@ -70,8 +87,15 @@ module "chart_postgresql" {
 module "chart_seaweedfs" {
   source = "./modules/chart_seaweedfs"
 
-  release = "seaweedfs"
-  tenant  = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.seaweedfs_chart_repository
+  chart_name       = var.seaweedfs_chart_name
+  chart_tag        = var.seaweedfs_chart_tag
+  chart_release    = "seaweedfs"
 
   size_master              = local.persistences.seaweedfs-master["size"]
   pvc_master               = "pvc-${local.persistences.seaweedfs-master["name"]}"
@@ -89,6 +113,9 @@ module "chart_seaweedfs" {
   database_seaweedfs_user   = module.chart_postgresql.database_seaweedfs_user
   database_seaweedfs_secret = module.chart_postgresql.database_seaweedfs_secret
 
+  postgresql_image_repository = var.postgresql_image_repository
+  postgresql_image_tag        = var.postgresql_image_tag
+
   depends_on = [
     time_sleep.timer,
   ]
@@ -98,8 +125,15 @@ module "chart_seaweedfs" {
 module "chart_argo" {
   source = "./modules/chart_argo"
 
-  release = "argo-workflows"
-  tenant  = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.argo_chart_repository
+  chart_name       = var.argo_chart_name
+  chart_tag        = var.argo_chart_tag
+  chart_release    = "argo-workflows"
 
   database_host   = module.chart_postgresql.database_host
   database_port   = module.chart_postgresql.database_port
@@ -123,8 +157,15 @@ module "chart_argo" {
 module "chart_redis" {
   source = "./modules/chart_redis"
 
-  release = "redis"
-  tenant  = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.redis_chart_repository
+  chart_name       = var.redis_chart_name
+  chart_tag        = var.redis_chart_tag
+  chart_release    = "redis"
 
   size_master              = local.persistences.redis-master["size"]
   pvc_master               = "pvc-${local.persistences.redis-master["name"]}"
@@ -133,6 +174,9 @@ module "chart_redis" {
   size_replica              = local.persistences.redis-replica["size"]
   pvc_replica               = "pvc-${local.persistences.redis-replica["name"]}"
   pvc_replica_storage_class = local.storage_class_name
+
+  redis_image_repository = var.redis_image_repository
+  redis_image_tag        = var.redis_image_tag
 
   depends_on = [
     time_sleep.timer,
@@ -143,8 +187,15 @@ module "chart_redis" {
 module "chart_cosmotech_api" {
   source = "./modules/chart_cosmotech_api"
 
-  release = "cosmotech-api"
-  tenant  = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant
+
+  # image_registry             = local.image_registry
+  # image_registry_auth_secret = var.image_registry_auth_secret
+
+  chart_repository = var.cosmotechapi_chart_repository
+  chart_name       = var.cosmotechapi_chart_name
+  chart_tag        = var.cosmotechapi_chart_tag
+  chart_release    = "cosmotech-api"
 
   postgresql_host            = module.chart_postgresql.database_host
   postgresql_port            = module.chart_postgresql.database_port
@@ -168,17 +219,19 @@ module "chart_cosmotech_api" {
   keycloak_client_id     = module.config_keycloak_realm.keycloak_api_client_id
   keycloak_client_secret = module.config_keycloak_realm.keycloak_api_client_secret
 
-  # Ingress
-  cosmotech_api_connect_timeout    = "30s"
-  cosmotech_api_query_timeout      = "60s"
-  cosmotech_api_buffer_size        = "16K"
-  cosmotech_api_max_file_size      = "300m"
+  ## Ingress Nginx
+  # cosmotech_api_connect_timeout = "30s"
+  # cosmotech_api_query_timeout   = "60s"
+  # cosmotech_api_buffer_size     = "16K"
+  # cosmotech_api_max_file_size   = "300m"
 
   depends_on = [
     time_sleep.timer,
     module.chart_postgresql,
     module.chart_redis,
+    module.chart_argo,
     module.config_harbor_project,
+    module.config_keycloak_realm,
   ]
 }
 
@@ -201,11 +254,13 @@ module "config_harbor_project" {
   cluster_domain = local.cluster_domain
 }
 
+
 module "config_superset_oauth_provider" {
   source = "./modules/config_superset_oauth_provider"
 
   tenant         = module.kube_namespace.tenant
   cluster_domain = local.cluster_domain
+
   depends_on = [
     module.config_keycloak_realm
   ]

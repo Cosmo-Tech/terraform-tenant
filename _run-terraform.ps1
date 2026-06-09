@@ -23,18 +23,11 @@ function get_var_value {
     $value = (cat $File | select-string $Variable | select-string '=' | select-string -Pattern '#.*' -NotMatch | select -first 1)
     $value -replace '.*=.*\"(.*)\".*','$1'
 }
-$cloud_provider = (get_var_value terraform.tfvars cloud_provider)
-$cluster_region = (get_var_value terraform.tfvars cluster_region)
-$cluster_name = (get_var_value terraform.tfvars cluster_name)
-$state_file_name = "tfstate-$cluster_name-tenant-$(get_var_value terraform.tfvars tenant)"
+$cloud_provider = (get_var_value 'terraform.tfvars' 'cloud_provider')
+$cluster_region = (get_var_value 'terraform.tfvars' 'cluster_region')
+$cluster_name = (get_var_value 'terraform.tfvars' 'cluster_name')
+$state_file_name = "tfstate-$cluster_name-tenant-$('get_var_value' 'terraform.tfvars' 'tenant')"
 
-
-# Generate state_storage_name for Azure backend
-# Azure storage account names must be 3-24 chars, lowercase alphanumeric only
-$azure_subscription_id = (get_var_value 'terraform.tfvars' 'azure_subscription_id')
-$sub_hash = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($azure_subscription_id)) | ForEach-Object { $_.ToString("x2") }) -join ''
-$sub_hash = $sub_hash.Substring(0, 9)
-$state_storage_name = "csmstates$sub_hash"
 
 # Clear old data
 rm -Recurse -Confirm:$false .terraform*
@@ -69,6 +62,12 @@ $target_file = 'target.tf'
 # Then, Terraform will automatically detects it from its .tf extension.
 switch ([string]$cloud_provider) {
     "azure" {
+        # Azure storage account names must be 3-24 chars, lowercase alphanumeric only
+        $azure_subscription_id = (get_var_value 'terraform.tfvars' 'azure_subscription_id')
+        $sub_hash = ([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($azure_subscription_id)) | ForEach-Object { $_.ToString("x2") }) -join ''
+        $sub_hash = $sub_hash.Substring(0, 9)
+        $state_storage_name = "csmstates$sub_hash"
+
         prepare_target_file "targets/$cloud_provider.target.tf" $target_file
     }
 
@@ -85,8 +84,8 @@ switch ([string]$cloud_provider) {
 
         if (([string]::IsNullOrEmpty($TF_HTTP_USERNAME)) -or ([string]::IsNullOrEmpty($TF_HTTP_PASSWORD))) {
             echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
-            echo '  $TF_HTTP_USERNAME = ""'
-            echo '  $TF_HTTP_PASSWORD = ""'
+            echo '  $Env:TF_HTTP_USERNAME = ""'
+            echo '  $Env:TF_HTTP_PASSWORD = ""'
             exit
         } else {
             echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
@@ -101,57 +100,6 @@ switch ([string]$cloud_provider) {
         Write-Host "error: unknown or empty cloud_provider from terraform.tfvars" -ForegroundColor Red
         exit
     }
-
-    "kob" {
-        $state_url = "$(get_var_value terraform.tfvars state_host)/$state_file_name"
-
-        if (([string]::IsNullOrEmpty($TF_HTTP_USERNAME)) -or ([string]::IsNullOrEmpty($TF_HTTP_PASSWORD))) {
-            echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
-            echo '  $TF_HTTP_USERNAME = ""'
-            echo '  $TF_HTTP_PASSWORD = ""'
-            exit
-        } else {
-            echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
-        }
-
-        $env:TF_CLI_ARGS += ';-lock=false'
-
-        echo "
-            terraform {
-                backend ""http"" {
-                update_method = ""PUT""
-                lock_method   = ""POST""
-                unlock_method = ""DELETE""
-                skip_cert_verification = true
-
-                address = ""$state_url""
-                lock_address = ""$state_url/lock""
-                unlock_address = ""$state_url/lock""
-                }
-            }
-
-            variable ""state_host"" { type = string }
-
-            locals {
-                cloud_identity = {}
-                lb_annotations = {}
-                lb_ip = """"
-            }
-
-            module ""storage"" {
-                source = ""git::https://github.com/cosmo-tech/terraform-onprem.git//terraform-cluster/modules/storage""
-
-                for_each = var.cloud_provider == ""kob"" ? local.persistences : {}
-
-                namespace          = module.kube_namespace.tenant
-                resource           = each.value.name
-                size               = each.value.size
-                storage_class_name = local.storage_class_name
-                region             = var.cluster_region
-                cloud_provider     = var.cloud_provider
-            }
-        " > $backend_file
-    }
 }
 
 
@@ -160,6 +108,20 @@ terraform fmt $target_file
 terraform init -lock=false -upgrade -reconfigure
 terraform plan -lock=false -out .terraform.plan
 # terraform apply -lock=false .terraform.plan
+
+$option_apply = '--apply'
+if ($args[0] -eq $option_apply) {
+    terraform apply -lock=false .terraform.plan
+} else {
+    echo ''
+    echo "Terraform plan can be applied with:"
+    echo "  $0 $option_apply"
+}
+
+
+$tenant_name = "tenant-$(get_var_value terraform.tfvars tenant)"
+echo ''
+echo "target is $cluster_name/$tenant_name"
 
 
 echo ''

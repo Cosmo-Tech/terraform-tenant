@@ -3,7 +3,7 @@ rbac:
 createAggregateRoles: false
 server:
   image:
-    repository: bitnamilegacy/argo-workflow-cli
+    repository: cosmotech/argo-workflow-cli-iamguarded
     pullPolicy: IfNotPresent
   auth:
     mode: server
@@ -23,7 +23,7 @@ server:
       http: 2746
 controller:
   image:
-    repository: bitnamilegacy/argo-workflow-controller
+    repository: cosmotech/argo-workflow-controller-iamguarded
     pullPolicy: IfNotPresent
   persistence:
     archive:
@@ -134,6 +134,8 @@ controller:
         # attached PVCs.
         # One of "OnWorkflowCompletion", "OnWorkflowSuccess"
         strategy: OnWorkflowCompletion
+      imagePullSecrets:
+        - name: "${IMAGE_REGISTRY_AUTH_SECRET}"
   serviceAccount:
     automountServiceAccountToken: true
   nodeSelector:
@@ -145,12 +147,9 @@ controller:
       effect: "NoSchedule"
 executor:
   image:
-    repository: bitnamilegacy/argo-workflow-exec
+    registry: ${IMAGE_REGISTRY}
+    repository: cosmotech/argo-workflow-exec-iamguarded
     pullPolicy: IfNotPresent
-  resources: {}
-  ## Init container's resource requests and limits
-  ## @param executor.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if executor.resources is set (executor.resources is recommended for production).
-  ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
   resourcesPreset: nano
   extraEnvVars:
     - name: RESOURCE_STATE_CHECK_INTERVAL
@@ -171,9 +170,9 @@ externalDatabase:
   host: "${DATABASE_HOST}"
   port: "${DATABASE_PORT}"
   username: "${DATABASE_USER}"
-  # password: ""
   database: "${DATABASE_NAME}"
   existingSecret: "${DATABASE_SECRET}"
 global:
-  security:
-    allowInsecureImages: true
+  imageRegistry: ${IMAGE_REGISTRY}
+  imagePullSecrets:
+    - name: ${IMAGE_REGISTRY_AUTH_SECRET}

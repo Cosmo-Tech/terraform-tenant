@@ -1,25 +1,33 @@
 replicaCount: 1
-
+image:
+  repository: ghcr.io/cosmo-tech/cosmotech-api
+  pullPolicy: IfNotPresent
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
 api:
+  servletContextPath: /
   version: api
   multiTenant: true
-  servletContextPath: /
-  tlsTruststore:
-    enabled: false
   serviceMonitor:
     name: cosmotech-api-${NAMESPACE}
     enabled: true
     namespace: ${NAMESPACE_MONITORING}
-
-image:
-  repository: ghcr.io/cosmo-tech/cosmotech-api
-
+  tlsTruststore:
+    enabled: false
 argo:
   imageCredentials:
     registry: ${REGISTRY_URL}
     username: ${REGISTRY_USERNAME}
     password: ${REGISTRY_PASSWORD}
-
 # Note : This is a comment but is kept for future use if more logging information is needed
 # logging:
 #     level:
@@ -30,14 +38,36 @@ argo:
 # server:
 #     error:
 #       include-stacktrace: always
-
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-${NAMESPACE}
+  hosts:
+    - host: ${CLUSTER_DOMAIN}
+  tls:
+    - secretName: letsencrypt-prod-${NAMESPACE}
+      hosts:
+        - "${CLUSTER_DOMAIN}"
+resources:
+  limits:
+    memory: 2Gi
+  requests:
+    memory: 1Gi
+nodeSelector:
+  cosmotech.com/tier: services
+tolerations:
+- key: vendor
+  operator: Equal
+  value: cosmotech
+  effect: NoSchedule
 config:
   # Note : keep this comment it is for customer configuration by default 50MB
   # spring:
   #   servlet:
   #     multipart:
-  #       max-file-size: "1MB"
-  #       max-request-size: "10MB"
+  #       max-file-size: 1MB
+  #       max-request-size: 10MB
   csm:
     platform:
       containerRegistry:
@@ -46,22 +76,22 @@ config:
         username: ${REGISTRY_USERNAME}
         password: ${REGISTRY_PASSWORD}
       identityProvider:
-        audience: "account"
-        code: "keycloak"
-        serverBaseUrl: "https://${CLUSTER_DOMAIN}/keycloak"
-        authorizationUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth"
-        tokenUrl: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token"
+        audience: account
+        code: keycloak
+        serverBaseUrl: https://${CLUSTER_DOMAIN}/keycloak
+        authorizationUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/auth
+        tokenUrl: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}/protocol/openid-connect/token
         defaultScopes:
           openid: "OpenId Scope"
         identity:
-          clientId: "${KEYCLOAK_CLIENT_ID}"
-          clientSecret: "${KEYCLOAK_CLIENT_PASSWORD}"
-          tenantId: "${NAMESPACE}"
+          clientId: ${KEYCLOAK_CLIENT_ID}
+          clientSecret: ${KEYCLOAK_CLIENT_PASSWORD}
+          tenantId: ${NAMESPACE}
       namespace: ${NAMESPACE}
       argo:
-        base-uri: "http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746"
+        base-uri: http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746
         workflows:
-          namespace: "${NAMESPACE}"
+          namespace: ${NAMESPACE}
           service-account-name: argo-workflows
           requests:
             storage: 20Gi
@@ -74,23 +104,23 @@ config:
         allowed-tenants: ${NAMESPACE}
       databases:
         resources:
-          host: "redis-master.${NAMESPACE}.svc.cluster.local"
-          port: "${REDIS_PORT}"
-          username: "default"
-          password: "${REDIS_PASSWORD}"
+          host: redis-master.${NAMESPACE}.svc.cluster.local
+          port: ${REDIS_PORT}
+          username: default
+          password: ${REDIS_PASSWORD}
         data:
-          host: "${POSTGRESQL_DATABASE_HOST}"
+          host: ${POSTGRESQL_DATABASE_HOST}
           port: 5432
-          database: "${POSTGRESQL_DATABASE_NAME}"
+          database: ${POSTGRESQL_DATABASE_NAME}
           reader:
-            username: "${POSTGRESQL_READER_USERNAME}"
-            password: "${POSTGRESQL_READER_PASSWORD}"
+            username: ${POSTGRESQL_READER_USERNAME}
+            password: ${POSTGRESQL_READER_PASSWORD}
           writer:
-            username: "${POSTGRESQL_WRITER_USERNAME}"
-            password: "${POSTGRESQL_WRITER_PASSWORD}"
+            username: ${POSTGRESQL_WRITER_USERNAME}
+            password: ${POSTGRESQL_WRITER_PASSWORD}
           admin:
-            username: "${POSTGRESQL_ADMIN_USERNAME}"
-            password: "${POSTGRESQL_ADMIN_PASSWORD}"
+            username: ${POSTGRESQL_ADMIN_USERNAME}
+            password: ${POSTGRESQL_ADMIN_PASSWORD}
       # Note : keep this comment it is for customer configuration
       # upload:
       #   authorized-mime-types:
@@ -114,44 +144,3 @@ config:
       #       - text/x-yaml
       #       - application/json
       #       - application/vnd.apache.parquet
-ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-${NAMESPACE}"
-    kubernetes.io/ingress.class: nginx
-    ## Define timeout to allow long-running queries
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "${COSMOTECH_API_CONNECT_TIMEOUT}"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "${COSMOTECH_API_QUERY_TIMEOUT}"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "${COSMOTECH_API_QUERY_TIMEOUT}"
-    ## Define body sizes for large data file exchanges.
-    nginx.ingress.kubernetes.io/client_max_body_size: "${COSMOTECH_API_MAX_FILE_SIZE}"
-    nginx.ingress.kubernetes.io/proxy-body-size: "${COSMOTECH_API_MAX_FILE_SIZE}"
-    nginx.ingress.kubernetes.io/client-body-buffer-size: "${COSMOTECH_API_BUFFER_SIZE}"
-  hosts:
-    - host: ${CLUSTER_DOMAIN}
-  tls:
-    - secretName: "letsencrypt-prod-${NAMESPACE}"
-      hosts: ["${CLUSTER_DOMAIN}"]
-resources:
-  limits:
-    memory: 2Gi
-  requests:
-    memory: 1Gi
-tolerations:
-- key: "vendor"
-  operator: "Equal"
-  value: "cosmotech"
-  effect: "NoSchedule"
-nodeSelector:
-  "cosmotech.com/tier": "services"
-podSecurityContext:
-  seccompProfile:
-    type: "RuntimeDefault"
-securityContext:
-  capabilities:
-    drop:
-    - ALL
-  readOnlyRootFilesystem: true
-  allowPrivilegeEscalation: false
-  runAsNonRoot: true
-  runAsUser: 1000

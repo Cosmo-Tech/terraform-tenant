@@ -28,4 +28,3 @@ variable "cluster_region" {
   type        = string
   default     = null
 }
-

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     harbor = {
       source  = "goharbor/harbor"
-      version = "~> 3.11.3"
+      version = "~> 3.11.6"
     }
   }
 }
@@ -79,9 +79,11 @@ resource "kubernetes_secret" "harbor_tenant_docker" {
 
 resource "harbor_user" "tenant" {
   username  = kubernetes_secret.harbor_tenant.data["username"]
-  password  = kubernetes_secret.harbor_tenant.data["password"]
   full_name = kubernetes_secret.harbor_tenant.data["username"]
   email     = kubernetes_secret.harbor_tenant.data["email"]
+  password  = kubernetes_secret.harbor_tenant.data["password"]
+  # password_wo         = kubernetes_secret.harbor_tenant.data["password"]
+  # password_wo_version = 1
 }
 
 resource "harbor_project_member_user" "tenant" {
