@@ -80,7 +80,6 @@ s3:
   auth:
     enabled: true
     existingSecret: ${S3_SECRET}
-  allowEmptyFolder: false
 extraDeploy:
   # There are no value entries to setup initial s3-buckets/http-folders
   # So we deploy a Job as a post-{install,upgrade} to create them through the http filer api
