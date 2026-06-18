@@ -65,6 +65,7 @@ filer:
     networking/traffic-allowed: "yes"
 s3:
   enabled: true
+  resourcesPreset: medium
   nodeSelector:
     cosmotech.com/tier: services
   tolerations:
