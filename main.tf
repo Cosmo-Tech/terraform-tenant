@@ -7,22 +7,37 @@ locals {
     postgresql = {
       size = var.postgresql_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
+      pvc_annotations = {
+        "k8up.io/backup" = "false" # set to false because psql is backuped with pg_dumpall and not with default k8up method
+      }
     }
     seaweedfs-master = {
       size = 32
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
+      pvc_annotations = {
+        "k8up.io/backup" = "true"
+      }
     }
     seaweedfs-volume = {
       size = var.seaweedfs_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
+      pvc_annotations = {
+        "k8up.io/backup" = "true"
+      }
     }
     redis-master = {
       size = var.redis_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
+      pvc_annotations = {
+        "k8up.io/backup" = "true"
+      }
     }
     redis-replica = {
       size = var.redis_storage_size
       name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
+      pvc_annotations = {
+        "k8up.io/backup" = "true"
+      }
     }
   }
 
