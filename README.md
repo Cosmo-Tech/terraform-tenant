@@ -61,6 +61,7 @@
     * **terraform-tenant**
         * *chart_argo* = install Argo Workflows
         * *chart_cosmotech_api* = install Cosmo Tech API
+        * *chart_cosmotech_modeling_api* = install the Cosmo Tech Modeling API
         * *chart_postgresql* = install PostgreSQL (and configure it for Cosmo Tech API, SeaweedFS & Argo Workflows)
         * *chart_redis* = install Redis
         * *chart_seaweedfs* = install SeaweedFS

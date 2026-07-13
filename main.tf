@@ -4,26 +4,38 @@ locals {
 
   storage_class_name = "cosmotech-retain"
   persistences = {
-    postgresql = {
-      size = var.postgresql_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
-    }
-    seaweedfs-master = {
-      size = 32
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
-    }
-    seaweedfs-volume = {
-      size = var.seaweedfs_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
-    }
-    redis-master = {
-      size = var.redis_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
-    }
-    redis-replica = {
-      size = var.redis_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
-    }
+    for key, value in {
+      postgresql = {
+        enabled = true
+        size    = var.postgresql_storage_size
+        name    = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
+      }
+      seaweedfs-master = {
+        enabled = true
+        size    = 32
+        name    = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
+      }
+      seaweedfs-volume = {
+        enabled = true
+        size    = var.seaweedfs_storage_size
+        name    = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
+      }
+      redis-master = {
+        enabled = true
+        size    = var.redis_storage_size
+        name    = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
+      }
+      redis-replica = {
+        enabled = true
+        size    = var.redis_storage_size
+        name    = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
+      }
+      cosmotech-modeling-api = {
+        enabled = var.cosmotech_modeling_api_enabled
+        size    = var.cosmotech_modeling_api_storage_size
+        name    = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
+      }
+    } : key => value if value.enabled
   }
 
   image_registry = module.kube_namespace.image_registry
@@ -35,7 +47,8 @@ module "kube_namespace" {
 
   tenant = var.tenant
 
-  image_registry_auth_secret = var.image_registry_auth_secret
+  image_registry_auth_secret                        = var.image_registry_auth_secret
+  cosmotech_modeling_api_image_registry_auth_secret = var.cosmotech_modeling_api_enabled ? var.cosmotech_modeling_api_image_registry_auth_secret : null
 }
 
 
@@ -232,6 +245,37 @@ module "chart_cosmotech_api" {
     module.chart_argo,
     module.config_harbor_project,
     module.config_keycloak_realm,
+  ]
+}
+
+
+module "chart_cosmotech_modeling_api" {
+  count  = var.cosmotech_modeling_api_enabled ? 1 : 0
+  source = "./modules/chart_cosmotech_modeling_api"
+
+  tenant = module.kube_namespace.tenant
+
+  chart_repository = var.cosmotech_modeling_api_chart_repository
+  chart_name       = var.cosmotech_modeling_api_chart_name
+  chart_tag        = var.cosmotech_modeling_api_chart_tag
+
+  image_tag                  = var.cosmotech_modeling_api_image_tag
+  image_registry_auth_secret = var.cosmotech_modeling_api_image_registry_auth_secret
+
+  persistence_pvc = "pvc-${local.persistences.cosmotech-modeling-api["name"]}"
+
+  s3_endpoint            = "http://${module.chart_seaweedfs.s3_host}:${module.chart_seaweedfs.s3_port}"
+  s3_bucket              = module.chart_seaweedfs.s3_argo_workflows_bucket
+  s3_secret              = module.chart_seaweedfs.s3_secret
+  s3_secret_key_username = module.chart_seaweedfs.s3_secret_key_cosmotech_api_username
+  s3_secret_key_password = module.chart_seaweedfs.s3_secret_key_cosmotech_api_password
+
+  cluster_domain = local.cluster_domain
+
+  depends_on = [
+    time_sleep.timer,
+    module.chart_argo,
+    module.chart_seaweedfs,
   ]
 }
 

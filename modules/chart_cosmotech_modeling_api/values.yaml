@@ -1,0 +1,46 @@
+image:
+  tag: "${IMAGE_TAG}"
+  credentials:
+    pullSecret: "${IMAGE_PULL_SECRET}"
+
+nodeSelector:
+  cosmotech.com/tier: services
+
+tolerations:
+  - key: vendor
+    value: cosmotech
+    effect: NoSchedule
+
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+
+persistence:
+  existingClaim: "${PERSISTENCE_PVC}"
+
+extraEnv:
+  env:
+    - name: CSM_MODELINGAPI_S3_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: "${S3_SECRET}"
+          key: "${S3_SECRET_KEY_USERNAME}"
+    - name: CSM_MODELINGAPI_S3_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: "${S3_SECRET}"
+          key: "${S3_SECRET_KEY_PASSWORD}"
+
+config:
+  csm:
+    modelingApi:
+      simulatorRegistry:
+        host: "${CLUSTER_DOMAIN}/${NAMESPACE}"
+        pushSecret: harbor-docker
+      argoWorkflows:
+        host: http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746
+        namespace: "${NAMESPACE}"
+        serviceAccountName: argo-workflows
+      s3:
+        host: "${S3_ENDPOINT}"
+        bucket: ${S3_BUCKET}

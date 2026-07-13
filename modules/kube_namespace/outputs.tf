@@ -3,5 +3,5 @@ output "tenant" {
 }
 
 output "image_registry" {
-  value = keys(jsondecode(kubernetes_secret.registry_auth.data[".dockerconfigjson"]).auths)[0]
+  value = keys(jsondecode(kubernetes_secret.registry_auth["chainguard"].data[".dockerconfigjson"]).auths)[0]
 }

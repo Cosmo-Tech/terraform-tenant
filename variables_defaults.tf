@@ -40,3 +40,13 @@ variable "redis_image_tag" { default = "8.6.3" }
 variable "cosmotechapi_chart_name" { default = "cosmotech-api" }
 variable "cosmotechapi_chart_repository" { default = "https://cosmo-tech.github.io/helm-charts" }
 variable "cosmotechapi_chart_tag" { default = "5.0.1" }
+
+
+# Cosmo Tech Modeling API
+variable "cosmotech_modeling_api_enabled" { default = false }
+variable "cosmotech_modeling_api_chart_name" { default = "cosmotech-modeling-api" }
+variable "cosmotech_modeling_api_chart_repository" { default = "https://cosmo-tech.github.io/helm-charts" }
+variable "cosmotech_modeling_api_chart_tag" { default = "0.7.0" }
+variable "cosmotech_modeling_api_image_tag" { default = "12.3.0" }
+variable "cosmotech_modeling_api_image_registry_auth_secret" { default = "registry-auth-cosmotech-modeling-api" }
+variable "cosmotech_modeling_api_storage_size" { default = 8 }
