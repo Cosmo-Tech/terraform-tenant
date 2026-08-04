@@ -5,24 +5,55 @@ locals {
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      size = var.postgresql_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
+      size     = var.postgresql_storage_size
+      name     = "${module.kube_namespace.tenant}-postgresql-1"
+      pvc_name = "${module.kube_namespace.tenant}-postgresql-1"
+      pv_name  = "${module.kube_namespace.tenant}-postgresql-1"
+
+      labels = {
+        "app.kubernetes.io/managed-by" = "cloudnative-pg"
+        "cnpg.io/cluster"              = "${module.kube_namespace.tenant}-postgresql"
+        "cnpg.io/instanceName"         = "${module.kube_namespace.tenant}-postgresql-1"
+        "cnpg.io/pvcRole"              = "PG_DATA"
+      }
+
+      annotations = {}
     }
+
     seaweedfs-master = {
-      size = 32
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
+      size        = 32
+      name        = "${module.kube_namespace.tenant}-seaweedfs-master"
+      pv_name     = "pv-${module.kube_namespace.tenant}-seaweedfs-master"
+      pvc_name    = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
+      labels      = {}
+      annotations = {}
     }
+
     seaweedfs-volume = {
-      size = var.seaweedfs_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
+      size        = var.seaweedfs_storage_size
+      name        = "${module.kube_namespace.tenant}-seaweedfs-volume"
+      pv_name     = "pv-${module.kube_namespace.tenant}-seaweedfs-volume"
+      pvc_name    = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
+      labels      = {}
+      annotations = {}
     }
+
     redis-master = {
-      size = var.redis_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
+      size        = var.redis_storage_size
+      name        = "${module.kube_namespace.tenant}-redis-master"
+      pv_name     = "pv-${module.kube_namespace.tenant}-redis-master"
+      pvc_name    = "pvc-${module.kube_namespace.tenant}-redis-master"
+      labels      = {}
+      annotations = {}
     }
+
     redis-replica = {
-      size = var.redis_storage_size
-      name = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
+      size        = var.redis_storage_size
+      name        = "${module.kube_namespace.tenant}-redis-replica"
+      pv_name     = "pv-${module.kube_namespace.tenant}-redis-replica"
+      pvc_name    = "pvc-${module.kube_namespace.tenant}-redis-replica"
+      labels      = {}
+      annotations = {}
     }
   }
 
@@ -72,7 +103,7 @@ module "chart_postgresql" {
   chart_release    = "postgresql"
 
   size              = local.persistences.postgresql["size"]
-  pvc               = "pvc-${local.persistences.postgresql["name"]}"
+  pvc               = local.persistences.postgresql["pvc_name"]
   pvc_storage_class = local.storage_class_name
 
   postgresql_image_repository = var.postgresql_image_repository
@@ -98,12 +129,12 @@ module "chart_seaweedfs" {
   chart_release    = "seaweedfs"
 
   size_master              = local.persistences.seaweedfs-master["size"]
-  pvc_master               = "pvc-${local.persistences.seaweedfs-master["name"]}"
+  pvc_master               = local.persistences.seaweedfs-master["pvc_name"]
   pvc_master_access_modes  = "ReadWriteOnce"
   pvc_master_storage_class = local.storage_class_name
 
   size_volume              = local.persistences.seaweedfs-volume["size"]
-  pvc_volume               = "pvc-${local.persistences.seaweedfs-volume["name"]}"
+  pvc_volume               = local.persistences.seaweedfs-volume["pvc_name"]
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
@@ -168,11 +199,11 @@ module "chart_redis" {
   chart_release    = "redis"
 
   size_master              = local.persistences.redis-master["size"]
-  pvc_master               = "pvc-${local.persistences.redis-master["name"]}"
+  pvc_master               = local.persistences.redis-master["pvc_name"]
   pvc_master_storage_class = local.storage_class_name
 
   size_replica              = local.persistences.redis-replica["size"]
-  pvc_replica               = "pvc-${local.persistences.redis-replica["name"]}"
+  pvc_replica               = local.persistences.redis-replica["pvc_name"]
   pvc_replica_storage_class = local.storage_class_name
 
   redis_image_repository = var.redis_image_repository

@@ -16,7 +16,7 @@ locals {
     postgresql_image_repository = var.postgresql_image_repository
     postgresql_image_tag        = var.postgresql_image_tag
     namespace                   = var.tenant
-    postgres_password           = kubernetes_secret.postgresql-config.data["postgres-password"]
+    postgres_password           = kubernetes_secret.postgresql-config.data["password"]
     db_host                     = local.database_host
     db_port                     = local.database_port
     seaweedfs_database          = kubernetes_secret.postgresql-seaweedfs.data["postgresql-database"]
@@ -35,7 +35,7 @@ locals {
     postgresql_image_tag        = var.postgresql_image_tag
 
     namespace         = var.tenant
-    postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
+    postgres_password = kubernetes_secret.postgresql-config.data["password"]
     db_host           = local.database_host
     db_port           = local.database_port
 
@@ -55,7 +55,7 @@ locals {
     postgresql_image_tag        = var.postgresql_image_tag
 
     namespace         = var.tenant
-    postgres_password = kubernetes_secret.postgresql-config.data["postgres-password"]
+    postgres_password = kubernetes_secret.postgresql-config.data["password"]
     db_host           = local.database_host
     db_port           = local.database_port
 
@@ -81,6 +81,7 @@ resource "kubectl_manifest" "initdb_seaweedfs" {
       terraform_data.initdb_seaweedfs_trigger
     ]
   }
+  depends_on = [null_resource.wait_postgresql]
 }
 
 resource "terraform_data" "initdb_seaweedfs_trigger" {
@@ -101,6 +102,7 @@ resource "kubectl_manifest" "initdb_argo" {
       terraform_data.initdb_argo_trigger
     ]
   }
+  depends_on = [null_resource.wait_postgresql]
 }
 
 resource "terraform_data" "initdb_argo_trigger" {
@@ -121,6 +123,7 @@ resource "kubectl_manifest" "initdb_cosmotechapi" {
       terraform_data.initdb_cosmotechapi_trigger
     ]
   }
+  depends_on = [null_resource.wait_postgresql]
 }
 
 resource "terraform_data" "initdb_cosmotechapi_trigger" {

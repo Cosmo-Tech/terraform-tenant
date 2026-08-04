@@ -59,7 +59,7 @@ resource "grafana_data_source" "postgresql-datasource" {
   username           = "postgres"
   secure_json_data_encoded = jsonencode({
     # Get password from existing kubernetes_secret if exists, or get if from current deployment if not
-    password = (data.kubernetes_secret.postgresql.data == null ? var.secret_postgresql : data.kubernetes_secret.postgresql.data["postgres-password"])
+    password = (data.kubernetes_secret.postgresql.data == null ? var.secret_postgresql : data.kubernetes_secret.postgresql.data["password"])
     # password = var.secret_postgresql
   })
 
