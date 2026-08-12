@@ -45,3 +45,9 @@ variable "postgresql_image_repository" {
 variable "postgresql_image_tag" {
   type = string
 }
+
+variable "use_external_postgres" {
+  description = "If true, the Cosmo Tech API database is provisioned on an external PostgreSQL server, so the in-cluster init Job for it is skipped (roles/db/schema are created by the 'db_external_postgres' module instead). The 'postgresql-cosmotechapi' Secret is still created so credentials can be shared with the external provisioning module and the cosmotech-api Helm release."
+  type        = bool
+  default     = false
+}

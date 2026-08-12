@@ -113,17 +113,24 @@ resource "terraform_data" "initdb_argo_trigger" {
 
 
 ## Cosmo Tech API
+## Skipped when the tenant database is provisioned on an external PostgreSQL
+## server (var.use_external_postgres = true). In that case, roles/database/
+## schema are created declaratively by the "db_external_postgres" module.
 resource "kubectl_manifest" "initdb_cosmotechapi" {
+  count = var.use_external_postgres ? 0 : 1
+
   yaml_body = local.job_cosmotechapi_file
 
   lifecycle {
     replace_triggered_by = [
-      terraform_data.initdb_cosmotechapi_trigger
+      terraform_data.initdb_cosmotechapi_trigger,
     ]
   }
 }
 
 resource "terraform_data" "initdb_cosmotechapi_trigger" {
+  count = var.use_external_postgres ? 0 : 1
+
   input = {
     values = local.job_cosmotechapi_file
     # values_sha1 = sha1(local.job_cosmotechapi_file)
