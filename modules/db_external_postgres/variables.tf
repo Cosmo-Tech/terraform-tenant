@@ -3,11 +3,6 @@ variable "tenant" {
   type        = string
 }
 
-# variable "tenant_prefix" {
-#   description = "Short tenant identifier used as a database name and role prefix. Dashes ('-') will be replaced with underscores ('_') to build valid PostgreSQL identifiers (e.g. 'my-tenant' -> 'my_tenant_admin')."
-#   type        = string
-# }
-
 variable "postgresql_admin_password" {
   description = "Cosmo Tech API admin password, as stored in the 'postgresql-cosmotechapi' Kubernetes Secret."
   type        = string

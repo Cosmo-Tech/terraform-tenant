@@ -35,7 +35,7 @@ provider "helm" {
 }
 
 provider "postgresql" {
-  host             = var.external_postgres_host
+  host             = local.external_postgres_host
   port             = var.external_postgres_port
   username         = var.external_postgres_admin_username
   password         = var.external_postgres_admin_password

@@ -52,13 +52,11 @@ variable "external_postgres_port" {
 variable "external_postgres_admin_username" {
   description = "Server-level admin (superuser) username used by Terraform to connect to the external PostgreSQL server and provision tenant roles/databases. Required when 'use_external_postgres' is true."
   type        = string
-  default     = null
 }
 
 variable "external_postgres_admin_password" {
   description = "Server-level admin (superuser) password used by Terraform to connect to the external PostgreSQL server. Required when 'use_external_postgres' is true."
   type        = string
-  default     = null
   sensitive   = true
 }
 

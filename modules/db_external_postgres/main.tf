@@ -24,7 +24,7 @@ resource "postgresql_role" "admin" {
   name      = local.admin_username
   login     = true
   password  = var.postgresql_admin_password
-  create_db = true
+  create_database = true
   # Azure Flexible Server admin accounts are not real superusers, so
   # tenant roles created here can't be superusers either.
   superuser = false

@@ -43,8 +43,6 @@ azure_entra_tenant_id = "xxxxxxxx_xxxx_xxxx_xxxx_xxxxxxxxxxxx"
 # ## variable instead.
 #
 # ## Example:
-# ## export TF_VAR_external_postgres_admin_password="<password>"
+# ## export TF_VAR_external_postgres_admin_password='<password>'
 use_external_postgres            = false
-external_postgres_host           = "csm-aks-dev-devops.postgres.database.azure.com"
 external_postgres_admin_username = "psqladmintest"
-external_postgres_superuser      = false

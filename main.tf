@@ -2,6 +2,10 @@ locals {
   main_name      = "tenant-${var.tenant}"
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
 
+  # Fall back to a computed hostname (based on the cluster name) when
+  # var.external_postgres_host is not explicitly set in tfvars.
+  external_postgres_host = coalesce(var.external_postgres_host, "csm-${var.cluster_name}.postgres.database.azure.com")
+
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
@@ -121,7 +125,7 @@ module "db_external_postgres" {
   postgresql_writer_password = module.chart_postgresql.database_cosmotech_password_writer
   postgresql_reader_password = module.chart_postgresql.database_cosmotech_password_reader
 
-  external_postgres_host = var.external_postgres_host
+  external_postgres_host = local.external_postgres_host
   external_postgres_port = var.external_postgres_port
 
   depends_on = [
