@@ -29,3 +29,10 @@
 # domain_zone    = "onpremise.platform.cosmotech.com"
 # tenant         = "test0"
 # state_host     = "https://cosmotechstates.onpremise.platform.cosmotech.com"
+
+
+## GLOBAL VARIABLES
+# tenant_type = "standard"
+# tenant_type = "modeling"
+# tenant_type = "asset"
+# tenant_type = "asset_portfolio"
