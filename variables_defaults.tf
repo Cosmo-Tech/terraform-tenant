@@ -5,13 +5,17 @@
 variable "image_registry_auth_secret" { default = "registry-auth-cgrdev" }
 
 
-# PostgreSQL
+# PostgreSQL (internal)
 variable "postgresql_chart_name" { default = "postgresql" }
 variable "postgresql_chart_repository" { default = "oci://cgr.dev/cosmotech/iamguarded-charts" }
 variable "postgresql_chart_tag" { default = "17.1.0" }
 variable "postgresql_storage_size" { default = 8 }
 variable "postgresql_image_repository" { default = "cosmotech/postgres-iamguarded" } # Note: not only used in postgresql module, but also in others modules to ensure psql is the same everywhere
 variable "postgresql_image_tag" { default = "17" }                                   # Note: not only used in postgresql module, but also in others modules to ensure psql is the same everywhere
+
+
+# PostgreSQL (external)
+variable "use_external_postgresql" { default = false }
 
 
 # SeaweedFS
