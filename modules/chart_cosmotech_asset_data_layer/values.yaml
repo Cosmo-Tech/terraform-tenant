@@ -133,4 +133,4 @@ webhookRestart:
   # harbor:
   #   url: "https://${CLUSTER_DOMAIN}"
   #   project: "${NAMESPACE}"
-  #   credentials: "${HARBOR_PASSWORD}"
+  #   credentials: "HARBOR_PASSWORD}"

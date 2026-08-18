@@ -119,7 +119,8 @@ if ($args[0] -eq $option_apply) {
 }
 
 
-$tenant_name = "tenant-$(get_var_value terraform.tfvars tenant)"
+# $tenant_name = "tenant-$(get_var_value terraform.tfvars tenant)"
+$tenant_name = ("local.main_name" | terraform console -var-file="terraform.tfvars").Replace('"', '').Trim()
 echo ''
 echo "target is $cluster_name/$tenant_name"
 
