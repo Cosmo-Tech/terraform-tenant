@@ -1,0 +1,136 @@
+replicaCount: 1
+
+image:
+  repository: ${IMAGE_REGISTRY}
+  tag: ${IMAGE_TAG}
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+
+podAnnotations: {}
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "traefik"
+  pathType: ImplementationSpecific
+  hosts:
+    - host: "${CLUSTER_DOMAIN}"
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  tls:
+    enabled: true
+    secretName: "letsencrypt-prod-${NAMESPACE}"
+    hosts:
+      - "${CLUSTER_DOMAIN}"
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+apiConfig:
+  rootUri: "/"
+  dataDir: "/data"
+  corsOrigin:
+    - https://${CLUSTER_DOMAIN}/adl/main
+
+extraEnvVars:
+  - name: CSM_API_URL
+    value: cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector:
+  cosmotech.com/tier: services
+
+tolerations:
+  - effect: NoSchedule
+    key: vendor
+    operator: Equal
+    value: cosmotech
+
+persistence:
+  enabled: true
+  size: "${PERSISTENCE_SIZE}"
+  storageClass: "${PERSISTENCE_STORAGE_CLASS}"
+  existingClaim: "${PERSISTENCE_PVC}"
+
+postgres:
+  enabled: true
+  host: "postgresql.${NAMESPACE}.svc.cluster.local"
+  port: 5432
+  database: "${POSTGRESQL_DATABASE}"
+  username: "${POSTGRESQL_USERNAME}"
+  password: "${POSTGRESQL_PASSWORD}"
+  schema: "cosmotech_asset_data_layer"
+
+keycloak:
+  realm: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}"
+  clientId: "${KEYCLOAK_CLIENT_ID}"
+
+csmApi:
+  url: "http://cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080"
+  scope: ""
+  clientId: "${COSMOTECH_API_CLIENT_ID}"
+  clientSecret: "${COSMOTECH_API_CLIENT_SECRET}"
+
+seaweedfs:
+  enabled: false
+  endpointUrl: "${S3_HOST}:${S3_PORT}"
+  accessKey: "${S3_ACCESS_KEY}"
+  secretKey: "${S3_SECRET_KEY}"
+  bucket: "${S3_BUCKET}"
+  region: ""
+
+usage:
+  enabled: true
+
+localStorage:
+  path: "/data/local_storage"
+
+database:
+  reset: false
+
+alembic:
+  script_location: "cosmotech/asset_data_layer/migrations"
+
+webhookRestart:
+  enabled: false
+  authToken: "${WEBHOOK_AUTH_TOKEN}"
+  port: 9000
+  # harbor:
+  #   url: "https://${CLUSTER_DOMAIN}"
+  #   project: "${NAMESPACE}"
+  #   credentials: "${HARBOR_PASSWORD}"

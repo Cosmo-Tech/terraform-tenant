@@ -21,7 +21,16 @@ locals {
     ]
 
     asset = [
-      # "todo",
+      "chart_cosmotech_asset_data_layer",
+      "chart_cosmotech_api",
+      "chart_argo",
+      "chart_postgresql",
+      "chart_redis",
+      "chart_seaweedfs",
+      "config_grafana_dashboard",
+      "config_harbor_project",
+      "config_keycloak_realm",
+      "config_superset_oauth",
     ]
 
     asset_portfolio = [

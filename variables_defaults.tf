@@ -49,3 +49,12 @@ variable "cosmotech_modeling_api_chart_tag" { default = "0.6.0" }
 variable "cosmotech_modeling_api_image_tag" { default = "12.3.0" }
 variable "cosmotech_modeling_api_image_registry_auth_secret" { default = "registry-auth-cosmotech-modeling-api" }
 variable "cosmotech_modeling_api_storage_size" { default = 8 }
+
+
+# Cosmo Tech Asset Data Layer
+variable "cosmotech_asset_data_layer_chart_name" { default = "cosmotech-asset-data-layer" }
+variable "cosmotech_asset_data_layer_chart_repository" { default = "https://ghcr.io/cosmo-tech/cosmotech-asset-data-layer-api" }
+variable "cosmotech_asset_data_layer_chart_tag" { default = "latest" }
+variable "cosmotech_asset_data_layer_image_tag" { default = "latest" }
+variable "cosmotech_asset_data_layer_image_registry_auth_secret" { default = "registry-auth-cosmotech-asset-data-layer" }
+variable "cosmotech_asset_data_layer_storage_size" { default = 8 }

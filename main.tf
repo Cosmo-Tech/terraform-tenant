@@ -34,6 +34,11 @@ locals {
       size   = var.cosmotech_modeling_api_storage_size
       name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
     }
+    cosmotech-asset-data-layer = {
+      module = "chart_cosmotech_asset_data_layer"
+      size   = var.cosmotech_asset_data_layer_storage_size
+      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-asset-data-layer"
+    }
   }
 
   # Keep only the persistences required for the current tenant type
@@ -73,7 +78,6 @@ resource "time_sleep" "timer" {
     module.storage,
   ]
 }
-
 
 
 module "chart_postgresql" {
@@ -289,6 +293,57 @@ module "chart_cosmotech_modeling_api" {
     time_sleep.timer,
     module.chart_argo,
     module.chart_seaweedfs,
+  ]
+}
+
+
+module "chart_cosmotech_asset_data_layer" {
+  count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_data_layer") ? 1 : 0
+  source = "./modules/chart_cosmotech_asset_data_layer"
+
+  tenant = module.kube_namespace.tenant
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+  image_tag                  = var.cosmotech_asset_data_layer_image_tag
+
+  chart_repository = var.cosmotech_asset_data_layer_chart_repository
+  chart_name       = var.cosmotech_asset_data_layer_chart_name
+  chart_tag        = var.cosmotech_asset_data_layer_chart_tag
+  chart_release    = "cosmotech-asset-data-layer"
+
+  persistence_size              = local.persistences.cosmotech-asset-data-layer["size"]
+  persistence_pvc               = "pvc-${local.persistences.cosmotech-asset-data-layer["name"]}"
+  persistence_pvc_storage_class = local.storage_class_name
+
+  postgresql_host     = try(one(module.chart_postgresql[*].database_host), null)
+  postgresql_port     = try(one(module.chart_postgresql[*].database_port), null)
+  postgresql_database = try(one(module.chart_postgresql[*].database_cosmotech_name), null)
+  postgresql_username = try(one(module.chart_postgresql[*].database_cosmotech_username), null)
+  postgresql_password = try(one(module.chart_postgresql[*].database_cosmotech_password), null)
+
+  s3_host   = try(one(module.chart_seaweedfs[*].s3_host), null)
+  s3_port   = try(one(module.chart_seaweedfs[*].s3_port), null)
+  s3_bucket = try(one(module.chart_seaweedfs[*].s3_cosmotech_api_bucket), null)
+  # s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
+  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
+  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
+
+  cluster_domain = local.cluster_domain
+
+  keycloak_client_id = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
+  # keycloak_client_secret = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
+
+
+  cosmotech_api_client_id     = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
+  cosmotech_api_client_secret = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
+
+  # harbor_password = 
+
+
+  depends_on = [
+    time_sleep.timer,
+    module.chart_cosmotech_api,
   ]
 }
 
