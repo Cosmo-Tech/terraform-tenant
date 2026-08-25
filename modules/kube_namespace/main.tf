@@ -1,12 +1,29 @@
-locals {
-  main_name = "tenant-${var.tenant}"
-}
+resource "terraform_data" "prevent_tenant_type_change" {
+  input = var.tenant_type
 
+  lifecycle {
+    postcondition {
+      condition     = self.output == null || self.output == var.tenant_type
+      error_message = "Forbidden deployment: variable 'tenant_type' cannot be changed on an existing deployment."
+    }
+  }
+}
 
 resource "kubernetes_namespace" "tenant" {
   metadata {
-    name = local.main_name
+    name = var.tenant_namespace
+    annotations = {
+      "cosmotech.com/tenant-type" = var.tenant_type
+    }
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  depends_on = [
+    terraform_data.prevent_tenant_type_change
+  ]
 }
 
 
@@ -20,27 +37,9 @@ resource "random_password" "password" {
 
 
 
-## Secret to store the version of the Terraform module of the tenant
-# resource "kubernetes_secret" "terraform_module_tag" {
-#   metadata {
-#     name      = "cosmotech-terraform-module-tag"
-#     namespace = kubernetes_namespace.tenant.metadata[0].name
-#   }
-
-#   data = {
-#     "module" : "terraform-tenant",
-#     "tag" : "todo",
-#   }
-
-#   type = "Opaque"
-# }
-
-
-
 ## Authentication to Image Registry is required to allow usage of sub-images in Charts
 ## This secret is created in terraform-shared
-
-## Copy the registry auth secret
+## -> Copy the registry auth secret
 data "kubernetes_secret" "registry_auth" {
   metadata {
     name      = var.image_registry_auth_secret
@@ -48,11 +47,11 @@ data "kubernetes_secret" "registry_auth" {
   }
 }
 
-## Paste the registry auth secret in the tenant namespace
+## -> Paste the registry auth secret in the tenant namespace
 resource "kubernetes_secret" "registry_auth" {
   metadata {
     name      = data.kubernetes_secret.registry_auth.metadata[0].name
-    namespace = local.main_name
+    namespace = var.tenant_namespace
   }
 
   data = {

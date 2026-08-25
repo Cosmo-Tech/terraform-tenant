@@ -1,67 +1,58 @@
 locals {
-  main_name_suffixes = {
-    standard        = ""
-    modeling        = "mod"
-    asset           = "asset"
-    asset_portfolio = "pfolio"
-  }
-  main_name_suffix              = lookup(local.main_name_suffixes, var.tenant_type, "")
-  main_name_suffix_formatted    = local.main_name_suffix != "" ? "-${local.main_name_suffix}" : ""
-  main_name_suffix_db_formatted = var.use_external_postgresql ? "-extdb" : ""
-  main_name                     = "tenant-${var.tenant}${local.main_name_suffix_formatted}${local.main_name_suffix_db_formatted}"
+  tenant_namespace_raw = "tenant-${var.tenant}"
+  tenant_namespace     = var.use_external_postgresql ? "${local.tenant_namespace_raw}-extdb" : local.tenant_namespace_raw
 
-  # main_name      = "tenant-${var.tenant}"
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
 
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      module = "postgresql"
+      module     = "postgresql"
       size       = var.postgresql_storage_size
-      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
-      pvc_name   = "${module.kube_namespace.tenant}-postgresql-1"
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-postgresql"
+      pvc_name   = "${module.kube_namespace.tenant_namespace}-postgresql-1"
       create_pvc = false
     }
     seaweedfs-master = {
-      module = "chart_seaweedfs"
+      module     = "chart_seaweedfs"
       size       = 32
-      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
-      pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-seaweedfs-master"
+      pvc_name   = "pvc-${module.kube_namespace.tenant_namespace}-seaweedfs-master"
       create_pvc = true
     }
     seaweedfs-volume = {
-      module = "chart_seaweedfs"
+      module     = "chart_seaweedfs"
       size       = var.seaweedfs_storage_size
-      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
-      pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-seaweedfs-volume"
+      pvc_name   = "pvc-${module.kube_namespace.tenant_namespace}-seaweedfs-volume"
       create_pvc = true
     }
     redis-master = {
-      module = "chart_redis"
+      module     = "chart_redis"
       size       = var.redis_storage_size
-      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
-      pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-master"
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-redis-master"
+      pvc_name   = "pvc-${module.kube_namespace.tenant_namespace}-redis-master"
       create_pvc = true
     }
     redis-replica = {
-      module = "chart_redis"
+      module     = "chart_redis"
       size       = var.redis_storage_size
-      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
-      pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-replica"
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-redis-replica"
+      pvc_name   = "pvc-${module.kube_namespace.tenant_namespace}-redis-replica"
       create_pvc = true
     }
     cosmotech-asset-data-layer = {
-      module = "chart_cosmotech_asset_data_layer"
-      size   = var.cosmotech_asset_data_layer_storage_size
-      main_name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-asset-data-layer"
-      pvc_name   = "pvc-${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-asset-data-layer"
+      module     = "chart_cosmotech_asset_data_layer"
+      size       = var.cosmotech_asset_data_layer_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-cosmotech-asset-data-layer"
+      pvc_name   = "pvc-${var.cluster_name}-${module.kube_namespace.tenant_namespace}-cosmotech-asset-data-layer"
       create_pvc = true
     }
     cosmotech-modeling-api = {
-      module = "chart_cosmotech_modeling_api"
-      size   = var.cosmotech_modeling_api_storage_size
-      main_name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
-      pvc_name   = "pvc-${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
+      module     = "chart_cosmotech_modeling_api"
+      size       = var.cosmotech_modeling_api_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-cosmotech-modeling-api"
+      pvc_name   = "pvc-${var.cluster_name}-${module.kube_namespace.tenant_namespace}-cosmotech-modeling-api"
       create_pvc = true
     }
   }
@@ -79,7 +70,8 @@ locals {
 module "kube_namespace" {
   source = "./modules/kube_namespace"
 
-  tenant = var.tenant
+  tenant_namespace = local.tenant_namespace
+  tenant_type      = var.tenant_type
 
   image_registry_auth_secret = var.image_registry_auth_secret
 }
@@ -89,7 +81,7 @@ module "config_keycloak_realm" {
   count  = contains(local.tenant_recipe_modules, "config_keycloak_realm") ? 1 : 0
   source = "./modules/config_keycloak_realm"
 
-  tenant         = module.kube_namespace.tenant
+  tenant         = module.kube_namespace.tenant_namespace
   cluster_domain = local.cluster_domain
 }
 
@@ -108,7 +100,7 @@ resource "time_sleep" "timer" {
 module "postgresql" {
   source = "./modules/postgresql"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
@@ -130,7 +122,7 @@ module "chart_seaweedfs" {
   count  = contains(local.tenant_recipe_modules, "chart_seaweedfs") ? 1 : 0
   source = "./modules/chart_seaweedfs"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
@@ -170,7 +162,7 @@ module "chart_argo" {
   count  = contains(local.tenant_recipe_modules, "chart_argo") ? 1 : 0
   source = "./modules/chart_argo"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
@@ -204,7 +196,7 @@ module "chart_redis" {
   count  = contains(local.tenant_recipe_modules, "chart_redis") ? 1 : 0
   source = "./modules/chart_redis"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
@@ -235,7 +227,7 @@ module "chart_cosmotech_api" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_api") ? 1 : 0
   source = "./modules/chart_cosmotech_api"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   # image_registry             = local.image_registry
   # image_registry_auth_secret = var.image_registry_auth_secret
@@ -288,7 +280,7 @@ module "chart_cosmotech_modeling_api" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_modeling_api") ? 1 : 0
   source = "./modules/chart_cosmotech_modeling_api"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   chart_repository = var.cosmotech_modeling_api_chart_repository
   chart_name       = var.cosmotech_modeling_api_chart_name
@@ -322,7 +314,7 @@ module "chart_cosmotech_asset_data_layer" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_data_layer") ? 1 : 0
   source = "./modules/chart_cosmotech_asset_data_layer"
 
-  tenant = module.kube_namespace.tenant
+  tenant = module.kube_namespace.tenant_namespace
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
@@ -373,7 +365,7 @@ module "config_grafana_dashboard" {
   count  = contains(local.tenant_recipe_modules, "config_grafana_dashboard") ? 1 : 0
   source = "./modules/config_grafana_dashboard"
 
-  tenant            = module.kube_namespace.tenant
+  tenant            = module.kube_namespace.tenant_namespace
   cluster_domain    = local.cluster_domain
   secret_redis      = try(one(module.chart_redis[*].redis_secret), null)
   secret_postgresql = try(one(module.postgresql[*].postgresql_secret), null)
@@ -384,7 +376,7 @@ module "config_harbor_project" {
   count  = contains(local.tenant_recipe_modules, "config_harbor_project") ? 1 : 0
   source = "./modules/config_harbor_project"
 
-  tenant         = module.kube_namespace.tenant
+  tenant         = module.kube_namespace.tenant_namespace
   cluster_domain = local.cluster_domain
 }
 
@@ -393,7 +385,7 @@ module "config_superset_oauth_provider" {
   count  = contains(local.tenant_recipe_modules, "config_superset_oauth_provider") ? 1 : 0
   source = "./modules/config_superset_oauth_provider"
 
-  tenant         = module.kube_namespace.tenant
+  tenant         = module.kube_namespace.tenant_namespace
   cluster_domain = local.cluster_domain
 
   depends_on = [

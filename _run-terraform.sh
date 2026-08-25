@@ -124,10 +124,9 @@ else
 fi
 
 
-# tenant_name="tenant-$(get_var_value terraform.tfvars tenant)"
-tenant_name="$(echo "local.main_name" | terraform console -var-file="terraform.tfvars" | tr -d '"')"
+tenant_namespace="$(echo "local.tenant_namespace" | terraform console -var-file="terraform.tfvars" | tr -d '"')"
 echo "$NO_FORMAT"
-echo "target is $FG_COLOR_INFO$cluster_name/$tenant_name"
+echo "target is $FG_COLOR_INFO$cluster_name/$tenant_namespace"
 
 
 echo "$NO_FORMAT"
