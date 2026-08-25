@@ -5,55 +5,39 @@ locals {
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      size     = var.postgresql_storage_size
-      name     = "${module.kube_namespace.tenant}-postgresql-1"
-      pvc_name = "${module.kube_namespace.tenant}-postgresql-1"
-      pv_name  = "${module.kube_namespace.tenant}-postgresql-1"
-
-      labels = {
-        "app.kubernetes.io/managed-by" = "cloudnative-pg"
-        "cnpg.io/cluster"              = "${module.kube_namespace.tenant}-postgresql"
-        "cnpg.io/instanceName"         = "${module.kube_namespace.tenant}-postgresql-1"
-        "cnpg.io/pvcRole"              = "PG_DATA"
-      }
-
-      annotations = {}
+      namespace  = module.kube_namespace.tenant
+      size       = var.postgresql_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
+      pvc_name   = "${module.kube_namespace.tenant}-postgresql-1"
+      create_pvc = false
     }
-
     seaweedfs-master = {
-      size        = 32
-      name        = "${module.kube_namespace.tenant}-seaweedfs-master"
-      pv_name     = "pv-${module.kube_namespace.tenant}-seaweedfs-master"
-      pvc_name    = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
-      labels      = {}
-      annotations = {}
+      namespace  = module.kube_namespace.tenant
+      size       = 32
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
+      create_pvc = true
     }
-
     seaweedfs-volume = {
-      size        = var.seaweedfs_storage_size
-      name        = "${module.kube_namespace.tenant}-seaweedfs-volume"
-      pv_name     = "pv-${module.kube_namespace.tenant}-seaweedfs-volume"
-      pvc_name    = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
-      labels      = {}
-      annotations = {}
+      namespace  = module.kube_namespace.tenant
+      size       = var.seaweedfs_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
+      create_pvc = true
     }
-
     redis-master = {
-      size        = var.redis_storage_size
-      name        = "${module.kube_namespace.tenant}-redis-master"
-      pv_name     = "pv-${module.kube_namespace.tenant}-redis-master"
-      pvc_name    = "pvc-${module.kube_namespace.tenant}-redis-master"
-      labels      = {}
-      annotations = {}
+      namespace  = module.kube_namespace.tenant
+      size       = var.redis_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-master"
+      create_pvc = true
     }
-
     redis-replica = {
-      size        = var.redis_storage_size
-      name        = "${module.kube_namespace.tenant}-redis-replica"
-      pv_name     = "pv-${module.kube_namespace.tenant}-redis-replica"
-      pvc_name    = "pvc-${module.kube_namespace.tenant}-redis-replica"
-      labels      = {}
-      annotations = {}
+      namespace  = module.kube_namespace.tenant
+      size       = var.redis_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-replica"
+      create_pvc = true
     }
   }
 
@@ -89,18 +73,13 @@ resource "time_sleep" "timer" {
 }
 
 
-module "chart_postgresql" {
-  source = "./modules/chart_postgresql"
+module "postgresql" {
+  source = "./modules/postgresql"
 
   tenant = module.kube_namespace.tenant
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
-
-  chart_repository = var.postgresql_chart_repository
-  chart_name       = var.postgresql_chart_name
-  chart_tag        = var.postgresql_chart_tag
-  chart_release    = "postgresql"
 
   size              = local.persistences.postgresql["size"]
   pvc               = local.persistences.postgresql["pvc_name"]
@@ -138,17 +117,18 @@ module "chart_seaweedfs" {
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
-  database_host             = module.chart_postgresql.database_host
-  database_port             = module.chart_postgresql.database_port
-  database_seaweedfs_name   = module.chart_postgresql.database_seaweedfs_name
-  database_seaweedfs_user   = module.chart_postgresql.database_seaweedfs_user
-  database_seaweedfs_secret = module.chart_postgresql.database_seaweedfs_secret
+  database_host             = module.postgresql.database_host
+  database_port             = module.postgresql.database_port
+  database_seaweedfs_name   = module.postgresql.database_seaweedfs_name
+  database_seaweedfs_user   = module.postgresql.database_seaweedfs_user
+  database_seaweedfs_secret = module.postgresql.database_seaweedfs_secret
 
   postgresql_image_repository = var.postgresql_image_repository
   postgresql_image_tag        = var.postgresql_image_tag
 
   depends_on = [
     time_sleep.timer,
+    module.postgresql,
   ]
 }
 
@@ -166,11 +146,11 @@ module "chart_argo" {
   chart_tag        = var.argo_chart_tag
   chart_release    = "argo-workflows"
 
-  database_host   = module.chart_postgresql.database_host
-  database_port   = module.chart_postgresql.database_port
-  database_name   = module.chart_postgresql.database_argo_name
-  database_user   = module.chart_postgresql.database_argo_user
-  database_secret = module.chart_postgresql.database_argo_secret
+  database_host   = module.postgresql.database_host
+  database_port   = module.postgresql.database_port
+  database_name   = module.postgresql.database_argo_name
+  database_user   = module.postgresql.database_argo_user
+  database_secret = module.postgresql.database_argo_secret
 
   s3_host                = module.chart_seaweedfs.s3_host
   s3_port                = module.chart_seaweedfs.s3_port
@@ -181,6 +161,7 @@ module "chart_argo" {
 
   depends_on = [
     time_sleep.timer,
+    module.postgresql,
   ]
 }
 
@@ -228,15 +209,15 @@ module "chart_cosmotech_api" {
   chart_tag        = var.cosmotechapi_chart_tag
   chart_release    = "cosmotech-api"
 
-  postgresql_host            = module.chart_postgresql.database_host
-  postgresql_port            = module.chart_postgresql.database_port
-  postgresql_database        = module.chart_postgresql.database_cosmotech_name
-  postgresql_admin_username  = module.chart_postgresql.database_cosmotech_username_admin
-  postgresql_admin_password  = module.chart_postgresql.database_cosmotech_password_admin
-  postgresql_writer_username = module.chart_postgresql.database_cosmotech_username_writer
-  postgresql_writer_password = module.chart_postgresql.database_cosmotech_password_writer
-  postgresql_reader_username = module.chart_postgresql.database_cosmotech_username_reader
-  postgresql_reader_password = module.chart_postgresql.database_cosmotech_password_reader
+  postgresql_host            = module.postgresql.database_host
+  postgresql_port            = module.postgresql.database_port
+  postgresql_database        = module.postgresql.database_cosmotech_name
+  postgresql_admin_username  = module.postgresql.database_cosmotech_username_admin
+  postgresql_admin_password  = module.postgresql.database_cosmotech_password_admin
+  postgresql_writer_username = module.postgresql.database_cosmotech_username_writer
+  postgresql_writer_password = module.postgresql.database_cosmotech_password_writer
+  postgresql_reader_username = module.postgresql.database_cosmotech_username_reader
+  postgresql_reader_password = module.postgresql.database_cosmotech_password_reader
 
   s3_host                = module.chart_seaweedfs.s3_host
   s3_port                = module.chart_seaweedfs.s3_port
@@ -258,7 +239,7 @@ module "chart_cosmotech_api" {
 
   depends_on = [
     time_sleep.timer,
-    module.chart_postgresql,
+    module.postgresql,
     module.chart_redis,
     module.chart_argo,
     module.config_harbor_project,
@@ -274,7 +255,7 @@ module "config_grafana_dashboard" {
   cluster_domain       = local.cluster_domain
   namespace_monitoring = "monitoring"
   secret_redis         = module.chart_redis.redis_secret
-  secret_postgresql    = module.chart_postgresql.postgresql_secret
+  secret_postgresql    = module.postgresql.postgresql_secret
 }
 
 

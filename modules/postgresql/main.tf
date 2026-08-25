@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/cnpg-cluster.yaml", local.chart_values)
   chart_values = {
     PERSISTENCE_SIZE            = var.size
     PERSISTENCE_PVC             = var.pvc
@@ -12,7 +12,7 @@ locals {
     NAMESPACE                   = var.tenant
   }
 
-  database_host = "${kubernetes_manifest.postgresql.manifest.metadata.name}-rw.${var.tenant}.svc.cluster.local"
+  database_host = "${kubectl_manifest.postgresql.name}-rw.${var.tenant}.svc.cluster.local"
   database_port = "5432"
 }
 
@@ -106,8 +106,19 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
 }
 
 
-resource "kubernetes_manifest" "postgresql" {
-  manifest = yamldecode(local.chart_values_file)
+resource "kubectl_manifest" "postgresql" {
+  yaml_body = local.chart_values_file
+
+  wait_for {
+    condition {
+      type   = "Ready"
+      status = "True"
+    }
+  }
+
+  timeouts {
+    create = "300s"
+  }
 
   depends_on = [
     var.tenant,
@@ -116,22 +127,4 @@ resource "kubernetes_manifest" "postgresql" {
     kubernetes_secret.postgresql-seaweedfs,
     kubernetes_secret.postgresql-argo,
   ]
-}
-
-resource "null_resource" "wait_postgresql" {
-
-  depends_on = [
-    kubernetes_manifest.postgresql,
-    kubectl_manifest.pvc_patcher # Patcher MUST be applied first!
-  ]
-
-  provisioner "local-exec" {
-    command = <<EOF
-kubectl wait \
-  --for=condition=Ready \
-  cluster/${var.tenant}-postgresql \
-  -n ${var.tenant} \
-  --timeout=300s
-EOF
-  }
 }
