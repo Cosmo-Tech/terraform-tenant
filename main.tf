@@ -16,35 +16,35 @@ locals {
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      namespace  = module.kube_namespace.tenant
+      module = "postgresql"
       size       = var.postgresql_storage_size
       main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
       pvc_name   = "${module.kube_namespace.tenant}-postgresql-1"
       create_pvc = false
     }
     seaweedfs-master = {
-      namespace  = module.kube_namespace.tenant
+      module = "chart_seaweedfs"
       size       = 32
       main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
       pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
       create_pvc = true
     }
     seaweedfs-volume = {
-      namespace  = module.kube_namespace.tenant
+      module = "chart_seaweedfs"
       size       = var.seaweedfs_storage_size
       main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
       pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
       create_pvc = true
     }
     redis-master = {
-      namespace  = module.kube_namespace.tenant
+      module = "chart_redis"
       size       = var.redis_storage_size
       main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
       pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-master"
       create_pvc = true
     }
     redis-replica = {
-      namespace  = module.kube_namespace.tenant
+      module = "chart_redis"
       size       = var.redis_storage_size
       main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
       pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-replica"
@@ -53,7 +53,16 @@ locals {
     cosmotech-asset-data-layer = {
       module = "chart_cosmotech_asset_data_layer"
       size   = var.cosmotech_asset_data_layer_storage_size
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-asset-data-layer"
+      main_name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-asset-data-layer"
+      pvc_name   = "pvc-${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-asset-data-layer"
+      create_pvc = true
+    }
+    cosmotech-modeling-api = {
+      module = "chart_cosmotech_modeling_api"
+      size   = var.cosmotech_modeling_api_storage_size
+      main_name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
+      pvc_name   = "pvc-${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
+      create_pvc = true
     }
   }
 
@@ -141,11 +150,11 @@ module "chart_seaweedfs" {
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
-  database_host             = try(one(module.chart_postgresql[*].database_host), null)
-  database_port             = try(one(module.chart_postgresql[*].database_port), null)
-  database_seaweedfs_name   = try(one(module.chart_postgresql[*].database_seaweedfs_name), null)
-  database_seaweedfs_user   = try(one(module.chart_postgresql[*].database_seaweedfs_user), null)
-  database_seaweedfs_secret = try(one(module.chart_postgresql[*].database_seaweedfs_secret), null)
+  database_host             = try(one(module.postgresql[*].database_host), null)
+  database_port             = try(one(module.postgresql[*].database_port), null)
+  database_seaweedfs_name   = try(one(module.postgresql[*].database_seaweedfs_name), null)
+  database_seaweedfs_user   = try(one(module.postgresql[*].database_seaweedfs_user), null)
+  database_seaweedfs_secret = try(one(module.postgresql[*].database_seaweedfs_secret), null)
 
   postgresql_image_repository = var.postgresql_image_repository
   postgresql_image_tag        = var.postgresql_image_tag
@@ -171,11 +180,11 @@ module "chart_argo" {
   chart_tag        = var.argo_chart_tag
   chart_release    = "argo-workflows"
 
-  database_host   = try(one(module.chart_postgresql[*].database_host), null)
-  database_port   = try(one(module.chart_postgresql[*].database_port), null)
-  database_name   = try(one(module.chart_postgresql[*].database_argo_name), null)
-  database_user   = try(one(module.chart_postgresql[*].database_argo_user), null)
-  database_secret = try(one(module.chart_postgresql[*].database_argo_secret), null)
+  database_host   = try(one(module.postgresql[*].database_host), null)
+  database_port   = try(one(module.postgresql[*].database_port), null)
+  database_name   = try(one(module.postgresql[*].database_argo_name), null)
+  database_user   = try(one(module.postgresql[*].database_argo_user), null)
+  database_secret = try(one(module.postgresql[*].database_argo_secret), null)
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -236,15 +245,15 @@ module "chart_cosmotech_api" {
   chart_tag        = var.cosmotechapi_chart_tag
   chart_release    = "cosmotech-api"
 
-  postgresql_host            = try(one(module.chart_postgresql[*].database_host), null)
-  postgresql_port            = try(one(module.chart_postgresql[*].database_port), null)
-  postgresql_database        = try(one(module.chart_postgresql[*].database_cosmotech_name), null)
-  postgresql_admin_username  = try(one(module.chart_postgresql[*].database_cosmotech_username_admin), null)
-  postgresql_admin_password  = try(one(module.chart_postgresql[*].database_cosmotech_password_admin), null)
-  postgresql_writer_username = try(one(module.chart_postgresql[*].database_cosmotech_username_writer), null)
-  postgresql_writer_password = try(one(module.chart_postgresql[*].database_cosmotech_password_writer), null)
-  postgresql_reader_username = try(one(module.chart_postgresql[*].database_cosmotech_username_reader), null)
-  postgresql_reader_password = try(one(module.chart_postgresql[*].database_cosmotech_password_reader), null)
+  postgresql_host            = try(one(module.postgresql[*].database_host), null)
+  postgresql_port            = try(one(module.postgresql[*].database_port), null)
+  postgresql_database        = try(one(module.postgresql[*].database_cosmotech_name), null)
+  postgresql_admin_username  = try(one(module.postgresql[*].database_cosmotech_username_admin), null)
+  postgresql_admin_password  = try(one(module.postgresql[*].database_cosmotech_password_admin), null)
+  postgresql_writer_username = try(one(module.postgresql[*].database_cosmotech_username_writer), null)
+  postgresql_writer_password = try(one(module.postgresql[*].database_cosmotech_password_writer), null)
+  postgresql_reader_username = try(one(module.postgresql[*].database_cosmotech_username_reader), null)
+  postgresql_reader_password = try(one(module.postgresql[*].database_cosmotech_password_reader), null)
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -289,7 +298,7 @@ module "chart_cosmotech_modeling_api" {
   image_tag                  = var.cosmotech_modeling_api_image_tag
   image_registry_auth_secret = var.cosmotech_modeling_api_image_registry_auth_secret
 
-  pvc = "pvc-${local.persistences.cosmotech-modeling-api["name"]}"
+  pvc = local.persistences.cosmotech-modeling-api["pvc_name"]
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -325,14 +334,14 @@ module "chart_cosmotech_asset_data_layer" {
   chart_release    = "cosmotech-asset-data-layer"
 
   persistence_size              = local.persistences.cosmotech-asset-data-layer["size"]
-  persistence_pvc               = "pvc-${local.persistences.cosmotech-asset-data-layer["name"]}"
+  persistence_pvc               = local.persistences.cosmotech-asset-data-layer["pvc_name"]
   persistence_pvc_storage_class = local.storage_class_name
 
-  postgresql_host     = try(one(module.chart_postgresql[*].database_host), null)
-  postgresql_port     = try(one(module.chart_postgresql[*].database_port), null)
-  postgresql_database = try(one(module.chart_postgresql[*].database_cosmotech_name), null)
-  postgresql_username = try(one(module.chart_postgresql[*].database_cosmotech_username), null)
-  postgresql_password = try(one(module.chart_postgresql[*].database_cosmotech_password), null)
+  postgresql_host     = try(one(module.postgresql[*].database_host), null)
+  postgresql_port     = try(one(module.postgresql[*].database_port), null)
+  postgresql_database = try(one(module.postgresql[*].database_cosmotech_name), null)
+  postgresql_username = try(one(module.postgresql[*].database_cosmotech_username), null)
+  postgresql_password = try(one(module.postgresql[*].database_cosmotech_password), null)
 
   s3_host   = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port   = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -367,7 +376,7 @@ module "config_grafana_dashboard" {
   tenant            = module.kube_namespace.tenant
   cluster_domain    = local.cluster_domain
   secret_redis      = try(one(module.chart_redis[*].redis_secret), null)
-  secret_postgresql = try(one(module.chart_postgresql[*].postgresql_secret), null)
+  secret_postgresql = try(one(module.postgresql[*].postgresql_secret), null)
 }
 
 

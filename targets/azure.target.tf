@@ -27,7 +27,7 @@ module "storage" {
 
   for_each = var.cloud_provider == "azure" ? local.tenant_recipe_persistences : {}
 
-  namespace          = each.value.namespace
+  namespace          = module.kube_namespace.tenant
   main_name          = each.value.main_name
   pvc_name           = each.value.pvc_name
   size               = each.value.size
