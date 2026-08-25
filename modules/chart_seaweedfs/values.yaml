@@ -5,8 +5,8 @@ image:
 postgresql:
   image:
     # registry: ${IMAGE_REGISTRY}
-    repository: ${POSTGRESQL_IMAGE_REPOSITORY}
-    tag: ${POSTGRESQL_IMAGE_TAG}
+    repository: cosmotech/postgres-iamguarded
+    tag: "17"
     pullPolicy: IfNotPresent
   enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
 master:

@@ -16,34 +16,39 @@ locals {
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      module = "chart_postgresql"
-      size   = var.postgresql_storage_size
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
+      namespace  = module.kube_namespace.tenant
+      size       = var.postgresql_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-postgresql"
+      pvc_name   = "${module.kube_namespace.tenant}-postgresql-1"
+      create_pvc = false
     }
     seaweedfs-master = {
-      module = "chart_seaweedfs"
-      size   = 32
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
+      namespace  = module.kube_namespace.tenant
+      size       = 32
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-master"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-master"
+      create_pvc = true
     }
     seaweedfs-volume = {
-      module = "chart_seaweedfs"
-      size   = var.seaweedfs_storage_size
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
+      namespace  = module.kube_namespace.tenant
+      size       = var.seaweedfs_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-seaweedfs-volume"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-seaweedfs-volume"
+      create_pvc = true
     }
     redis-master = {
-      module = "chart_redis"
-      size   = var.redis_storage_size
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
+      namespace  = module.kube_namespace.tenant
+      size       = var.redis_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-master"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-master"
+      create_pvc = true
     }
     redis-replica = {
-      module = "chart_redis"
-      size   = var.redis_storage_size
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
-    }
-    cosmotech-modeling-api = {
-      module = "chart_cosmotech_modeling_api"
-      size   = var.cosmotech_modeling_api_storage_size
-      name   = "${var.cluster_name}-${module.kube_namespace.tenant}-cosmotech-modeling-api"
+      namespace  = module.kube_namespace.tenant
+      size       = var.redis_storage_size
+      main_name  = "${var.cluster_name}-${module.kube_namespace.tenant}-redis-replica"
+      pvc_name   = "pvc-${module.kube_namespace.tenant}-redis-replica"
+      create_pvc = true
     }
     cosmotech-asset-data-layer = {
       module = "chart_cosmotech_asset_data_layer"
@@ -91,22 +96,16 @@ resource "time_sleep" "timer" {
 }
 
 
-module "chart_postgresql" {
-  count  = contains(local.tenant_recipe_modules, "chart_postgresql") ? 1 : 0
-  source = "./modules/chart_postgresql"
+module "postgresql" {
+  source = "./modules/postgresql"
 
   tenant = module.kube_namespace.tenant
 
   image_registry             = local.image_registry
   image_registry_auth_secret = var.image_registry_auth_secret
 
-  chart_repository = var.postgresql_chart_repository
-  chart_name       = var.postgresql_chart_name
-  chart_tag        = var.postgresql_chart_tag
-  chart_release    = "postgresql"
-
   size              = local.persistences.postgresql["size"]
-  pvc               = "pvc-${local.persistences.postgresql["name"]}"
+  pvc               = local.persistences.postgresql["pvc_name"]
   pvc_storage_class = local.storage_class_name
 
   postgresql_image_repository = var.postgresql_image_repository
@@ -133,12 +132,12 @@ module "chart_seaweedfs" {
   chart_release    = "seaweedfs"
 
   size_master              = local.persistences.seaweedfs-master["size"]
-  pvc_master               = "pvc-${local.persistences.seaweedfs-master["name"]}"
+  pvc_master               = local.persistences.seaweedfs-master["pvc_name"]
   pvc_master_access_modes  = "ReadWriteOnce"
   pvc_master_storage_class = local.storage_class_name
 
   size_volume              = local.persistences.seaweedfs-volume["size"]
-  pvc_volume               = "pvc-${local.persistences.seaweedfs-volume["name"]}"
+  pvc_volume               = local.persistences.seaweedfs-volume["pvc_name"]
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
@@ -153,6 +152,7 @@ module "chart_seaweedfs" {
 
   depends_on = [
     time_sleep.timer,
+    module.postgresql,
   ]
 }
 
@@ -186,6 +186,7 @@ module "chart_argo" {
 
   depends_on = [
     time_sleep.timer,
+    module.postgresql,
   ]
 }
 
@@ -205,11 +206,11 @@ module "chart_redis" {
   chart_release    = "redis"
 
   size_master              = local.persistences.redis-master["size"]
-  pvc_master               = "pvc-${local.persistences.redis-master["name"]}"
+  pvc_master               = local.persistences.redis-master["pvc_name"]
   pvc_master_storage_class = local.storage_class_name
 
   size_replica              = local.persistences.redis-replica["size"]
-  pvc_replica               = "pvc-${local.persistences.redis-replica["name"]}"
+  pvc_replica               = local.persistences.redis-replica["pvc_name"]
   pvc_replica_storage_class = local.storage_class_name
 
   redis_image_repository = var.redis_image_repository
@@ -265,7 +266,7 @@ module "chart_cosmotech_api" {
 
   depends_on = [
     time_sleep.timer,
-    module.chart_postgresql,
+    module.postgresql,
     module.chart_redis,
     module.chart_argo,
     module.config_harbor_project,

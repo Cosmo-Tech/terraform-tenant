@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/cnpg-cluster.yaml", local.chart_values)
   chart_values = {
     PERSISTENCE_SIZE            = var.size
     PERSISTENCE_PVC             = var.pvc
@@ -9,9 +9,10 @@ locals {
     POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
     IMAGE_REGISTRY              = var.image_registry
     IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
+    NAMESPACE                   = var.tenant
   }
 
-  database_host = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
+  database_host = "${kubectl_manifest.postgresql.name}-rw.${var.tenant}.svc.cluster.local"
   database_port = "5432"
 }
 
@@ -29,7 +30,7 @@ resource "random_password" "password" {
 
 
 # Main secret containing PostgreSQL informations
-# The key "postgres-password" is a common value that most of charts uses by default
+# The key "password" is a common value that most of charts uses by default
 resource "kubernetes_secret" "postgresql-config" {
   type = "Opaque"
 
@@ -39,7 +40,8 @@ resource "kubernetes_secret" "postgresql-config" {
   }
 
   data = {
-    "postgres-password" = random_password.password[1].result
+    "username" = "postgres"
+    "password" = random_password.password[1].result
   }
 
   depends_on = [
@@ -104,25 +106,18 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
 }
 
 
-resource "helm_release" "postgresql" {
-  namespace  = var.tenant
-  name       = var.chart_release
-  repository = var.chart_repository
-  chart      = var.chart_name
-  version    = var.chart_tag
+resource "kubectl_manifest" "postgresql" {
+  yaml_body = local.chart_values_file
 
-  values = [
-    local.chart_values_file
-  ]
+  wait_for {
+    condition {
+      type   = "Ready"
+      status = "True"
+    }
+  }
 
-  force_update  = true
-  recreate_pods = true
-  # replace       = true
-
-  lifecycle {
-    replace_triggered_by = [
-      terraform_data.helm_release_trigger,
-    ]
+  timeouts {
+    create = "300s"
   }
 
   depends_on = [
@@ -132,19 +127,4 @@ resource "helm_release" "postgresql" {
     kubernetes_secret.postgresql-seaweedfs,
     kubernetes_secret.postgresql-argo,
   ]
-}
-
-resource "terraform_data" "helm_release_trigger" {
-  input = {
-    version      = var.chart_tag
-    values       = local.chart_values_file
-    values_sha1  = sha1(local.chart_values_file)
-    helm_release = data.kubernetes_resources.helm_release_secret
-  }
-}
-
-data "kubernetes_resources" "helm_release_secret" {
-  api_version    = "v1"
-  kind           = "Secret"
-  label_selector = "owner=helm,name=${var.chart_release}"
 }
