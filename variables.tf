@@ -28,3 +28,14 @@ variable "cluster_region" {
   type        = string
   default     = null
 }
+
+variable "tenant_type" {
+  description = "Tenant type to deploy (will automatically select the rights modules to deploy)"
+  type        = string
+
+  validation {
+    condition     = contains(["running", "modeling", "asset", "asset_portfolio"], var.tenant_type)
+    error_message = "Valid values for 'tenant_type' are: \n- running\n- modeling\n- asset\n- asset_portfolio"
+  }
+}
+

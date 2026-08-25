@@ -25,9 +25,9 @@ data "azurerm_kubernetes_cluster" "cluster" {
 module "storage" {
   source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage"
 
-  for_each = var.cloud_provider == "azure" ? local.persistences : {}
+  for_each = var.cloud_provider == "azure" ? local.tenant_recipe_persistences : {}
 
-  namespace          = each.value.namespace
+  namespace          = module.kube_namespace.tenant_namespace
   main_name          = each.value.main_name
   pvc_name           = each.value.pvc_name
   size               = each.value.size

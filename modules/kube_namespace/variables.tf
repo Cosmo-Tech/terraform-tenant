@@ -1,5 +1,10 @@
-variable "tenant" {
-  description = "Cosmo Tech tenant name"
+variable "tenant_namespace" {
+  description = "Cosmo Tech tenant namespace"
+  type        = string
+}
+
+variable "tenant_type" {
+  description = "Cosmo Tech tenant type"
   type        = string
 }
 

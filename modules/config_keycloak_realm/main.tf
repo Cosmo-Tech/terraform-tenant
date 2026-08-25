@@ -1,19 +1,19 @@
 terraform {
   required_providers {
     keycloak = {
-      source  = "keycloak/keycloak"
-      version = "~> 5.7.0"
+      source = "keycloak/keycloak"
+      # version = "~> 5.7.0"
     }
   }
 }
 
 
-provider "keycloak" {
-  url       = "https://${var.cluster_domain}/keycloak"
-  client_id = "admin-cli"
-  username  = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
-  password  = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
-}
+# provider "keycloak" {
+#   url       = "https://${var.cluster_domain}/keycloak"
+#   client_id = "admin-cli"
+#   username  = data.kubernetes_secret.keycloak.data["keycloak_admin_user"]
+#   password  = data.kubernetes_secret.keycloak.data["keycloak_admin_password"]
+# }
 
 
 locals {
@@ -35,12 +35,12 @@ locals {
 }
 
 
-data "kubernetes_secret" "keycloak" {
-  metadata {
-    namespace = "keycloak"
-    name      = "keycloak-config"
-  }
-}
+# data "kubernetes_secret" "keycloak" {
+#   metadata {
+#     namespace = "keycloak"
+#     name      = "keycloak-config"
+#   }
+# }
 
 
 resource "keycloak_realm" "realm" {

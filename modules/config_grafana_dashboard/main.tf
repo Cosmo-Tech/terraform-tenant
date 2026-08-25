@@ -1,23 +1,26 @@
 terraform {
   required_providers {
+    # grafana = {
+    #   source  = "grafana/grafana"
+    #   version = "~> 4.14.0"
+    # }
     grafana = {
-      source  = "grafana/grafana"
-      version = "~> 4.14.0"
+      source = "grafana/grafana"
     }
   }
 }
 
-data "kubernetes_secret" "grafana" {
-  metadata {
-    namespace = var.namespace_monitoring
-    name      = "kube-prometheus-stack-grafana"
-  }
-}
+# data "kubernetes_secret" "grafana" {
+#   metadata {
+#     namespace = var.namespace_monitoring
+#     name      = "kube-prometheus-stack-grafana"
+#   }
+# }
 
-provider "grafana" {
-  url  = "https://${var.cluster_domain}/monitoring"
-  auth = "admin:${data.kubernetes_secret.grafana.data["admin-password"]}"
-}
+# provider "grafana" {
+#   url  = "https://${var.cluster_domain}/monitoring"
+#   auth = "admin:${data.kubernetes_secret.grafana.data["admin-password"]}"
+# }
 
 
 data "kubernetes_secret" "redis" {
