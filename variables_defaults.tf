@@ -5,7 +5,7 @@
 variable "image_registry_auth_secret" { default = "registry-auth-cgrdev" }
 
 
-# PostgreSQL
+# PostgreSQL (CloudNative-PG, "cnpg")
 variable "postgresql_chart_name" { default = "postgresql" }
 variable "postgresql_chart_repository" { default = "oci://cgr.dev/cosmotech/postgres-cloudnative-pg-fips" }
 variable "postgresql_chart_tag" { default = "18" }

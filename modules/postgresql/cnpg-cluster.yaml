@@ -20,7 +20,7 @@ spec:
         name: ${POSTGRESQL_SECRET_CONFIG}
   storage:
     storageClass: ${PERSISTENCE_STORAGE_CLASS}
-    size: ${PERSISTENCE_SIZE}
+    size: "${PERSISTENCE_SIZE}"
   resources:
     requests:
       memory: 64Mi

@@ -81,13 +81,15 @@ resource "kubectl_manifest" "initdb_seaweedfs" {
       terraform_data.initdb_seaweedfs_trigger
     ]
   }
-  depends_on = [null_resource.wait_postgresql]
+
+  depends_on = [
+    kubectl_manifest.postgresql
+  ]
 }
 
 resource "terraform_data" "initdb_seaweedfs_trigger" {
   input = {
     values = local.job_seaweedfs_file
-    # values_sha1 = sha1(local.job_seaweedfs_file)
   }
 }
 
@@ -102,13 +104,15 @@ resource "kubectl_manifest" "initdb_argo" {
       terraform_data.initdb_argo_trigger
     ]
   }
-  depends_on = [null_resource.wait_postgresql]
+
+  depends_on = [
+    kubectl_manifest.postgresql
+  ]
 }
 
 resource "terraform_data" "initdb_argo_trigger" {
   input = {
     values = local.job_argo_file
-    # values_sha1 = sha1(local.job_argo_file)
   }
 }
 
@@ -123,12 +127,14 @@ resource "kubectl_manifest" "initdb_cosmotechapi" {
       terraform_data.initdb_cosmotechapi_trigger
     ]
   }
-  depends_on = [null_resource.wait_postgresql]
+
+  depends_on = [
+    kubectl_manifest.postgresql
+  ]
 }
 
 resource "terraform_data" "initdb_cosmotechapi_trigger" {
   input = {
     values = local.job_cosmotechapi_file
-    # values_sha1 = sha1(local.job_cosmotechapi_file)
   }
 }
