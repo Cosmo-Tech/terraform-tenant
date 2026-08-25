@@ -18,10 +18,10 @@ locals {
     S3_SECRET_KEY               = var.s3_secret_key_password
     KEYCLOAK_CLIENT_ID          = var.keycloak_client_id
     # HARBOR_PASSWORD             = var.harbor_password
-    WEBHOOK_AUTH_TOKEN          = random_password.webhook_token.result
-    IMAGE_REGISTRY              = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
-    IMAGE_TAG                   = var.image_tag
+    WEBHOOK_AUTH_TOKEN         = random_password.webhook_token.result
+    IMAGE_REGISTRY             = var.image_registry
+    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_TAG                  = var.image_tag
   }
 }
 

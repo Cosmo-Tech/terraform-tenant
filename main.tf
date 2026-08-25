@@ -5,10 +5,10 @@ locals {
     asset           = "asset"
     asset_portfolio = "pfolio"
   }
-  main_name_suffix = lookup(local.main_name_suffixes, var.tenant_type, "")
-  main_name_suffix_formatted = local.main_name_suffix != "" ? "-${local.main_name_suffix}" : ""
+  main_name_suffix              = lookup(local.main_name_suffixes, var.tenant_type, "")
+  main_name_suffix_formatted    = local.main_name_suffix != "" ? "-${local.main_name_suffix}" : ""
   main_name_suffix_db_formatted = var.use_external_postgresql ? "-extdb" : ""
-  main_name = "tenant-${var.tenant}${local.main_name_suffix_formatted}${local.main_name_suffix_db_formatted}"
+  main_name                     = "tenant-${var.tenant}${local.main_name_suffix_formatted}${local.main_name_suffix_db_formatted}"
 
   # main_name      = "tenant-${var.tenant}"
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
