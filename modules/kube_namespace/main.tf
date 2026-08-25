@@ -1,13 +1,19 @@
-resource "terraform_data" "prevent_tenant_type_change" {
-  input = var.tenant_type
+data "kubernetes_namespace" "tenant_existing" {
+  metadata {
+    name = var.tenant_namespace
+  }
+}
 
+# Simple security to preserve tenants integrity
+resource "terraform_data" "prevent_tenant_type_change" {
   lifecycle {
-    postcondition {
-      condition     = self.output == null || self.output == var.tenant_type
-      error_message = "Forbidden deployment: variable 'tenant_type' cannot be changed on an existing deployment."
+    precondition {
+      condition     = (try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], var.tenant_type) == var.tenant_type)
+      error_message = "Forbidden deployment: variable 'tenant_type' (${var.tenant_type}) cannot be changed, and currently does not match existing tenant type (${try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], "unknown")})."
     }
   }
 }
+
 
 resource "kubernetes_namespace" "tenant" {
   metadata {
@@ -25,6 +31,7 @@ resource "kubernetes_namespace" "tenant" {
     terraform_data.prevent_tenant_type_change
   ]
 }
+
 
 
 resource "random_password" "password" {

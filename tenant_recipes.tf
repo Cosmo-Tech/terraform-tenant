@@ -1,7 +1,7 @@
 locals {
   # Define only the required modules for each tenant type. A module in this list means it will be deployed, do not write a module that is not required.
   tenant_recipes = {
-    standard = [
+    running = [
       "chart_cosmotech_api",
       "chart_argo",
       "chart_postgresql",

@@ -34,8 +34,8 @@ variable "tenant_type" {
   type        = string
 
   validation {
-    condition     = contains(["standard", "modeling", "asset", "asset_portfolio"], var.tenant_type)
-    error_message = "Valid values for 'tenant_type' are: \n- standard\n- modeling\n- asset\n- asset_portfolio"
+    condition     = contains(["running", "modeling", "asset", "asset_portfolio"], var.tenant_type)
+    error_message = "Valid values for 'tenant_type' are: \n- running\n- modeling\n- asset\n- asset_portfolio"
   }
 }
 

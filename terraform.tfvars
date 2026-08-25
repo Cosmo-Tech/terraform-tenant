@@ -32,7 +32,7 @@
 
 
 ## GLOBAL VARIABLES
-# tenant_type = "standard"
+# tenant_type = "running"
 # tenant_type = "modeling"
 # tenant_type = "asset"
 # tenant_type = "asset_portfolio"
