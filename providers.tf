@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/time"
       version = "~> 0.13.1"
     }
+    kubectl = {
+      source  = "alekc/kubectl"
+      version = "~> 3.0.0"
+    }
     grafana = {
       source  = "grafana/grafana"
       version = "~> 4.14.0"

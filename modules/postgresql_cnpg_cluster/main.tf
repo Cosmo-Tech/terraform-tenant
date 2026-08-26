@@ -1,5 +1,5 @@
 locals {
-  template_file = templatefile("${path.module}/cnpg-cluster.yaml", local.template_values)
+  template_file = templatefile("${path.module}/templates/cnpg-cluster.yaml", local.template_values)
   template_values = {
     PERSISTENCE_SIZE            = var.size
     PERSISTENCE_PVC             = var.pvc

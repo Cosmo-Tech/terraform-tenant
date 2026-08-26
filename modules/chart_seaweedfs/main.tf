@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
     PERSISTENCE_MASTER_SIZE          = var.size_master
     PERSISTENCE_MASTER_PVC           = var.pvc_master
@@ -64,7 +64,7 @@ resource "kubernetes_secret" "s3_secret" {
     "${local.s3_secret_key_argo_workflows_password}" = local.s3_argo_workflows_password
     "${local.s3_secret_key_cosmotech_api_username}"  = local.s3_cosmotech_api_username
     "${local.s3_secret_key_cosmotech_api_password}"  = local.s3_cosmotech_api_password
-    "config.json" = templatefile("${path.module}/s3_config.json", {
+    "config.json" = templatefile("${path.module}/templates/s3_config.json", {
       "ARGO_WORKFLOWS_USERNAME" = local.s3_argo_workflows_username
       "ARGO_WORKFLOWS_PASSWORD" = local.s3_argo_workflows_password
       "COSMOTECH_API_USERNAME"  = local.s3_cosmotech_api_username

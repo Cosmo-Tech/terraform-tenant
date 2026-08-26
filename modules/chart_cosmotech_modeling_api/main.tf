@@ -1,5 +1,5 @@
 locals {
-  chart_release = "cosmotech-modeling-api"
+  chart_values = templatefile("${path.module}/templates/values.yaml", local.chart_values_data)
   chart_values_data = {
     NAMESPACE              = var.tenant
     IMAGE_TAG              = var.image_tag
@@ -12,7 +12,7 @@ locals {
     S3_SECRET_KEY_PASSWORD = var.s3_secret_key_password
     CLUSTER_DOMAIN         = var.cluster_domain
   }
-  chart_values = templatefile("${path.module}/values.yaml", local.chart_values_data)
+  chart_release = "cosmotech-modeling-api"
 }
 
 resource "helm_release" "modeling_api" {

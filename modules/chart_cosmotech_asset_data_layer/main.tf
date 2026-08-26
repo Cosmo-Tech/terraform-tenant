@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
     CLUSTER_DOMAIN              = var.cluster_domain
     NAMESPACE                   = var.tenant

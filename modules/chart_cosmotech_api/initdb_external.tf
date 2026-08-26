@@ -10,8 +10,8 @@ terraform {
 provider "postgresql" {
   host            = var.external_postgresql_host
   port            = var.external_postgresql_port
-  username        = var.external_postgresql_admin_username
-  password        = var.external_postgresql_admin_password
+  username        = var.external_postgresql_username
+  password        = var.external_postgresql_password
   sslmode         = "require"
   connect_timeout = 15
 }

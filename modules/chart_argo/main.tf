@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
     SERVICE_ACCOUNT            = var.chart_release
     DATABASE_HOST              = var.database_host

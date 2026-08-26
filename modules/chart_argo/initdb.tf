@@ -8,7 +8,7 @@ terraform {
 
 
 locals {
-  initdb_template = templatefile("${path.module}/initdb/argo.yaml", local.initdb_values)
+  initdb_template = templatefile("${path.module}/templates/initdb.yaml", local.initdb_values)
   initdb_values = {
     NAMESPACE                   = var.tenant
     IMAGE_REGISTRY              = var.image_registry

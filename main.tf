@@ -1,12 +1,8 @@
 locals {
   tenant_namespace_raw = "tenant-${var.tenant}"
-  tenant_namespace     = var.use_external_postgresqlql ? "${local.tenant_namespace_raw}-extdb" : local.tenant_namespace_raw
+  tenant_namespace     = var.use_external_postgresql ? "${local.tenant_namespace_raw}-extdb" : local.tenant_namespace_raw
 
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
-
-  # Fall back to a computed hostname (based on the cluster name) when
-  # var.external_postgres_host is not explicitly set in tfvars.
-  external_postgres_host = coalesce(var.external_postgres_host, "csm-${var.cluster_name}.postgres.database.azure.com")
 
   storage_class_name = "cosmotech-retain"
   persistences = {
