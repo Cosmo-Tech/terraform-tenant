@@ -39,3 +39,47 @@ variable "tenant_type" {
   }
 }
 
+
+
+
+# External PostgreSQL (Azure Flexible Server) support
+variable "use_external_postgres" {
+  description = "If true, the tenant Cosmo Tech API database is provisioned on an external PostgreSQL server (e.g. Azure PostgreSQL Flexible Server, provisioned by terraform-extra) instead of the in-cluster PostgreSQL chart."
+  type        = bool
+  default     = false
+}
+
+variable "external_postgres_host" {
+  description = "Hostname (FQDN) of the external PostgreSQL Flexible Server. Required when 'use_external_postgres' is true."
+  type        = string
+  default     = null
+}
+
+variable "external_postgres_port" {
+  description = "Port of the external PostgreSQL server."
+  type        = number
+  default     = 5432
+}
+
+variable "external_postgres_admin_username" {
+  description = "Server-level admin (superuser) username used by Terraform to connect to the external PostgreSQL server and provision tenant roles/databases. Required when 'use_external_postgres' is true."
+  type        = string
+}
+
+variable "external_postgres_admin_password" {
+  description = "Server-level admin (superuser) password used by Terraform to connect to the external PostgreSQL server. Required when 'use_external_postgres' is true."
+  type        = string
+  sensitive   = true
+}
+
+variable "external_postgres_sslmode" {
+  description = "SSL mode used to connect to the external PostgreSQL server."
+  type        = string
+  default     = "require"
+}
+
+variable "external_postgres_superuser" {
+  description = "Whether the admin connection used by the postgresql provider has PostgreSQL SUPERUSER privileges. Azure PostgreSQL Flexible Server admin accounts are NOT superusers, so this should be 'false' on Azure."
+  type        = bool
+  default     = false
+}

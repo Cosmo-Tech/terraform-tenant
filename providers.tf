@@ -26,6 +26,10 @@ terraform {
       source  = "keycloak/keycloak"
       version = "~> 5.7.0"
     }
+    postgresql = {
+      source  = "cyrilgdn/postgresql"
+      version = "~> 1.27.0"
+    }
   }
 }
 
@@ -88,4 +92,17 @@ data "kubernetes_secret" "harbor" {
     namespace = "harbor"
     name      = "harbor-config"
   }
+}
+
+
+
+## PostgreSQL
+provider "postgresql" {
+  host             = local.external_postgres_host
+  port             = var.external_postgres_port
+  username         = var.external_postgres_admin_username
+  password         = var.external_postgres_admin_password
+  sslmode          = var.external_postgres_sslmode
+  superuser        = var.external_postgres_superuser
+  connect_timeout  = 15
 }
