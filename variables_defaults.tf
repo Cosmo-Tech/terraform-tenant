@@ -16,6 +16,10 @@ variable "postgresql_image_tag" { default = "18" }                              
 
 # PostgreSQL (external)
 variable "use_external_postgresql" { default = false }
+variable "external_postgresql_host" { default = "changeme" }
+variable "external_postgresql_port" { default = "changeme" }
+variable "external_postgresql_username" { default = "changeme" }
+variable "external_postgresql_password" { default = "changeme" }
 
 
 # SeaweedFS

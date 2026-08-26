@@ -1,63 +1,70 @@
 terraform {
   required_providers {
     postgresql = {
-      source  = "cyrilgdn/postgresql"
-      version = "~> 1.27.0"
+      source = "cyrilgdn/postgresql"
     }
   }
 }
 
-locals {
-  # Clean tenant prefix: PostgreSQL identifiers can't contain dashes.
-  clean_prefix = replace(var.tenant, "-", "_")
 
-  admin_username  = "${local.clean_prefix}_cosmotech_api_admin"
-  writer_username = "${local.clean_prefix}_cosmotech_api_writer"
-  reader_username = "${local.clean_prefix}_cosmotech_api_reader"
-
-  database_name = var.tenant
+provider "postgresql" {
+  host            = var.external_postgresql_host
+  port            = var.external_postgresql_port
+  username        = var.external_postgresql_admin_username
+  password        = var.external_postgresql_admin_password
+  sslmode         = "require"
+  connect_timeout = 15
 }
 
 
 # Roles
 resource "postgresql_role" "admin" {
-  name      = local.admin_username
-  login     = true
-  password  = var.postgresql_admin_password
-  create_database = true
-  # Azure Flexible Server admin accounts are not real superusers, so
-  # tenant roles created here can't be superusers either.
-  superuser = false
+  count = var.use_external_postgresql ? 1 : 0
+
+  name     = local.db_admin_username
+  password = var.postgresql_admin_password
+  login    = true
+  # create_database = true
 }
 
 resource "postgresql_role" "writer" {
-  name     = local.writer_username
-  login    = true
+  count = var.use_external_postgresql ? 1 : 0
+
+  name     = local.db_writer_username
   password = var.postgresql_writer_password
+  login    = true
 }
 
 resource "postgresql_role" "reader" {
+  count = var.use_external_postgresql ? 1 : 0
+
   name     = local.reader_username
-  login    = true
   password = var.postgresql_reader_password
+  login    = true
 }
 
 
 # Role grants: admin inherits writer & reader privileges
 resource "postgresql_grant_role" "admin_writer" {
+  count = var.use_external_postgresql ? 1 : 0
+
   role       = postgresql_role.admin.name
   grant_role = postgresql_role.writer.name
 }
 
 resource "postgresql_grant_role" "admin_reader" {
+  count = var.use_external_postgresql ? 1 : 0
+
   role       = postgresql_role.admin.name
   grant_role = postgresql_role.reader.name
 }
 
 
 # Database
-resource "postgresql_database" "tenant" {
-  name              = local.database_name
+resource "postgresql_database" "tenant_cosmotech_api" {
+  count = var.use_external_postgresql ? 1 : 0
+
+  name              = local.db_name
   owner             = postgresql_role.admin.name
   connection_limit  = -1
   allow_connections = true
@@ -72,8 +79,10 @@ resource "postgresql_database" "tenant" {
 
 # Schema & privileges (connect through the tenant database)
 resource "postgresql_schema" "inputs" {
+  count = var.use_external_postgresql ? 1 : 0
+
   name     = "inputs"
-  database = postgresql_database.tenant.name
+  database = postgresql_database.tenant_cosmotech_api.name
 
   owner = postgresql_role.writer.name
 
@@ -83,7 +92,9 @@ resource "postgresql_schema" "inputs" {
 }
 
 resource "postgresql_grant" "reader_schema_usage" {
-  database    = postgresql_database.tenant.name
+  count = var.use_external_postgresql ? 1 : 0
+
+  database    = postgresql_database.tenant_cosmotech_api.name
   role        = postgresql_role.reader.name
   schema      = postgresql_schema.inputs.name
   object_type = "schema"
@@ -95,7 +106,9 @@ resource "postgresql_grant" "reader_schema_usage" {
 }
 
 resource "postgresql_default_privileges" "reader_select_tables" {
-  database    = postgresql_database.tenant.name
+  count = var.use_external_postgresql ? 1 : 0
+
+  database    = postgresql_database.tenant_cosmotech_api.name
   role        = postgresql_role.reader.name
   owner       = postgresql_role.writer.name
   schema      = postgresql_schema.inputs.name

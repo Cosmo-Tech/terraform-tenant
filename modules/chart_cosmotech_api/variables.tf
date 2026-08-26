@@ -2,13 +2,13 @@ variable "tenant" {
   type = string
 }
 
-# variable "image_registry" {
-#    type = string
-# }
+variable "image_registry" {
+  type = string
+}
 
-# variable "image_registry_auth_secret" {
-#    type = string
-# }
+variable "image_registry_auth_secret" {
+  type = string
+}
 
 variable "chart_repository" {
   type = string
@@ -94,22 +94,51 @@ variable "keycloak_client_secret" {
   type = string
 }
 
-variable "cosmotech_api_connect_timeout" {
-  default = "30s"
-}
+# variable "cosmotech_api_connect_timeout" {
+#   default = "30s"
+# }
 
-variable "cosmotech_api_query_timeout" {
-  default = "60s"
-}
+# variable "cosmotech_api_query_timeout" {
+#   default = "60s"
+# }
 
-variable "cosmotech_api_buffer_size" {
-  default = "16K"
-}
+# variable "cosmotech_api_buffer_size" {
+#   default = "16K"
+# }
 
-variable "cosmotech_api_max_file_size" {
-  default = "300m"
-}
+# variable "cosmotech_api_max_file_size" {
+#   default = "300m"
+# }
 
 variable "cluster_domain" {
+  type = string
+}
+
+
+variable "postgresql_image_repository" {
+  type = string
+}
+
+variable "postgresql_image_tag" {
+  type = string
+}
+
+variable "use_external_postgresql" {
+  type = bool
+}
+
+variable "external_postgresql_host" {
+  type = string
+}
+
+variable "external_postgresql_port" {
+  type = string
+}
+
+variable "external_postgresql_username" {
+  type = string
+}
+
+variable "external_postgresql_password" {
   type = string
 }
