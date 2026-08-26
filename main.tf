@@ -144,11 +144,8 @@ module "chart_seaweedfs" {
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
-  database_host             = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
-  database_port             = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
-  database_seaweedfs_name   = try(one(module.postgresql_cnpg_cluster[*].database_seaweedfs_name), null)
-  database_seaweedfs_user   = try(one(module.postgresql_cnpg_cluster[*].database_seaweedfs_user), null)
-  database_seaweedfs_secret = try(one(module.postgresql_cnpg_cluster[*].database_seaweedfs_secret), null)
+  database_host = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  database_port = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
 
   postgresql_image_repository = var.postgresql_image_repository
   postgresql_image_tag        = var.postgresql_image_tag
@@ -248,8 +245,10 @@ module "chart_cosmotech_api" {
   external_postgresql_username = var.external_postgresql_username
   external_postgresql_password = var.external_postgresql_password
 
-  postgresql_image_repository = var.postgresql_image_repository
-  postgresql_image_tag        = var.postgresql_image_tag
+  internal_postgresql_host             = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  internal_postgresql_port             = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  internal_postgresql_image_repository = var.postgresql_image_repository
+  internal_postgresql_image_tag        = var.postgresql_image_tag
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -332,9 +331,9 @@ module "chart_cosmotech_asset_data_layer" {
   postgresql_username = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_username), null)
   postgresql_password = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_password), null)
 
-  s3_host   = try(one(module.chart_seaweedfs[*].s3_host), null)
-  s3_port   = try(one(module.chart_seaweedfs[*].s3_port), null)
-  s3_bucket = try(one(module.chart_seaweedfs[*].s3_cosmotech_api_bucket), null)
+  s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
+  s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
+  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_cosmotech_api_bucket), null)
   s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
   s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
 
@@ -361,9 +360,13 @@ module "config_grafana_dashboard" {
   count  = contains(local.tenant_recipe_modules, "config_grafana_dashboard") ? 1 : 0
   source = "./modules/config_grafana_dashboard"
 
-  tenant            = module.kube_namespace.tenant_namespace
-  cluster_domain    = local.cluster_domain
-  secret_redis      = try(one(module.chart_redis[*].redis_secret), null)
+  tenant         = module.kube_namespace.tenant_namespace
+  cluster_domain = local.cluster_domain
+  secret_redis   = try(one(module.chart_redis[*].redis_secret), null)
+
+  depends_on = [
+    module.chart_cosmotech_api
+  ]
 }
 
 

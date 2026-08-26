@@ -23,25 +23,25 @@ locals {
     S3_BUCKET                  = var.s3_bucket
     S3_USERNAME                = data.kubernetes_secret.s3.data["${var.s3_secret_key_username}"]
     S3_PASSWORD                = data.kubernetes_secret.s3.data["${var.s3_secret_key_password}"]
-    POSTGRESQL_DATABASE_HOST   = local.db_target.host
-    POSTGRESQL_DATABASE_NAME   = local.db_target.database
-    POSTGRESQL_ADMIN_USERNAME  = local.db_target.host.admin_username
-    POSTGRESQL_WRITER_USERNAME = local.db_target.host.writer_username
-    POSTGRESQL_READER_USERNAME = local.db_target.host.reader_username
-    POSTGRESQL_ADMIN_PASSWORD  = local.db_admin_password
-    POSTGRESQL_WRITER_PASSWORD = local.db_writer_password
-    POSTGRESQL_READER_PASSWORD = local.db_reader_password
+    POSTGRESQL_DATABASE_HOST   = local.db_target.db_host
+    POSTGRESQL_DATABASE_NAME   = local.db_target.db_name
+    POSTGRESQL_ADMIN_USERNAME  = local.db_target.admin_username
+    POSTGRESQL_WRITER_USERNAME = local.db_target.writer_username
+    POSTGRESQL_READER_USERNAME = local.db_target.reader_username
+    POSTGRESQL_ADMIN_PASSWORD  = local.db_target.admin_password
+    POSTGRESQL_WRITER_PASSWORD = local.db_target.writer_password
+    POSTGRESQL_READER_PASSWORD = local.db_target.reader_password
     REGISTRY_URL               = var.cluster_domain
     REGISTRY_USERNAME          = data.kubernetes_secret.registry.data["username"]
     REGISTRY_PASSWORD          = data.kubernetes_secret.registry.data["password"]
   }
 
-  db_admin_username  = "cosmotech_api_admin"
-  db_writer_username = "cosmotech_api_writer"
-  db_reader_username = "cosmotech_api_reader"
-  db_admin_password  = random_password.api_admin_password.result
-  db_writer_password = random_password.api_writer_password.result
-  db_reader_password = random_password.api_reader_password.result
+  raw_db_admin_username  = "cosmotech_api_admin"
+  raw_db_writer_username = "cosmotech_api_writer"
+  raw_db_reader_username = "cosmotech_api_reader"
+  raw_db_admin_password  = random_password.api_admin_password.result
+  raw_db_writer_password = random_password.api_writer_password.result
+  raw_db_reader_password = random_password.api_reader_password.result
 
   db_role_prefix = replace(var.tenant, "-", "_")
 
@@ -52,19 +52,25 @@ locals {
     db_username     = var.external_postgresql_username
     db_password     = var.external_postgresql_password
     db_name         = var.tenant
-    admin_username  = "${local.db_role_prefix}_${local.db_admin_username}"
-    writer_username = "${local.db_role_prefix}_${local.db_writer_username}"
-    reader_username = "${local.db_role_prefix}_${local.db_reader_username}"
+    admin_username  = "${local.db_role_prefix}_${local.raw_db_admin_username}"
+    writer_username = "${local.db_role_prefix}_${local.raw_db_writer_username}"
+    reader_username = "${local.db_role_prefix}_${local.raw_db_reader_username}"
+    admin_password  = local.raw_db_admin_password
+    writer_password = local.raw_db_writer_password
+    reader_password = local.raw_db_reader_password
     } : {
     ## Internal
-    db_host = "${var.tenant}-postgresql-rw.${var.tenant}.svc.cluster.local"
-    db_port = "5432"
+    db_host = var.internal_postgresql_host
+    db_port = var.internal_postgresql_port
     # db_username     = data.kubernetes_secret.postgresql-config.data["username"]
     db_password     = data.kubernetes_secret.postgresql-config.data["password"]
     db_name         = "cosmotech"
-    admin_username  = local.db_admin_username
-    writer_username = local.db_writer_username
-    reader_username = local.db_reader_username
+    admin_username  = local.raw_db_admin_username
+    writer_username = local.raw_db_writer_username
+    reader_username = local.raw_db_reader_username
+    admin_password  = local.raw_db_admin_password
+    writer_password = local.raw_db_writer_password
+    reader_password = local.raw_db_reader_password
   }
 }
 
@@ -181,9 +187,9 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
   }
 
   data = {
-    "database-host"   = local.db_target.host
-    "database-port"   = local.db_target.port
-    "database-name"   = local.db_target.database
+    "database-host"   = local.db_target.db_host
+    "database-port"   = local.db_target.db_port
+    "database-name"   = local.db_target.db_name
     "admin-username"  = local.db_target.admin_username
     "admin-password"  = local.db_target.admin_password
     "writer-username" = local.db_target.writer_username

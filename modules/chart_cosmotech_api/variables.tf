@@ -50,76 +50,11 @@ variable "s3_secret_key_password" {
   type = string
 }
 
-# variable "postgresql_host" {
-#   type = string
-# }
-
-# variable "postgresql_port" {
-#   type = string
-# }
-
-# variable "postgresql_database" {
-#   type = string
-# }
-
-# variable "postgresql_admin_username" {
-#   type = string
-# }
-
-# variable "postgresql_admin_password" {
-#   type = string
-# }
-
-# variable "postgresql_writer_username" {
-#   type = string
-# }
-
-# variable "postgresql_writer_password" {
-#   type = string
-# }
-
-# variable "postgresql_reader_username" {
-#   type = string
-# }
-
-# variable "postgresql_reader_password" {
-#   type = string
-# }
-
 variable "keycloak_client_id" {
   type = string
 }
 
 variable "keycloak_client_secret" {
-  type = string
-}
-
-# variable "cosmotech_api_connect_timeout" {
-#   default = "30s"
-# }
-
-# variable "cosmotech_api_query_timeout" {
-#   default = "60s"
-# }
-
-# variable "cosmotech_api_buffer_size" {
-#   default = "16K"
-# }
-
-# variable "cosmotech_api_max_file_size" {
-#   default = "300m"
-# }
-
-variable "cluster_domain" {
-  type = string
-}
-
-
-variable "postgresql_image_repository" {
-  type = string
-}
-
-variable "postgresql_image_tag" {
   type = string
 }
 
@@ -140,5 +75,25 @@ variable "external_postgresql_username" {
 }
 
 variable "external_postgresql_password" {
+  type = string
+}
+
+variable "internal_postgresql_host" {
+  type = string
+}
+
+variable "internal_postgresql_port" {
+  type = string
+}
+
+variable "internal_postgresql_image_repository" {
+  type = string
+}
+
+variable "internal_postgresql_image_tag" {
+  type = string
+}
+
+variable "cluster_domain" {
   type = string
 }

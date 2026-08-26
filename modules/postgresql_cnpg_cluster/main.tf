@@ -21,7 +21,7 @@ locals {
     NAMESPACE                   = var.tenant
   }
 
-  database_host = "${kubectl_manifest.postgresql.name}-rw.${var.tenant}.svc.cluster.local"
+  database_host = "${var.tenant}-postgresql-rw.${var.tenant}.svc.cluster.local"
   database_port = "5432"
 }
 
@@ -73,8 +73,5 @@ resource "kubectl_manifest" "postgresql" {
   depends_on = [
     var.tenant,
     var.pvc,
-    # kubernetes_secret.postgresql-config,
-    # kubernetes_secret.postgresql-seaweedfs,
-    # kubernetes_secret.postgresql-argo,
   ]
 }

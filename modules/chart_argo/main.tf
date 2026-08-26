@@ -4,9 +4,9 @@ locals {
     SERVICE_ACCOUNT            = var.chart_release
     DATABASE_HOST              = var.database_host
     DATABASE_PORT              = var.database_port
-    DATABASE_NAME              = var.database_name
-    DATABASE_USER              = var.database_user
-    DATABASE_SECRET            = var.database_secret
+    DATABASE_NAME              = local.argo_db_name
+    DATABASE_USER              = local.argo_db_username
+    DATABASE_SECRET            = local.argo_db_secret
     S3_ENDPOINT                = "${var.s3_host}:${var.s3_port}"
     S3_BUCKET                  = var.s3_bucket
     S3_SECRET                  = var.s3_secret
@@ -15,17 +15,13 @@ locals {
     IMAGE_REGISTRY             = var.image_registry
     IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
   }
+
+  argo_db_name     = "argo"
+  argo_db_username = "argo"
+  argo_db_password = random_password.argo_database_password.result
+  argo_db_secret   = kubernetes_secret.postgresql-argo.metadata[0].name
 }
 
-resource "random_password" "password" {
-  count = 10
-
-  length      = 40
-  min_lower   = 5
-  min_upper   = 5
-  min_numeric = 5
-  special     = false
-}
 
 resource "helm_release" "argo" {
   namespace  = var.tenant

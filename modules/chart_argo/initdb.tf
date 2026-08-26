@@ -60,9 +60,9 @@ resource "kubernetes_secret" "postgresql-argo" {
   }
 
   data = {
-    "database-name"     = "argo"
-    "database-username" = "argo"
-    "database-password" = random_password.argo_database_password.result
+    "database-name"     = local.argo_db_name
+    "database-username" = local.argo_db_username
+    "database-password" = local.argo_db_password
   }
 }
 

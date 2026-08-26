@@ -19,7 +19,7 @@ resource "kubernetes_namespace" "tenant" {
   metadata {
     name = var.tenant_namespace
     annotations = {
-      "cosmotech.com/tenant-type" = var.tenant_type
+      "cosmotech.com/tenant-type"           = var.tenant_type
       "cosmotech.com/use-external-database" = var.use_external_postgresql # true/false
     }
   }

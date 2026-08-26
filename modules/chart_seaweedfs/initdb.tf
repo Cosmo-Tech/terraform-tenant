@@ -61,9 +61,9 @@ resource "kubernetes_secret" "postgresql-seaweedfs" {
   }
 
   data = {
-    "postgresql-database" = "seaweedfs"
-    "postgresql-username" = "seaweedfs"
-    "postgresql-password" = random_password.seaweedfs_postgresql_password.result
+    "postgresql-database" = local.seaweedfs_db_name
+    "postgresql-username" = local.seaweedfs_db_username
+    "postgresql-password" = local.seaweedfs_db_password
   }
 }
 

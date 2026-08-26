@@ -102,7 +102,7 @@ data "kubernetes_secret" "harbor" {
 # PostgreSQL
 provider "postgresql" {
   host            = var.external_postgresql_host
-  port            = var.external_postgresql_port
+  port            = tonumber(var.external_postgresql_port)
   username        = var.external_postgresql_username
   password        = var.external_postgresql_password
   sslmode         = "require"
