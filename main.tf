@@ -262,30 +262,14 @@ module "chart_cosmotech_api" {
   chart_tag        = var.cosmotechapi_chart_tag
   chart_release    = "cosmotech-api"
 
-
-  use_external_postgresql = var.use_external_postgresql
-  # external_database_host            = var.external_postgresql_host
-  # external_database_port            = var.external_postgresql_port
-  # external_database_username        = var.external_postgresql_admin_username
-  # external_database_password        = var.external_postgresql_admin_password
-
+  use_external_postgresql      = var.use_external_postgresql
+  external_postgresql_host     = var.external_postgresql_host
+  external_postgresql_port     = var.external_postgresql_port
+  external_postgresql_username = var.external_postgresql_username
+  external_postgresql_password = var.external_postgresql_password
 
   postgresql_image_repository = var.postgresql_image_repository
   postgresql_image_tag        = var.postgresql_image_tag
-  internal_database_host      = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
-  internal_database_port      = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
-
-
-
-  # postgresql_host            = try(one(module.postgresql[*].database_host), null)
-  # postgresql_port            = try(one(module.postgresql[*].database_port), null)
-  # postgresql_database        = try(one(module.postgresql[*].database_cosmotech_name), null)
-  # postgresql_admin_username  = try(one(module.postgresql[*].database_cosmotech_username_admin), null)
-  # postgresql_admin_password  = try(one(module.postgresql[*].database_cosmotech_password_admin), null)
-  # postgresql_writer_username = try(one(module.postgresql[*].database_cosmotech_username_writer), null)
-  # postgresql_writer_password = try(one(module.postgresql[*].database_cosmotech_password_writer), null)
-  # postgresql_reader_username = try(one(module.postgresql[*].database_cosmotech_username_reader), null)
-  # postgresql_reader_password = try(one(module.postgresql[*].database_cosmotech_password_reader), null)
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
