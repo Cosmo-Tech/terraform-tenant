@@ -9,7 +9,17 @@ resource "terraform_data" "prevent_tenant_type_change" {
   lifecycle {
     precondition {
       condition     = (try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], var.tenant_type) == var.tenant_type)
-      error_message = "Forbidden deployment: variable 'tenant_type' (${var.tenant_type}) cannot be changed, and currently does not match existing tenant type (${try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], "unknown")})."
+      error_message = "Forbidden deployment: variable 'tenant_type' (${var.tenant_type}) cannot be changed, and currently does not match existing value (${try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], "unknown")})."
+    }
+  }
+}
+
+# Simple security to preserve tenants integrity
+resource "terraform_data" "prevent_database_change" {
+  lifecycle {
+    precondition {
+      condition     = (try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/use-external-database"], var.use_external_postgresql) == var.use_external_postgresql)
+      error_message = "Forbidden deployment: variable 'use_external_postgresql' (${var.use_external_postgresql}) cannot be changed, and currently does not match existing value (${try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/use-external-database"], "unknown")})."
     }
   }
 }
@@ -29,7 +39,8 @@ resource "kubernetes_namespace" "tenant" {
   }
 
   depends_on = [
-    terraform_data.prevent_tenant_type_change
+    terraform_data.prevent_tenant_type_change,
+    terraform_data.prevent_database_change,
   ]
 }
 
