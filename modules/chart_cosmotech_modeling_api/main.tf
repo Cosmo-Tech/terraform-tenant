@@ -15,7 +15,6 @@ locals {
   chart_values = templatefile("${path.module}/values.yaml", local.chart_values_data)
 }
 
-
 resource "helm_release" "modeling_api" {
   namespace  = var.tenant
   name       = local.chart_release
@@ -35,13 +34,11 @@ resource "helm_release" "modeling_api" {
   }
 }
 
-
 data "kubernetes_resources" "helm_release_secret" {
   api_version    = "v1"
   kind           = "Secret"
   label_selector = "owner=helm,name=${local.chart_release}"
 }
-
 
 resource "terraform_data" "helm_release_trigger" {
   input = {
