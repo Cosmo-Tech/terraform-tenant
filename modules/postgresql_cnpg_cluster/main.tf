@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "alekc/kubectl"
+    }
+  }
+}
+
+
 locals {
   template_file = templatefile("${path.module}/templates/cnpg-cluster.yaml", local.template_values)
   template_values = {
@@ -17,10 +26,7 @@ locals {
 }
 
 
-# Just generate an amount of secured passwords
-resource "random_password" "password" {
-  count = 10
-
+resource "random_password" "postgres_password" {
   length      = 40
   min_lower   = 5
   min_upper   = 5
@@ -41,11 +47,11 @@ resource "kubernetes_secret" "postgresql-config" {
 
   data = {
     "username" = "postgres"
-    "password" = random_password.password[1].result
+    "password" = random_password.postgres_password.result
   }
 
   depends_on = [
-    random_password.password,
+    random_password.postgres_password,
   ]
 }
 

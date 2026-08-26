@@ -1,3 +1,14 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "alekc/kubectl"
+    }
+    postgresql = {
+      source = "cyrilgdn/postgresql"
+    }
+  }
+}
+
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
@@ -28,9 +39,9 @@ locals {
   db_admin_username  = "cosmotech_api_admin"
   db_writer_username = "cosmotech_api_writer"
   db_reader_username = "cosmotech_api_reader"
-  db_admin_password  = random_password.password[4].result
-  db_writer_password = random_password.password[5].result
-  db_reader_password = random_password.password[6].result
+  db_admin_password  = random_password.api_admin_password.result
+  db_writer_password = random_password.api_writer_password.result
+  db_reader_password = random_password.api_reader_password.result
 
   db_role_prefix = replace(var.tenant, "-", "_")
 
@@ -46,7 +57,7 @@ locals {
     reader_username = "${local.db_role_prefix}_${local.db_reader_username}"
     } : {
     ## Internal
-    db_host = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
+    db_host = "${var.tenant}-postgresql-rw.${var.tenant}.svc.cluster.local"
     db_port = "5432"
     # db_username     = data.kubernetes_secret.postgresql-config.data["username"]
     db_password     = data.kubernetes_secret.postgresql-config.data["password"]
@@ -180,4 +191,29 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
     "reader-username" = local.db_target.reader_username
     "reader-password" = local.db_target.reader_password
   }
+}
+
+
+resource "random_password" "api_admin_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
+
+resource "random_password" "api_writer_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
+
+resource "random_password" "api_reader_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
 }

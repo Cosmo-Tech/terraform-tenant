@@ -1,28 +1,9 @@
-terraform {
-  required_providers {
-    postgresql = {
-      source = "cyrilgdn/postgresql"
-    }
-  }
-}
-
-
-provider "postgresql" {
-  host            = var.external_postgresql_host
-  port            = var.external_postgresql_port
-  username        = var.external_postgresql_username
-  password        = var.external_postgresql_password
-  sslmode         = "require"
-  connect_timeout = 15
-}
-
-
 # Roles
 resource "postgresql_role" "admin" {
   count = var.use_external_postgresql ? 1 : 0
 
   name     = local.db_admin_username
-  password = var.postgresql_admin_password
+  password = local.db_admin_password
   login    = true
   # create_database = true
 }
@@ -31,15 +12,15 @@ resource "postgresql_role" "writer" {
   count = var.use_external_postgresql ? 1 : 0
 
   name     = local.db_writer_username
-  password = var.postgresql_writer_password
+  password = local.db_writer_password
   login    = true
 }
 
 resource "postgresql_role" "reader" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name     = local.reader_username
-  password = var.postgresql_reader_password
+  name     = local.db_reader_username
+  password = local.db_reader_password
   login    = true
 }
 
@@ -64,7 +45,7 @@ resource "postgresql_grant_role" "admin_reader" {
 resource "postgresql_database" "tenant_cosmotech_api" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name              = local.db_name
+  name              = local.db_target.db_name
   owner             = postgresql_role.admin.name
   connection_limit  = -1
   allow_connections = true

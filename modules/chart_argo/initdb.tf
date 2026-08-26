@@ -17,7 +17,7 @@ locals {
     POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
     DB_HOST                     = var.database_host
     DB_PORT                     = var.database_port
-    DB_POSTGRES_PASSWORD        = kubernetes_secret.postgresql-config.data["password"]
+    DB_POSTGRES_PASSWORD        = data.kubernetes_secret.postgresql-config.data["password"]
     ARGO_DATABASE               = kubernetes_secret.postgresql-argo.data["database-name"]
     ARGO_USERNAME               = kubernetes_secret.postgresql-argo.data["database-username"]
     ARGO_PASSWORD               = kubernetes_secret.postgresql-argo.data["database-password"]
@@ -33,15 +33,19 @@ resource "kubectl_manifest" "initdb" {
       terraform_data.initdb_trigger
     ]
   }
-
-  depends_on = [
-    kubectl_manifest.postgresql
-  ]
 }
 
 resource "terraform_data" "initdb_trigger" {
   input = {
     values = local.initdb_template
+  }
+}
+
+
+data "kubernetes_secret" "postgresql-config" {
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-config"
   }
 }
 
@@ -58,6 +62,15 @@ resource "kubernetes_secret" "postgresql-argo" {
   data = {
     "database-name"     = "argo"
     "database-username" = "argo"
-    "database-password" = random_password.password[3].result
+    "database-password" = random_password.argo_database_password.result
   }
+}
+
+
+resource "random_password" "argo_database_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
 }

@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    kubectl = {
-      source = "alekc/kubectl"
-    }
-  }
-}
-
-
 locals {
   initdb_template = templatefile("${path.module}/templates/initdb_internal.yaml", local.initdb_values)
   initdb_values = {
@@ -39,10 +30,6 @@ resource "kubectl_manifest" "initdb" {
       terraform_data.initdb_trigger,
     ]
   }
-
-  depends_on = [
-    kubectl_manifest.postgresql
-  ]
 }
 
 resource "terraform_data" "initdb_trigger" {

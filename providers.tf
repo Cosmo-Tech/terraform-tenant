@@ -16,7 +16,7 @@ terraform {
     }
     kubectl = {
       source  = "alekc/kubectl"
-      version = "~> 3.0.0"
+      version = "~> 2.4.1"
     }
     grafana = {
       source  = "grafana/grafana"
@@ -96,4 +96,15 @@ data "kubernetes_secret" "harbor" {
     namespace = "harbor"
     name      = "harbor-config"
   }
+}
+
+
+# PostgreSQL
+provider "postgresql" {
+  host            = var.external_postgresql_host
+  port            = var.external_postgresql_port
+  username        = var.external_postgresql_username
+  password        = var.external_postgresql_password
+  sslmode         = "require"
+  connect_timeout = 15
 }

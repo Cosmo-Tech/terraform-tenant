@@ -64,24 +64,6 @@ locals {
   }
 
   image_registry = module.kube_namespace.image_registry
-
-  # Cosmo Tech API database connection info: either the external PostgreSQL
-  # server or the in-cluster PostgreSQL chart, depending on var.use_external_postgresql.
-  cosmotech_api_db = var.use_external_postgresql ? {
-    host            = module.postgresql_external[0].database_host
-    port            = tostring(module.postgresql_external[0].database_port)
-    database        = module.postgresql_external[0].database_name
-    admin_username  = module.postgresql_external[0].admin_username
-    writer_username = module.postgresql_external[0].writer_username
-    reader_username = module.postgresql_external[0].reader_username
-    } : {
-    host            = module.chart_postgresql.database_host
-    port            = module.chart_postgresql.database_port
-    database        = module.chart_postgresql.database_cosmotech_name
-    admin_username  = module.chart_postgresql.database_cosmotech_username_admin
-    writer_username = module.chart_postgresql.database_cosmotech_username_writer
-    reader_username = module.chart_postgresql.database_cosmotech_username_reader
-  }
 }
 
 
@@ -92,6 +74,8 @@ module "kube_namespace" {
   tenant_type      = var.tenant_type
 
   image_registry_auth_secret = var.image_registry_auth_secret
+
+  use_external_postgresql = var.use_external_postgresql
 }
 
 
@@ -160,18 +144,18 @@ module "chart_seaweedfs" {
   pvc_volume_access_modes  = "ReadWriteOnce"
   pvc_volume_storage_class = local.storage_class_name
 
-  database_host             = try(one(module.postgresql[*].database_host), null)
-  database_port             = try(one(module.postgresql[*].database_port), null)
-  database_seaweedfs_name   = try(one(module.postgresql[*].database_seaweedfs_name), null)
-  database_seaweedfs_user   = try(one(module.postgresql[*].database_seaweedfs_user), null)
-  database_seaweedfs_secret = try(one(module.postgresql[*].database_seaweedfs_secret), null)
+  database_host             = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  database_port             = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  database_seaweedfs_name   = try(one(module.postgresql_cnpg_cluster[*].database_seaweedfs_name), null)
+  database_seaweedfs_user   = try(one(module.postgresql_cnpg_cluster[*].database_seaweedfs_user), null)
+  database_seaweedfs_secret = try(one(module.postgresql_cnpg_cluster[*].database_seaweedfs_secret), null)
 
   postgresql_image_repository = var.postgresql_image_repository
   postgresql_image_tag        = var.postgresql_image_tag
 
   depends_on = [
     time_sleep.timer,
-    module.postgresql,
+    module.postgresql_cnpg_cluster,
   ]
 }
 
@@ -190,11 +174,11 @@ module "chart_argo" {
   chart_tag        = var.argo_chart_tag
   chart_release    = "argo-workflows"
 
-  database_host   = try(one(module.postgresql[*].database_host), null)
-  database_port   = try(one(module.postgresql[*].database_port), null)
-  database_name   = try(one(module.postgresql[*].database_argo_name), null)
-  database_user   = try(one(module.postgresql[*].database_argo_user), null)
-  database_secret = try(one(module.postgresql[*].database_argo_secret), null)
+  database_host   = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  database_port   = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  database_name   = try(one(module.postgresql_cnpg_cluster[*].database_argo_name), null)
+  database_user   = try(one(module.postgresql_cnpg_cluster[*].database_argo_user), null)
+  database_secret = try(one(module.postgresql_cnpg_cluster[*].database_argo_secret), null)
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -208,7 +192,7 @@ module "chart_argo" {
 
   depends_on = [
     time_sleep.timer,
-    module.postgresql,
+    module.postgresql_cnpg_cluster,
   ]
 }
 
@@ -281,12 +265,10 @@ module "chart_cosmotech_api" {
 
   depends_on = [
     time_sleep.timer,
-    module.postgresql,
     module.chart_redis,
     module.chart_argo,
     module.config_harbor_project,
     module.config_keycloak_realm,
-    module.postgresql_external,
   ]
 }
 
@@ -344,16 +326,15 @@ module "chart_cosmotech_asset_data_layer" {
   persistence_pvc               = local.persistences.cosmotech-asset-data-layer["pvc_name"]
   persistence_pvc_storage_class = local.storage_class_name
 
-  postgresql_host     = try(one(module.postgresql[*].database_host), null)
-  postgresql_port     = try(one(module.postgresql[*].database_port), null)
-  postgresql_database = try(one(module.postgresql[*].database_cosmotech_name), null)
-  postgresql_username = try(one(module.postgresql[*].database_cosmotech_username), null)
-  postgresql_password = try(one(module.postgresql[*].database_cosmotech_password), null)
+  postgresql_host     = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  postgresql_port     = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  postgresql_database = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_name), null)
+  postgresql_username = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_username), null)
+  postgresql_password = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_password), null)
 
   s3_host   = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port   = try(one(module.chart_seaweedfs[*].s3_port), null)
   s3_bucket = try(one(module.chart_seaweedfs[*].s3_cosmotech_api_bucket), null)
-  # s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
   s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
   s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
 
@@ -383,7 +364,6 @@ module "config_grafana_dashboard" {
   tenant            = module.kube_namespace.tenant_namespace
   cluster_domain    = local.cluster_domain
   secret_redis      = try(one(module.chart_redis[*].redis_secret), null)
-  secret_postgresql = try(one(module.postgresql[*].postgresql_secret), null)
 }
 
 

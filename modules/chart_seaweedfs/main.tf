@@ -29,22 +29,28 @@ locals {
 
   s3_argo_workflows_bucket              = "argo-workflows"
   s3_argo_workflows_username            = "argo_workflows"
-  s3_argo_workflows_password            = random_password.password[0].result
+  s3_argo_workflows_password            = random_password.s3_argo_workflows_password.result
   s3_secret_key_argo_workflows_username = "argo-workflows-username"
   s3_secret_key_argo_workflows_password = "argo-workflows-password"
 
   s3_cosmotech_api_bucket              = "cosmotech-api"
   s3_cosmotech_api_username            = "cosmotech_api"
-  s3_cosmotech_api_password            = random_password.password[1].result
+  s3_cosmotech_api_password            = random_password.s3_cosmotech_api_password.result
   s3_secret_key_cosmotech_api_username = "cosmotech-api-username"
   s3_secret_key_cosmotech_api_password = "cosmotech-api-password"
 }
 
 
-# Just generate an amount of secured passwords
-resource "random_password" "password" {
-  count = 10
+resource "random_password" "s3_argo_workflows_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
 
+
+resource "random_password" "s3_cosmotech_api_password" {
   length      = 40
   min_lower   = 5
   min_upper   = 5

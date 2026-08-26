@@ -20,6 +20,7 @@ resource "kubernetes_namespace" "tenant" {
     name = var.tenant_namespace
     annotations = {
       "cosmotech.com/tenant-type" = var.tenant_type
+      "cosmotech.com/use-external-database" = var.use_external_postgresql # true/false
     }
   }
 
@@ -33,7 +34,6 @@ resource "kubernetes_namespace" "tenant" {
 }
 
 
-
 resource "random_password" "password" {
   length      = 40
   min_lower   = 5
@@ -41,7 +41,6 @@ resource "random_password" "password" {
   min_numeric = 5
   min_special = 5
 }
-
 
 
 ## Authentication to Image Registry is required to allow usage of sub-images in Charts
