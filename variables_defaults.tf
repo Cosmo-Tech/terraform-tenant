@@ -47,7 +47,7 @@ variable "redis_image_tag" { default = "8.6.3" }
 # Cosmo Tech API
 variable "cosmotechapi_chart_name" { default = "cosmotech-api" }
 variable "cosmotechapi_chart_repository" { default = "https://cosmo-tech.github.io/helm-charts" }
-variable "cosmotechapi_chart_tag" { default = "5.0.1" }
+variable "cosmotechapi_chart_tag" { default = "5.1.0" }
 
 
 # Cosmo Tech Modeling API
