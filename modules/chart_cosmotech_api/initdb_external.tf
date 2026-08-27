@@ -50,6 +50,10 @@ resource "postgresql_database" "tenant_cosmotech_api" {
   connection_limit  = -1
   allow_connections = true
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   depends_on = [
     postgresql_role.admin,
     postgresql_role.writer,

@@ -1,6 +1,5 @@
 locals {
-  tenant_namespace_raw = "tenant-${var.tenant}"
-  tenant_namespace     = var.use_external_postgresql ? "${local.tenant_namespace_raw}-extdb" : local.tenant_namespace_raw
+  tenant_namespace = "tenant-${var.tenant}"
 
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
 
