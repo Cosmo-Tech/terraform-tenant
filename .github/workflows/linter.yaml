@@ -1,5 +1,5 @@
 name: "Quality checks"
-# run-name: "[linter] ${{ github.event.head_commit.message }}"
+run-name: "[linter] ${{ github.event.pull_request.title || github.event.head_commit.message }}"
 
 on:
   push:
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   terraform-fmt:
-    name: "Terraform format"
+    name: "Terraform fmt"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
