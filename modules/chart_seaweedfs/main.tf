@@ -14,7 +14,7 @@ locals {
     DATABASE_NAME                    = local.seaweedfs_db_name
     DATABASE_USER                    = local.seaweedfs_db_username
     DATABASE_SECRET                  = local.seaweedfs_db_secret
-    S3_INIT_BUCKETS                  = ["${local.s3_argo_workflows_bucket}", "${local.s3_cosmotech_api_bucket}"]
+    S3_INIT_BUCKETS                  = [local.s3_argo_workflows_bucket, local.s3_cosmotech_api_bucket]
     S3_SECRET                        = kubernetes_secret.s3_secret.metadata[0].name
     S3_PORT                          = local.s3_port
     FILER_ENDPOINT                   = "http://${var.chart_release}-filer.${var.tenant}.svc.cluster.local:8888"
@@ -71,10 +71,10 @@ resource "kubernetes_secret" "s3_secret" {
   }
 
   data = {
-    "${local.s3_secret_key_argo_workflows_username}" = local.s3_argo_workflows_username
-    "${local.s3_secret_key_argo_workflows_password}" = local.s3_argo_workflows_password
-    "${local.s3_secret_key_cosmotech_api_username}"  = local.s3_cosmotech_api_username
-    "${local.s3_secret_key_cosmotech_api_password}"  = local.s3_cosmotech_api_password
+    (local.s3_secret_key_argo_workflows_username) = local.s3_argo_workflows_username
+    (local.s3_secret_key_argo_workflows_password) = local.s3_argo_workflows_password
+    (local.s3_secret_key_cosmotech_api_username)  = local.s3_cosmotech_api_username
+    (local.s3_secret_key_cosmotech_api_password)  = local.s3_cosmotech_api_password
     "config.json" = templatefile("${path.module}/templates/s3_config.json", {
       "ARGO_WORKFLOWS_USERNAME" = local.s3_argo_workflows_username
       "ARGO_WORKFLOWS_PASSWORD" = local.s3_argo_workflows_password

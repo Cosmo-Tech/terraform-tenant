@@ -21,8 +21,8 @@ locals {
     REDIS_PORT                 = "6379"
     S3_ENDPOINT                = "http://${var.s3_host}:${var.s3_port}"
     S3_BUCKET                  = var.s3_bucket
-    S3_USERNAME                = data.kubernetes_secret.s3.data["${var.s3_secret_key_username}"]
-    S3_PASSWORD                = data.kubernetes_secret.s3.data["${var.s3_secret_key_password}"]
+    S3_USERNAME                = data.kubernetes_secret.s3.data[var.s3_secret_key_username]
+    S3_PASSWORD                = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
     POSTGRESQL_DATABASE_HOST   = local.db_target.db_host
     POSTGRESQL_DATABASE_NAME   = local.db_target.db_name
     POSTGRESQL_ADMIN_USERNAME  = local.db_target.admin_username

@@ -99,6 +99,7 @@ resource "time_sleep" "timer" {
 
 
 module "postgresql_cnpg_cluster" {
+  count  = contains(local.tenant_recipe_modules, "postgresql_cnpg_cluster") ? 1 : 0
   source = "./modules/postgresql_cnpg_cluster"
 
   tenant = module.kube_namespace.tenant_namespace

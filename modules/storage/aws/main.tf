@@ -83,7 +83,7 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
     storage_class_name = kubernetes_persistent_volume.pv[0].spec[0].storage_class_name
     resources {
       requests = {
-        storage = "${kubernetes_persistent_volume.pv[0].spec[0].capacity.storage}"
+        storage = kubernetes_persistent_volume.pv[0].spec[0].capacity.storage
       }
     }
     volume_name = kubernetes_persistent_volume.pv[0].metadata[0].name

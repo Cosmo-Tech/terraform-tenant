@@ -4,9 +4,9 @@ locals {
     running = [
       "chart_cosmotech_api",
       "chart_argo",
-      "chart_postgresql",
       "chart_redis",
       "chart_seaweedfs",
+      "postgresql_cnpg_cluster",
       "config_grafana_dashboard",
       "config_harbor_project",
       "config_keycloak_realm",
@@ -17,16 +17,16 @@ locals {
       "chart_cosmotech_modeling_api",
       "chart_argo",
       "chart_seaweedfs",
-      "chart_postgresql", # Required for Argo Workflows & SeaweedFS
+      "postgresql_cnpg_cluster", # Required for Argo Workflows & SeaweedFS
     ]
 
     asset = [
       "chart_cosmotech_asset_data_layer",
       "chart_cosmotech_api",
       "chart_argo",
-      "chart_postgresql",
       "chart_redis",
       "chart_seaweedfs",
+      "postgresql_cnpg_cluster",
       "config_grafana_dashboard",
       "config_harbor_project",
       "config_keycloak_realm",
@@ -36,7 +36,7 @@ locals {
     asset_portfolio = [
       "chart_cosmotech_portfolio_api",
       "chart_cosmotech_portfolio_webapp",
-      "chart_postgresql",
+      "postgresql_cnpg_cluster",
       "config_keycloak_realm",
     ]
   }
