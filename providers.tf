@@ -106,6 +106,6 @@ provider "postgresql" {
   username        = var.external_postgresql_username
   password        = var.external_postgresql_password
   sslmode         = "require"
-  superuser = false
+  superuser       = false
   connect_timeout = 15
 }

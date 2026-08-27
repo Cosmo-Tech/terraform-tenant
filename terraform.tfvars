@@ -31,7 +31,7 @@
 # state_host     = "https://cosmotechstates.onpremise.platform.cosmotech.com"
 
 
-# ## GLOBAL VARIABLES
+# ## GLOBAL VARIABLES EXAMPLES
 # tenant_type = "running"
 # tenant_type = "modeling"
 # tenant_type = "asset"

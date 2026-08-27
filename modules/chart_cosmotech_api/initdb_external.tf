@@ -2,9 +2,9 @@
 resource "postgresql_role" "admin" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name     = local.db_target.admin_username
-  password = local.db_target.admin_password
-  login    = true
+  name            = local.db_target.admin_username
+  password        = local.db_target.admin_password
+  login           = true
   create_database = true
 }
 
