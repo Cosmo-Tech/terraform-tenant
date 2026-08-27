@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: postgresql-init-argo
-  namespace: ${namespace}
+  namespace: ${NAMESPACE}
 spec:
   backoffLimit: 0
   template:
@@ -10,18 +10,18 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgresql-init-argo
-          image: ${image_registry}/${postgresql_image_repository}:${postgresql_image_tag}
+          image: ${IMAGE_REGISTRY}/${POSTGRESQL_IMAGE_REPOSITORY}:${POSTGRESQL_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
             - |
-              export PGPASSWORD='${postgres_password}'
-              export PGHOST='${db_host}'
-              export PGPORT='${db_port}'
+              export PGPASSWORD='${DB_POSTGRES_PASSWORD}'
+              export PGHOST='${DB_HOST}'
+              export PGPORT='${DB_PORT}'
 
-              DB_NAME='${argo_database}'
-              DB_USER='${argo_username}'
-              DB_PASS='${argo_password}'
+              DB_NAME='${ARGO_DATABASE}'
+              DB_USER='${ARGO_USERNAME}'
+              DB_PASS='${ARGO_PASSWORD}'
 
               # Check if DB exists
               if ! psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
@@ -40,4 +40,4 @@ spec:
           effect: NoSchedule
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: ${image_registry_auth_secret}
+        - name: ${IMAGE_REGISTRY_AUTH_SECRET}

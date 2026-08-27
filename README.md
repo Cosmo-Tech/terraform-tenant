@@ -55,8 +55,7 @@
 * Error: error sending POST request to /keycloak//admin/realms: 409 Conflict. Response body: {"errorMessage":"Conflict detected. See logs for details"} [..] with with module.config_keycloak_realm.keycloak_realm.realm
     > The state file could not be found (it has probably been deleted, but the deployed resources remains)
     > Go to https://<cluster_url>/keycloak (credentials are stored on Kubernetes secret keycloak/keycloak-config) -> Select the realm "tenant-<name>" -> Realm settings > Action > Delete
-* Error: error connecting to PostgreSQL server xxxxxxxx.postgres.database.azure.com (scheme: postgres): dial tcp xxx.xxx.xxx.xxx:5432: i/o timeout [..]
-    on modules/external_postgresql/main.tf [..]
+* Error: error connecting to PostgreSQL server xxxxxxxx.postgres.database.azure.com (scheme: postgres): dial tcp xxx.xxx.xxx.xxx:5432: i/o timeout
     > Make sure the ip address of you machine is adequately whitelisted in the PostgreSQL server firewall rules (tips: VPN)
 
 ## Developpers

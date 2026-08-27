@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/time"
       version = "~> 0.13.1"
     }
+    kubectl = {
+      source  = "alekc/kubectl"
+      version = "~> 2.4.1"
+    }
     grafana = {
       source  = "grafana/grafana"
       version = "~> 4.14.0"
@@ -95,14 +99,13 @@ data "kubernetes_secret" "harbor" {
 }
 
 
-
-## PostgreSQL
+# PostgreSQL
 provider "postgresql" {
-  host             = local.external_postgres_host
-  port             = var.external_postgres_port
-  username         = var.external_postgres_admin_username
-  password         = var.external_postgres_admin_password
-  sslmode          = var.external_postgres_sslmode
-  superuser        = var.external_postgres_superuser
-  connect_timeout  = 15
+  host            = var.external_postgresql_host
+  port            = tonumber(var.external_postgresql_port)
+  username        = var.external_postgresql_username
+  password        = var.external_postgresql_password
+  sslmode         = "require"
+  superuser       = false
+  connect_timeout = 15
 }

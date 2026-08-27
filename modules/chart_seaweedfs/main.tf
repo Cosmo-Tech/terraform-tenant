@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
     PERSISTENCE_MASTER_SIZE          = var.size_master
     PERSISTENCE_MASTER_PVC           = var.pvc_master
@@ -11,9 +11,9 @@ locals {
     PERSISTENCE_VOLUME_ACCESS_MODES  = var.pvc_volume_access_modes
     DATABASE_HOST                    = var.database_host
     DATABASE_PORT                    = var.database_port
-    DATABASE_NAME                    = var.database_seaweedfs_name
-    DATABASE_USER                    = var.database_seaweedfs_user
-    DATABASE_SECRET                  = var.database_seaweedfs_secret
+    DATABASE_NAME                    = local.seaweedfs_db_name
+    DATABASE_USER                    = local.seaweedfs_db_username
+    DATABASE_SECRET                  = local.seaweedfs_db_secret
     S3_INIT_BUCKETS                  = ["${local.s3_argo_workflows_bucket}", "${local.s3_cosmotech_api_bucket}"]
     S3_SECRET                        = kubernetes_secret.s3_secret.metadata[0].name
     S3_PORT                          = local.s3_port
@@ -29,22 +29,33 @@ locals {
 
   s3_argo_workflows_bucket              = "argo-workflows"
   s3_argo_workflows_username            = "argo_workflows"
-  s3_argo_workflows_password            = random_password.password[0].result
+  s3_argo_workflows_password            = random_password.s3_argo_workflows_password.result
   s3_secret_key_argo_workflows_username = "argo-workflows-username"
   s3_secret_key_argo_workflows_password = "argo-workflows-password"
 
   s3_cosmotech_api_bucket              = "cosmotech-api"
   s3_cosmotech_api_username            = "cosmotech_api"
-  s3_cosmotech_api_password            = random_password.password[1].result
+  s3_cosmotech_api_password            = random_password.s3_cosmotech_api_password.result
   s3_secret_key_cosmotech_api_username = "cosmotech-api-username"
   s3_secret_key_cosmotech_api_password = "cosmotech-api-password"
+
+  seaweedfs_db_name     = "seaweedfs"
+  seaweedfs_db_username = "seaweedfs"
+  seaweedfs_db_password = random_password.seaweedfs_postgresql_password.result
+  seaweedfs_db_secret   = kubernetes_secret.postgresql-seaweedfs.metadata[0].name
 }
 
 
-# Just generate an amount of secured passwords
-resource "random_password" "password" {
-  count = 10
+resource "random_password" "s3_argo_workflows_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
 
+
+resource "random_password" "s3_cosmotech_api_password" {
   length      = 40
   min_lower   = 5
   min_upper   = 5
@@ -64,7 +75,7 @@ resource "kubernetes_secret" "s3_secret" {
     "${local.s3_secret_key_argo_workflows_password}" = local.s3_argo_workflows_password
     "${local.s3_secret_key_cosmotech_api_username}"  = local.s3_cosmotech_api_username
     "${local.s3_secret_key_cosmotech_api_password}"  = local.s3_cosmotech_api_password
-    "config.json" = templatefile("${path.module}/s3_config.json", {
+    "config.json" = templatefile("${path.module}/templates/s3_config.json", {
       "ARGO_WORKFLOWS_USERNAME" = local.s3_argo_workflows_username
       "ARGO_WORKFLOWS_PASSWORD" = local.s3_argo_workflows_password
       "COSMOTECH_API_USERNAME"  = local.s3_cosmotech_api_username
@@ -101,8 +112,7 @@ resource "helm_release" "seaweedfs" {
     var.tenant,
     var.pvc_master,
     var.pvc_volume,
-    var.database_seaweedfs_name,
-    var.database_seaweedfs_secret,
+    kubernetes_secret.postgresql-seaweedfs,
     kubernetes_secret.s3_secret,
   ]
 }
