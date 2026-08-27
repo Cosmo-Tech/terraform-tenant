@@ -6,7 +6,7 @@ locals {
   storage_class_name = "cosmotech-retain"
   persistences = {
     postgresql = {
-      module     = "postgresql"
+      module     = "postgresql_cnpg_cluster"
       size       = var.postgresql_storage_size
       main_name  = "${var.cluster_name}-${module.kube_namespace.tenant_namespace}-postgresql"
       pvc_name   = "${module.kube_namespace.tenant_namespace}-postgresql-1"
