@@ -5,7 +5,7 @@ resource "postgresql_role" "admin" {
   name     = local.db_target.admin_username
   password = local.db_target.admin_password
   login    = true
-  # create_database = true
+  create_database = true
 }
 
 resource "postgresql_role" "writer" {
