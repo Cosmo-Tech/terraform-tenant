@@ -1,12 +1,47 @@
-locals {
-  main_name = "tenant-${var.tenant}"
+data "kubernetes_namespace" "tenant_existing" {
+  metadata {
+    name = var.tenant_namespace
+  }
+}
+
+# Simple security to preserve tenants integrity
+resource "terraform_data" "prevent_tenant_type_change" {
+  lifecycle {
+    precondition {
+      condition     = (try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], var.tenant_type) == var.tenant_type)
+      error_message = "Forbidden deployment: variable 'tenant_type' (=${var.tenant_type}) cannot be changed, and currently does not match existing value (=${try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/tenant-type"], "unknown")})."
+    }
+  }
+}
+
+# Simple security to preserve tenants integrity
+resource "terraform_data" "prevent_database_change" {
+  lifecycle {
+    precondition {
+      condition     = (try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/use-external-database"], var.use_external_postgresql) == var.use_external_postgresql)
+      error_message = "Forbidden deployment: variable 'use_external_postgresql' (=${var.use_external_postgresql}) cannot be changed, and currently does not match existing value (=${try(data.kubernetes_namespace.tenant_existing.metadata[0].annotations["cosmotech.com/use-external-database"], "unknown")})."
+    }
+  }
 }
 
 
 resource "kubernetes_namespace" "tenant" {
   metadata {
-    name = local.main_name
+    name = var.tenant_namespace
+    annotations = {
+      "cosmotech.com/tenant-type"           = var.tenant_type
+      "cosmotech.com/use-external-database" = var.use_external_postgresql # true/false
+    }
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  depends_on = [
+    terraform_data.prevent_tenant_type_change,
+    terraform_data.prevent_database_change,
+  ]
 }
 
 
@@ -19,28 +54,9 @@ resource "random_password" "password" {
 }
 
 
-
-## Secret to store the version of the Terraform module of the tenant
-# resource "kubernetes_secret" "terraform_module_tag" {
-#   metadata {
-#     name      = "cosmotech-terraform-module-tag"
-#     namespace = kubernetes_namespace.tenant.metadata[0].name
-#   }
-
-#   data = {
-#     "module" : "terraform-tenant",
-#     "tag" : "todo",
-#   }
-
-#   type = "Opaque"
-# }
-
-
-
 ## Authentication to Image Registry is required to allow usage of sub-images in Charts
 ## This secret is created in terraform-shared
-
-## Copy the registry auth secret
+## -> Copy the registry auth secret
 data "kubernetes_secret" "registry_auth" {
   metadata {
     name      = var.image_registry_auth_secret
@@ -48,11 +64,11 @@ data "kubernetes_secret" "registry_auth" {
   }
 }
 
-## Paste the registry auth secret in the tenant namespace
+## -> Paste the registry auth secret in the tenant namespace
 resource "kubernetes_secret" "registry_auth" {
   metadata {
     name      = data.kubernetes_secret.registry_auth.metadata[0].name
-    namespace = local.main_name
+    namespace = var.tenant_namespace
   }
 
   data = {

@@ -55,21 +55,10 @@
 * Error: error sending POST request to /keycloak//admin/realms: 409 Conflict. Response body: {"errorMessage":"Conflict detected. See logs for details"} [..] with with module.config_keycloak_realm.keycloak_realm.realm
     > The state file could not be found (it has probably been deleted, but the deployed resources remains)
     > Go to https://<cluster_url>/keycloak (credentials are stored on Kubernetes secret keycloak/keycloak-config) -> Select the realm "tenant-<name>" -> Realm settings > Action > Delete
+* Error: error connecting to PostgreSQL server xxxxxxxx.postgres.database.azure.com (scheme: postgres): dial tcp xxx.xxx.xxx.xxx:5432: i/o timeout
+    > Make sure the ip address of you machine is adequately whitelisted in the PostgreSQL server firewall rules (tips: VPN)
 
 ## Developpers
-* modules
-    * **terraform-tenant**
-        * *chart_argo* = install Argo Workflows
-        * *chart_cosmotech_api* = install Cosmo Tech API
-        * *chart_postgresql* = install PostgreSQL (and configure it for Cosmo Tech API, SeaweedFS & Argo Workflows)
-        * *chart_redis* = install Redis
-        * *chart_seaweedfs* = install SeaweedFS
-        * *config_grafana_dashboard* = create tenant configuration on existing Grafana instance (add custom dashboards)
-        * *config_harbor_project* = create tenant configuration on existing Harbor instance (add dedicated project+user to host the tenant simulators)
-        * *config_keycloak_realm* = create tenant configuration on existing Keycloak instance (create a dedicated tenant realm, and differents clients for the tenant)
-        * *config_superset_oauth_provider* = create tenant configuration on existing Superset instance (add authentication from Keycloak)
-        * *kube_namespace* = create tenant namespace
-        * *storage* = **[temporary]** dynamically create persistence storage for charts requiring it
 * Terraform **state**
     * The state is stored beside the cluster Terraform state, in the current cloud s3/blob storage service (generally called `csmstates<id>` or `cosmotech-states`, depending on what the cloud provider allows in naming convention)
 * Scripts **_run-terraform.***
@@ -81,7 +70,7 @@
     * It instanciates the needed Terraform configuration based on the variable `cloud_provider` from terraform.tfvars
         > `$TEMPLATE_` variables in files stored in `targets/` are automatically replaced with values from `terraform.tfvars`
     * This file is a workaround to avoid having unwanted variables related to cloud providers not targetted in current deployment
-* File **variables_defaults**
+* File **variables_default**
     * contains all the defaults configurations of the module
     * all artefacts versions are tagged in this file
     * everything is this file can be customized from TF_VAR_variable, CLI arguments or terraform.tfvars

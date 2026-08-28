@@ -1,5 +1,5 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
     PERSISTENCE_MASTER_SIZE           = var.size_master
     PERSISTENCE_MASTER_PVC            = var.pvc_master

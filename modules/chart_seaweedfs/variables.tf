@@ -66,18 +66,6 @@ variable "database_port" {
   type = string
 }
 
-variable "database_seaweedfs_name" {
-  type = string
-}
-
-variable "database_seaweedfs_user" {
-  type = string
-}
-
-variable "database_seaweedfs_secret" {
-  type = string
-}
-
 variable "postgresql_image_repository" {
   type = string
 }

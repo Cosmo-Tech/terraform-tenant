@@ -1,5 +1,16 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "alekc/kubectl"
+    }
+    postgresql = {
+      source = "cyrilgdn/postgresql"
+    }
+  }
+}
+
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
     CLUSTER_DOMAIN             = var.cluster_domain
     NAMESPACE                  = var.tenant
@@ -10,23 +21,56 @@ locals {
     REDIS_PORT                 = "6379"
     S3_ENDPOINT                = "http://${var.s3_host}:${var.s3_port}"
     S3_BUCKET                  = var.s3_bucket
-    S3_USERNAME                = data.kubernetes_secret.s3.data["${var.s3_secret_key_username}"]
-    S3_PASSWORD                = data.kubernetes_secret.s3.data["${var.s3_secret_key_password}"]
-    POSTGRESQL_DATABASE_HOST   = var.postgresql_host
-    POSTGRESQL_DATABASE_NAME   = var.postgresql_database
-    POSTGRESQL_ADMIN_USERNAME  = var.postgresql_admin_username
-    POSTGRESQL_ADMIN_PASSWORD  = var.postgresql_admin_password
-    POSTGRESQL_WRITER_USERNAME = var.postgresql_writer_username
-    POSTGRESQL_WRITER_PASSWORD = var.postgresql_writer_password
-    POSTGRESQL_READER_USERNAME = var.postgresql_reader_username
-    POSTGRESQL_READER_PASSWORD = var.postgresql_reader_password
+    S3_USERNAME                = data.kubernetes_secret.s3.data[var.s3_secret_key_username]
+    S3_PASSWORD                = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
+    POSTGRESQL_DATABASE_HOST   = local.db_target.db_host
+    POSTGRESQL_DATABASE_NAME   = local.db_target.db_name
+    POSTGRESQL_ADMIN_USERNAME  = local.db_target.admin_username
+    POSTGRESQL_WRITER_USERNAME = local.db_target.writer_username
+    POSTGRESQL_READER_USERNAME = local.db_target.reader_username
+    POSTGRESQL_ADMIN_PASSWORD  = local.db_target.admin_password
+    POSTGRESQL_WRITER_PASSWORD = local.db_target.writer_password
+    POSTGRESQL_READER_PASSWORD = local.db_target.reader_password
     REGISTRY_URL               = var.cluster_domain
     REGISTRY_USERNAME          = data.kubernetes_secret.registry.data["username"]
     REGISTRY_PASSWORD          = data.kubernetes_secret.registry.data["password"]
-    # COSMOTECH_API_CONNECT_TIMEOUT = var.cosmotech_api_connect_timeout
-    # COSMOTECH_API_QUERY_TIMEOUT   = var.cosmotech_api_query_timeout
-    # COSMOTECH_API_MAX_FILE_SIZE   = var.cosmotech_api_buffer_size
-    # COSMOTECH_API_BUFFER_SIZE     = var.cosmotech_api_max_file_size
+  }
+
+  raw_db_admin_username  = "cosmotech_api_admin"
+  raw_db_writer_username = "cosmotech_api_writer"
+  raw_db_reader_username = "cosmotech_api_reader"
+  raw_db_admin_password  = random_password.api_admin_password.result
+  raw_db_writer_password = random_password.api_writer_password.result
+  raw_db_reader_password = random_password.api_reader_password.result
+
+  db_role_prefix = replace(var.tenant, "-", "_")
+
+  db_target = var.use_external_postgresql ? {
+    ## External
+    db_host         = var.external_postgresql_host
+    db_port         = var.external_postgresql_port
+    db_username     = var.external_postgresql_username
+    db_password     = var.external_postgresql_password
+    db_name         = var.tenant
+    admin_username  = "${local.db_role_prefix}_${local.raw_db_admin_username}"
+    writer_username = "${local.db_role_prefix}_${local.raw_db_writer_username}"
+    reader_username = "${local.db_role_prefix}_${local.raw_db_reader_username}"
+    admin_password  = local.raw_db_admin_password
+    writer_password = local.raw_db_writer_password
+    reader_password = local.raw_db_reader_password
+    } : {
+    ## Internal
+    db_host = var.internal_postgresql_host
+    db_port = var.internal_postgresql_port
+    # db_username     = data.kubernetes_secret.postgresql-config.data["username"]
+    db_password     = data.kubernetes_secret.postgresql-config.data["password"]
+    db_name         = "cosmotech"
+    admin_username  = local.raw_db_admin_username
+    writer_username = local.raw_db_writer_username
+    reader_username = local.raw_db_reader_username
+    admin_password  = local.raw_db_admin_password
+    writer_password = local.raw_db_writer_password
+    reader_password = local.raw_db_reader_password
   }
 }
 
@@ -43,6 +87,14 @@ data "kubernetes_secret" "s3" {
   metadata {
     namespace = var.tenant
     name      = var.s3_secret
+  }
+}
+
+
+data "kubernetes_secret" "postgresql-config" {
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-config"
   }
 }
 
@@ -122,4 +174,52 @@ data "kubernetes_resources" "helm_release_secret" {
   api_version    = "v1"
   kind           = "Secret"
   label_selector = "owner=helm,name=${var.chart_release}"
+}
+
+
+# Specific secret containing Cosmo Tech API database informations
+resource "kubernetes_secret" "postgresql-cosmotechapi" {
+  type = "Opaque"
+
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-cosmotechapi"
+  }
+
+  data = {
+    "database-host"   = local.db_target.db_host
+    "database-port"   = local.db_target.db_port
+    "database-name"   = local.db_target.db_name
+    "admin-username"  = local.db_target.admin_username
+    "admin-password"  = local.db_target.admin_password
+    "writer-username" = local.db_target.writer_username
+    "writer-password" = local.db_target.writer_password
+    "reader-username" = local.db_target.reader_username
+    "reader-password" = local.db_target.reader_password
+  }
+}
+
+
+resource "random_password" "api_admin_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
+
+resource "random_password" "api_writer_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
+
+resource "random_password" "api_reader_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
 }

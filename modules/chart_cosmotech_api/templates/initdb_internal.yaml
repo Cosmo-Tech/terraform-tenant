@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: postgresql-init-cosmotechapi
-  namespace: ${namespace}
+  namespace: ${NAMESPACE}
 spec:
   backoffLimit: 0
   template:
@@ -10,22 +10,22 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgresql-init-cosmotechapi
-          image: ${image_registry}/${postgresql_image_repository}:${postgresql_image_tag}
+          image: ${IMAGE_REGISTRY}/${POSTGRESQL_IMAGE_REPOSITORY}:${POSTGRESQL_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
             - |
-              export PGPASSWORD='${postgres_password}'
-              export PGHOST='${db_host}'
-              export PGPORT='${db_port}'
+              export PGPASSWORD='${DB_POSTGRES_PASSWORD}'
+              export PGHOST='${DB_HOST}'
+              export PGPORT='${DB_PORT}'
 
-              DB_NAME='${cosmotechapi_database}'
-              ADMIN_USER='${cosmotechapi_admin_username}'
-              ADMIN_PASS='${cosmotechapi_admin_password}'
-              WRITER_USER='${cosmotechapi_writer_username}'
-              WRITER_PASS='${cosmotechapi_writer_password}'
-              READER_USER='${cosmotechapi_reader_username}'
-              READER_PASS='${cosmotechapi_reader_password}'
+              DB_NAME='${DB_NAME}'
+              ADMIN_USER='${DB_ADMIN_USERNAME}'
+              ADMIN_PASS='${DB_ADMIN_PASSWORD}'
+              WRITER_USER='${DB_WRITER_USERNAME}'
+              WRITER_PASS='${DB_WRITER_PASSWORD}'
+              READER_USER='${DB_READER_USERNAME}'
+              READER_PASS='${DB_READER_PASSWORD}'
 
               if ! psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
                 echo "Creating Cosmo Tech API database..."
@@ -52,4 +52,4 @@ spec:
           effect: "NoSchedule"
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: ${image_registry_auth_secret}
+        - name: ${IMAGE_REGISTRY_AUTH_SECRET}

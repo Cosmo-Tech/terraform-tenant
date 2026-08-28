@@ -25,7 +25,21 @@
 
 # ## VARIABLES EXAMPLE FOR KOB (= On-Premise)
 # cloud_provider = "kob"
-# cluster_name   = "kubernetes"
+# cluster_name   = "kob-dev-devops"
 # domain_zone    = "onpremise.platform.cosmotech.com"
 # tenant         = "test0"
 # state_host     = "https://cosmotechstates.onpremise.platform.cosmotech.com"
+
+
+# ## GLOBAL VARIABLES EXAMPLES
+# tenant_type = "running"
+# tenant_type = "modeling"
+# tenant_type = "asset"
+# tenant_type = "asset_portfolio"
+
+# use_external_postgresql = false
+# external_postgresql_host = "changeme"
+# external_postgresql_port = "changeme"
+# ## Do not store credentials in current file
+# export TF_VAR_external_postgresql_username="changeme"
+# export TF_VAR_external_postgresql_password="changeme"

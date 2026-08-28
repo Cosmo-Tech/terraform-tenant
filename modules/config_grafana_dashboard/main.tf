@@ -1,22 +1,9 @@
 terraform {
   required_providers {
     grafana = {
-      source  = "grafana/grafana"
-      version = "~> 4.14.0"
+      source = "grafana/grafana"
     }
   }
-}
-
-data "kubernetes_secret" "grafana" {
-  metadata {
-    namespace = var.namespace_monitoring
-    name      = "kube-prometheus-stack-grafana"
-  }
-}
-
-provider "grafana" {
-  url  = "https://${var.cluster_domain}/monitoring"
-  auth = "admin:${data.kubernetes_secret.grafana.data["admin-password"]}"
 }
 
 
@@ -36,9 +23,7 @@ resource "grafana_data_source" "redis-datasource" {
   basic_auth_enabled  = true
   basic_auth_username = "default"
   secure_json_data_encoded = jsonencode({
-    # Get password from existing kubernetes_secret if exists, or get if from current deployment if not
-    password = (data.kubernetes_secret.redis.data == null ? var.secret_redis : data.kubernetes_secret.redis.data["redis-password"])
-    # password = var.secret_redis
+    password = data.kubernetes_secret.redis.data["redis-password"]
   })
 }
 
@@ -58,9 +43,7 @@ resource "grafana_data_source" "postgresql-datasource" {
   basic_auth_enabled = true
   username           = "postgres"
   secure_json_data_encoded = jsonencode({
-    # Get password from existing kubernetes_secret if exists, or get if from current deployment if not
-    password = (data.kubernetes_secret.postgresql.data == null ? var.secret_postgresql : data.kubernetes_secret.postgresql.data["postgres-password"])
-    # password = var.secret_postgresql
+    password = data.kubernetes_secret.postgresql.data["password"]
   })
 
   json_data_encoded = jsonencode({
