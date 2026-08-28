@@ -35,7 +35,8 @@ config:
   csm:
     modelingApi:
       simulatorRegistry:
-        host: "${CLUSTER_DOMAIN}/${NAMESPACE}"
+        host: "${CLUSTER_DOMAIN}"
+        defaultPrefix: "${NAMESPACE}"
         pushSecret: harbor-docker
       argoWorkflows:
         host: http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746
