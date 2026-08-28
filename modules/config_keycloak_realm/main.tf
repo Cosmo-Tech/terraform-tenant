@@ -21,6 +21,7 @@ locals {
   cosmotech_web      = "cosmotech-client-web"
   cosmotech_babylon  = "cosmotech-client-babylon"
   cosmotech_superset = "cosmotech-client-superset"
+  cosmotech_admin    = "cosmotech-client-admin"
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
