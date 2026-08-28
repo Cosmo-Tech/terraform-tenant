@@ -1,0 +1,102 @@
+name: ${NAMESPACE}-api
+
+apiConfig:
+  corsOrigin:
+    - https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
+  dataDir: /data
+  keycloakRealm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
+  rootUri: ${NAMESPACE}/api
+
+ingress:
+  enabled: true
+  className: "traefik"
+  hosts:
+    - host: "${CLUSTER_DOMAIN}"
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  tls:
+    enabled: true
+    secretName: "letsencrypt-prod-${NAMESPACE}"
+    hosts:
+      - "${CLUSTER_DOMAIN}"
+
+image:
+  pullPolicy: IfNotPresent
+  repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
+  tag: ${IMAGE_TAG}
+
+imagePullSecrets:
+  - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+
+replicaCount: 1
+
+podAnnotations: {}
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+tolerations:
+  - effect: NoSchedule
+    key: vendor
+    operator: Equal
+    value: cosmotech
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 1Gi
+
+nodeSelector:
+  cosmotech.com/tier: services
+
+extraEnvVars:
+  - name: CSM_API_URL
+    value: cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080
+
+persistence:
+  enabled: false
+  storageClass: ${PERSISTENCE_STORAGE_CLASS}
+
+database:
+  reset: false
+
+postgres:
+  enabled: true
+  host: ${POSTGRESQL_HOST}
+  port: ${POSTGRESQL_PORT}
+  database: ${POSTGRESQL_DATABASE_NAME}
+  username: ${POSTGRESQL_DATABASE_USERNAME}
+  password: ${POSTGRESQL_DATABASE_PASSWORD}
+  schema: aip
+
+service:
+  port: 8080
+  type: ClusterIP
+
+serviceAccount:
+  create: true
+
+autoscalling:
+  enabled: false
+
+alembic:
+  script_location: cosmotech/aip/migrations
+
+webhookRestart:
+  enabled: false

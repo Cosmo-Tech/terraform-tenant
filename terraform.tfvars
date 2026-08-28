@@ -35,7 +35,7 @@
 # tenant_type = "running"
 # tenant_type = "modeling"
 # tenant_type = "asset"
-# tenant_type = "asset_portfolio"
+# tenant_type = "asset-investment-planning"
 
 # use_external_postgresql = false
 # external_postgresql_host = "changeme"

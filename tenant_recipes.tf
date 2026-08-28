@@ -33,9 +33,9 @@ locals {
       "config_superset_oauth",
     ]
 
-    asset_portfolio = [
-      "chart_cosmotech_portfolio_api",
-      "chart_cosmotech_portfolio_webapp",
+    asset-investment-planning = [
+      "chart_cosmotech_asset_investment_planning_api",
+      "chart_cosmotech_asset_investment_planning_webapp",
       "postgresql_cnpg_cluster",
       "config_keycloak_realm",
     ]

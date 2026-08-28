@@ -66,3 +66,20 @@ variable "cosmotech_asset_data_layer_chart_tag" { default = "latest" }
 variable "cosmotech_asset_data_layer_image_tag" { default = "latest" }
 variable "cosmotech_asset_data_layer_image_registry_auth_secret" { default = "registry-auth-cosmotech-asset-data-layer" }
 variable "cosmotech_asset_data_layer_storage_size" { default = 8 }
+
+
+# Cosmo Tech Asset Investment Planning API
+variable "cosmotech_asset_investment_planning_api_chart_name" { default = "cosmotech-asset-investment-planning" }
+variable "cosmotech_asset_investment_planning_api_chart_repository" { default = "https://ghcr.io/cosmo-tech/cosmotech-asset-investment-planning-helm" }
+variable "cosmotech_asset_investment_planning_api_chart_tag" { default = "latest" }
+variable "cosmotech_asset_investment_planning_api_image_tag" { default = "latest" }
+variable "cosmotech_asset_investment_planning_api_image_registry_auth_secret" { default = "registry-auth-cosmotech-asset-investment-planning" }
+variable "cosmotech_asset_investment_planning_api_storage_size" { default = 8 }
+
+
+# Cosmo Tech Asset Investment Planning Webapp
+variable "cosmotech_asset_investment_planning_webapp_chart_name" { default = "cosmotech-asset-investment-planning" }
+variable "cosmotech_asset_investment_planning_webapp_chart_repository" { default = "https://ghcr.io/cosmo-tech/cosmotech-asset-investment-planning-helm" }
+variable "cosmotech_asset_investment_planning_webapp_chart_tag" { default = "latest" }
+variable "cosmotech_asset_investment_planning_webapp_image_tag" { default = "latest" }
+variable "cosmotech_asset_investment_planning_webapp_image_registry_auth_secret" { default = "registry-auth-cosmotech-asset-investment-planning" }

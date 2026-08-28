@@ -5,7 +5,7 @@ locals {
     NAMESPACE                   = var.tenant
     PERSISTENCE_PVC             = var.persistence_pvc
     PERSISTENCE_SIZE            = var.persistence_size
-    PERSISTENCE_STORAGE_CLASS   = var.persistence_pvc_storage_class
+    PERSISTENCE_STORAGE_CLASS   = var.pvc_storage_class
     POSTGRESQL_DATABASE         = var.postgresql_database
     POSTGRESQL_PASSWORD         = var.postgresql_password
     POSTGRESQL_USERNAME         = var.postgresql_username

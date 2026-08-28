@@ -90,7 +90,7 @@ variable "persistence_pvc" {
   type = string
 }
 
-variable "persistence_pvc_storage_class" {
+variable "pvc_storage_class" {
   type = string
 }
 

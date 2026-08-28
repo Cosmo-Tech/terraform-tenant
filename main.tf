@@ -321,9 +321,9 @@ module "chart_cosmotech_asset_data_layer" {
   chart_tag        = var.cosmotech_asset_data_layer_chart_tag
   chart_release    = "cosmotech-asset-data-layer"
 
-  persistence_size              = local.persistences.cosmotech-asset-data-layer["size"]
-  persistence_pvc               = local.persistences.cosmotech-asset-data-layer["pvc_name"]
-  persistence_pvc_storage_class = local.storage_class_name
+  persistence_size  = local.persistences.cosmotech-asset-data-layer["size"]
+  persistence_pvc   = local.persistences.cosmotech-asset-data-layer["pvc_name"]
+  pvc_storage_class = local.storage_class_name
 
   postgresql_host     = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
   postgresql_port     = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
@@ -340,18 +340,75 @@ module "chart_cosmotech_asset_data_layer" {
   cluster_domain = local.cluster_domain
 
   keycloak_client_id = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
-  # keycloak_client_secret = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
-
 
   cosmotech_api_client_id     = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
   cosmotech_api_client_secret = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
 
   # harbor_password = 
 
-
   depends_on = [
     time_sleep.timer,
     module.chart_cosmotech_api,
+  ]
+}
+
+
+
+module "chart_cosmotech_asset_investment_planning_api" {
+  count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_investment_planning_api") ? 1 : 0
+  source = "./modules/chart_cosmotech_asset_investment_planning_api"
+
+  tenant = module.kube_namespace.tenant_namespace
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+  image_tag                  = var.cosmotech_asset_investment_planning_api_image_tag
+
+  chart_repository = var.cosmotech_asset_investment_planning_api_chart_repository
+  chart_name       = var.cosmotech_asset_investment_planning_api_chart_name
+  chart_tag        = var.cosmotech_asset_investment_planning_api_chart_tag
+  chart_release    = "cosmotech-asset-investment-planning-api"
+
+  cluster_domain = local.cluster_domain
+
+  pvc_storage_class = local.storage_class_name
+
+  postgresql_host     = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  postgresql_port     = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  postgresql_database = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_name), null)
+  postgresql_username = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_username), null)
+  postgresql_password = try(one(module.postgresql_cnpg_cluster[*].database_cosmotech_password), null)
+
+  depends_on = [
+    time_sleep.timer,
+    module.postgresql_cnpg_cluster,
+    module.config_keycloak_realm,
+  ]
+}
+
+
+module "chart_cosmotech_asset_investment_planning_webapp" {
+  count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_investment_planning_webapp") ? 1 : 0
+  source = "./modules/chart_cosmotech_asset_investment_planning_webapp"
+
+  tenant = module.kube_namespace.tenant_namespace
+
+  image_registry             = local.image_registry
+  image_registry_auth_secret = var.image_registry_auth_secret
+  image_tag                  = var.cosmotech_asset_investment_planning_webapp_image_tag
+
+  chart_repository = var.cosmotech_asset_investment_planning_webapp_chart_repository
+  chart_name       = var.cosmotech_asset_investment_planning_webapp_chart_name
+  chart_tag        = var.cosmotech_asset_investment_planning_webapp_chart_tag
+  chart_release    = "cosmotech-asset-investment-planning-webapp"
+
+  cluster_domain = local.cluster_domain
+
+  keycloak_client_id = try(one(module.config_keycloak_realm[*].keycloak_webapp_client_id), null)
+
+  depends_on = [
+    time_sleep.timer,
+    module.chart_cosmotech_asset_investment_planning_api,
   ]
 }
 
