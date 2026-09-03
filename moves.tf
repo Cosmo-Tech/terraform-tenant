@@ -5,7 +5,6 @@ moved {
 }
 
 
-
 ## Since 2.0.0 (passwords used in PostgreSQL were all created in a same random_password resource)
 moved {
   from = module.chart_postgresql.random_password.password[1]
@@ -48,4 +47,11 @@ moved {
 moved {
   from = module.chart_seaweedfs.random_password.password[1]
   to   = module.chart_seaweedfs.random_password.s3_cosmotech_api_password
+}
+
+
+## Since 2.0.0
+moved {
+  from = module.chart_cosmotech_api
+  to   = module.chart_cosmotech_run_api
 }

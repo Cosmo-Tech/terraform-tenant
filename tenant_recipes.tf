@@ -2,7 +2,7 @@ locals {
   # Define only the required modules for each tenant type. A module in this list means it will be deployed, do not write a module that is not required.
   tenant_recipes = {
     running = [
-      "chart_cosmotech_api",
+      "chart_cosmotech_run_api",
       "chart_argo",
       "chart_redis",
       "chart_seaweedfs",
@@ -22,7 +22,7 @@ locals {
 
     asset = [
       "chart_cosmotech_asset_data_layer",
-      "chart_cosmotech_api",
+      "chart_cosmotech_run_api",
       "chart_argo",
       "chart_redis",
       "chart_seaweedfs",

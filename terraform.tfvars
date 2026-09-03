@@ -43,3 +43,5 @@
 # ## Do not store credentials in current file
 # export TF_VAR_external_postgresql_username="changeme"
 # export TF_VAR_external_postgresql_password="changeme"
+
+

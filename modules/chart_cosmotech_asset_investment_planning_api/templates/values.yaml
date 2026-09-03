@@ -1,11 +1,11 @@
 name: ${NAMESPACE}-api
 
-apiConfig:
-  corsOrigin:
-    - https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
-  dataDir: /data
-  keycloakRealm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
-  rootUri: ${NAMESPACE}/api
+serviceAccount:
+  create: true
+
+service:
+  port: 8080
+  type: ClusterIP
 
 ingress:
   enabled: true
@@ -24,14 +24,17 @@ ingress:
       - "${CLUSTER_DOMAIN}"
 
 image:
-  pullPolicy: IfNotPresent
   repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
   tag: ${IMAGE_TAG}
+  pullPolicy: IfNotPresent
 
 imagePullSecrets:
   - name: ${IMAGE_REGISTRY_AUTH_SECRET}
 
 replicaCount: 1
+
+autoscalling:
+  enabled: false
 
 podAnnotations: {}
 
@@ -71,29 +74,25 @@ extraEnvVars:
 
 persistence:
   enabled: false
-  storageClass: ${PERSISTENCE_STORAGE_CLASS}
 
 database:
   reset: false
 
 postgres:
   enabled: true
-  host: ${POSTGRESQL_HOST}
-  port: ${POSTGRESQL_PORT}
-  database: ${POSTGRESQL_DATABASE_NAME}
-  username: ${POSTGRESQL_DATABASE_USERNAME}
-  password: ${POSTGRESQL_DATABASE_PASSWORD}
-  schema: aip
+  host: "${POSTGRESQL_HOST}"
+  port: "${POSTGRESQL_PORT}"
+  database: "${POSTGRESQL_DATABASE}"
+  username: "${POSTGRESQL_USERNAME}"
+  password: "${POSTGRESQL_PASSWORD}"
+  schema: "cosmotech_asset_investment_planning"
 
-service:
-  port: 8080
-  type: ClusterIP
-
-serviceAccount:
-  create: true
-
-autoscalling:
-  enabled: false
+apiConfig:
+  corsOrigin:
+    - https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
+  dataDir: /data
+  keycloakRealm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
+  rootUri: ${NAMESPACE}/api
 
 alembic:
   script_location: cosmotech/aip/migrations

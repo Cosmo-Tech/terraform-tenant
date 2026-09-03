@@ -1,16 +1,18 @@
 locals {
   chart_values = templatefile("${path.module}/templates/values.yaml", local.chart_values_data)
   chart_values_data = {
-    NAMESPACE              = var.tenant
-    IMAGE_TAG              = var.image_tag
-    IMAGE_PULL_SECRET      = var.image_registry_auth_secret
-    PERSISTENCE_PVC        = var.pvc
-    S3_ENDPOINT            = "http://${var.s3_host}:${var.s3_port}"
-    S3_BUCKET              = var.s3_bucket
-    S3_SECRET              = var.s3_secret
-    S3_SECRET_KEY_USERNAME = var.s3_secret_key_username
-    S3_SECRET_KEY_PASSWORD = var.s3_secret_key_password
-    CLUSTER_DOMAIN         = var.cluster_domain
+    NAMESPACE                  = var.tenant
+    IMAGE_REGISTRY             = var.image_registry
+    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REPOSITORY           = var.image_repository
+    IMAGE_TAG                  = var.image_tag
+    PERSISTENCE_PVC            = var.pvc
+    S3_ENDPOINT                = "http://${var.s3_host}:${var.s3_port}"
+    S3_BUCKET                  = var.s3_bucket
+    S3_SECRET                  = var.s3_secret
+    S3_SECRET_KEY_USERNAME     = var.s3_secret_key_username
+    S3_SECRET_KEY_PASSWORD     = var.s3_secret_key_password
+    CLUSTER_DOMAIN             = var.cluster_domain
   }
   chart_release = "cosmotech-modeling-api"
 }

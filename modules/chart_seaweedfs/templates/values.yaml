@@ -1,14 +1,3 @@
-image:
-  # registry: ${IMAGE_REGISTRY}
-  repository: cosmotech/seaweedfs-iamguarded
-  pullPolicy: IfNotPresent
-postgresql:
-  image:
-    # registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/postgres-iamguarded
-    tag: "17"
-    pullPolicy: IfNotPresent
-  enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
 master:
   persistence:
     existingClaim: ${PERSISTENCE_MASTER_PVC}
@@ -22,36 +11,7 @@ master:
       operator: Equal
       value: cosmotech
       effect: NoSchedule
-mariadb:
-  enabled: false
-externalDatabase:
-  enabled: true
-  store: postgresql
-  host: ${DATABASE_HOST}
-  port: ${DATABASE_PORT}
-  database: ${DATABASE_NAME}
-  user: ${DATABASE_USER}
-  existingSecret: ${DATABASE_SECRET}
-volume:
-  dataVolumes:
-  # - name: data-0
-  #   mountPath: /data-0
-  - name: data
-    mountPath: /data
-    maxVolumes: 0
-    persistence:
-      enabled: true
-      existingClaim: ${PERSISTENCE_VOLUME_PVC}
-      size: ${PERSISTENCE_VOLUME_SIZE}
-      accessModes: ${PERSISTENCE_VOLUME_ACCESS_MODES}
-      storageClass: ${PERSISTENCE_VOLUME_STORAGE_CLASS}
-  nodeSelector:
-    cosmotech.com/tier: db
-  tolerations:
-    - key: vendor
-      operator: Equal
-      value: cosmotech
-      effect: NoSchedule
+
 filer:
   resourcesPreset: medium
   nodeSelector:
@@ -63,6 +23,7 @@ filer:
       effect: NoSchedule
   podLabels:
     networking/traffic-allowed: "yes"
+
 s3:
   enabled: true
   resourcesPreset: medium
@@ -132,14 +93,60 @@ extraDeploy:
                     wget --quiet -O /dev/null --post-data= --header "Content-Type:" ${FILER_ENDPOINT}/buckets/${bucket}/
                   fi
                   %{~ endfor ~}
+
+volume:
+  dataVolumes:
+  # - name: data-0
+  #   mountPath: /data-0
+  - name: data
+    mountPath: /data
+    maxVolumes: 0
+    persistence:
+      enabled: true
+      existingClaim: ${PERSISTENCE_VOLUME_PVC}
+      size: ${PERSISTENCE_VOLUME_SIZE}
+      accessModes: ${PERSISTENCE_VOLUME_ACCESS_MODES}
+      storageClass: ${PERSISTENCE_VOLUME_STORAGE_CLASS}
+  nodeSelector:
+    cosmotech.com/tier: db
+  tolerations:
+    - key: vendor
+      operator: Equal
+      value: cosmotech
+      effect: NoSchedule
+
+externalDatabase:
+  enabled: true
+  store: postgresql
+  host: ${DATABASE_HOST}
+  port: ${DATABASE_PORT}
+  database: ${DATABASE_NAME}
+  user: ${DATABASE_USER}
+  existingSecret: ${DATABASE_SECRET}
+
+mariadb:
+  enabled: false
+
+postgresql:
+  image:
+    repository: "${POSTGRESQL_IMAGE_REPOSITORY}"
+    tag: "${POSTGRESQL_IMAGE_TAG}"
+    pullPolicy: IfNotPresent
+  enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
+
 # Fix "permission denied" (some cloud providers have an issue with non-root execution: https://docs.bitnami.com/kubernetes/faq/troubleshooting/troubleshooting-helm-chart-issues/#permission-errors-when-enabling-persistence)
 volumePermissions:
   enabled: true
   image:
-    # registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/os-shell-iamguarded
-    tag: latest
+    repository: ${GENERIC_SHELL_IMAGE_REPOSITORY}
+    tag: ${GENERIC_SHELL_IMAGE_TAG}
     pullPolicy: IfNotPresent
+
+image:
+  repository: ${SEAWEEDFS_IMAGE_REPOSITORY}
+  tag: ${SEAWEEDFS_IMAGE_TAG}
+  pullPolicy: IfNotPresent
+
 global:
   imageRegistry: ${IMAGE_REGISTRY}
   imagePullSecrets:

@@ -10,15 +10,15 @@ terraform {
 locals {
   template_file = templatefile("${path.module}/templates/cnpg-cluster.yaml", local.template_values)
   template_values = {
-    PERSISTENCE_SIZE            = var.size
-    PERSISTENCE_PVC             = var.pvc
-    PERSISTENCE_STORAGE_CLASS   = var.pvc_storage_class
-    POSTGRESQL_SECRET_CONFIG    = kubernetes_secret.postgresql-config.metadata[0].name
-    POSTGRESQL_IMAGE_REPOSITORY = var.postgresql_image_repository
-    POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
-    IMAGE_REGISTRY              = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
-    NAMESPACE                   = var.tenant
+    PERSISTENCE_SIZE           = var.size
+    PERSISTENCE_PVC            = var.pvc
+    PERSISTENCE_STORAGE_CLASS  = var.pvc_storage_class
+    POSTGRESQL_SECRET_CONFIG   = kubernetes_secret.postgresql-config.metadata[0].name
+    IMAGE_REPOSITORY           = var.postgresql_image_repository
+    IMAGE_TAG                  = var.postgresql_image_tag
+    IMAGE_REGISTRY             = var.image_registry
+    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    NAMESPACE                  = var.tenant
   }
 
   database_host = "${var.tenant}-postgresql-rw.${var.tenant}.svc.cluster.local"

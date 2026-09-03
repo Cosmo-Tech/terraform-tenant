@@ -6,53 +6,26 @@ locals {
     PERSISTENCE_PVC             = var.persistence_pvc
     PERSISTENCE_SIZE            = var.persistence_size
     PERSISTENCE_STORAGE_CLASS   = var.pvc_storage_class
+    POSTGRESQL_HOST             = var.postgresql_host
+    POSTGRESQL_PORT             = var.postgresql_port
     POSTGRESQL_DATABASE         = var.postgresql_database
-    POSTGRESQL_PASSWORD         = var.postgresql_password
-    POSTGRESQL_USERNAME         = var.postgresql_username
+    POSTGRESQL_USERNAME         = data.kubernetes_secret.postgresql-config.data["username"]
+    POSTGRESQL_PASSWORD         = data.kubernetes_secret.postgresql-config.data["password"]
     COSMOTECH_API_CLIENT_ID     = var.cosmotech_api_client_id
     COSMOTECH_API_CLIENT_SECRET = var.cosmotech_api_client_secret
-    S3_HOST                     = var.s3_host
-    S3_PORT                     = var.s3_port
-    S3_BUCKET                   = var.s3_bucket
-    S3_ACCESS_KEY               = var.s3_secret_key_username
-    S3_SECRET_KEY               = var.s3_secret_key_password
-    KEYCLOAK_CLIENT_ID          = var.keycloak_client_id
-    # HARBOR_PASSWORD             = var.harbor_password
-    WEBHOOK_AUTH_TOKEN         = random_password.webhook_token.result
+    # S3_HOST                     = var.s3_host
+    # S3_PORT                     = var.s3_port
+    # S3_BUCKET                   = var.s3_bucket
+    # S3_ACCESS_KEY               = var.s3_secret_key_username
+    # S3_SECRET_KEY               = var.s3_secret_key_password
+    KEYCLOAK_CLIENT_ID         = var.keycloak_client_id
     IMAGE_REGISTRY             = var.image_registry
     IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REPOSITORY           = var.image_repository
     IMAGE_TAG                  = var.image_tag
   }
 }
 
-resource "random_password" "webhook_token" {
-  length      = 40
-  min_lower   = 5
-  min_upper   = 5
-  min_numeric = 5
-  special     = false
-}
-
-
-data "kubernetes_secret" "my_secret" {
-  metadata {
-    name      = "seaweedfs-s3"
-    namespace = var.tenant
-  }
-}
-
-# 2. Décodage du JSON et extraction de la secretKey de cosmotech_api
-locals {
-  # Décodage de la chaîne JSON stockée dans la clé config.json
-  config_data = jsondecode(data.kubernetes_secret.my_secret.data["config.json"])
-
-  # Filtrage pour trouver l'identité "cosmotech_api" et extraire sa secretKey
-  cosmotech_secret_key = [
-    for identity in local.config_data.identities :
-    identity.credentials[0].secretKey
-    if identity.name == "cosmotech_api"
-  ][0]
-}
 
 resource "helm_release" "cosmotech_asset_data_layer" {
   namespace  = var.tenant
@@ -94,3 +67,10 @@ data "kubernetes_resources" "helm_release_secret" {
   label_selector = "owner=helm,name=${var.chart_release}"
 }
 
+
+data "kubernetes_secret" "postgresql-config" {
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-config"
+  }
+}

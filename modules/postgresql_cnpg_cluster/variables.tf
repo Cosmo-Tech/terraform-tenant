@@ -10,6 +10,14 @@ variable "image_registry_auth_secret" {
   type = string
 }
 
+variable "image_repository" {
+  type = string
+}
+
+variable "image_tag" {
+  type = string
+}
+
 variable "size" {
   type = string
 }

@@ -1,7 +1,7 @@
 image:
-  tag: "${IMAGE_TAG}"
+  tag: "${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}/${IMAGE_TAG}"
   credentials:
-    pullSecret: "${IMAGE_PULL_SECRET}"
+    pullSecret: "${IMAGE_REGISTRY_AUTH_SECRET}"
 
 nodeSelector:
   cosmotech.com/tier: services

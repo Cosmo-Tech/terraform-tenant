@@ -31,9 +31,13 @@ locals {
     POSTGRESQL_ADMIN_PASSWORD  = local.db_target.admin_password
     POSTGRESQL_WRITER_PASSWORD = local.db_target.writer_password
     POSTGRESQL_READER_PASSWORD = local.db_target.reader_password
-    REGISTRY_URL               = var.cluster_domain
-    REGISTRY_USERNAME          = data.kubernetes_secret.registry.data["username"]
-    REGISTRY_PASSWORD          = data.kubernetes_secret.registry.data["password"]
+    SIMU_REGISTRY_URL          = var.cluster_domain
+    SIMU_REGISTRY_USERNAME     = data.kubernetes_secret.registry.data["username"]
+    SIMU_REGISTRY_PASSWORD     = data.kubernetes_secret.registry.data["password"]
+    IMAGE_REGISTRY             = var.image_registry
+    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REPOSITORY           = var.image_repository
+    IMAGE_TAG                  = var.image_tag
   }
 
   raw_db_admin_username  = "cosmotech_api_admin"

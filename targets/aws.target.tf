@@ -11,11 +11,11 @@ provider "aws" {
 }
 
 module "storage" {
-  source = "git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage"
+  source = "git::https://github.com/cosmo-tech/terraform-aws.git//terraform-cluster/modules/storage?ref=${local.module_storage_aws_tag}"
 
   for_each = var.cloud_provider == "aws" ? local.tenant_recipe_persistences : {}
 
-  namespace          = module.kube_namespace.tenant_namespace
+  namespace          = local.tenant_namespace
   main_name          = each.value.main_name
   pvc_name           = each.value.pvc_name
   size               = each.value.size
