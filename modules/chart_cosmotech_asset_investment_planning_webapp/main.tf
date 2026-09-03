@@ -1,30 +1,18 @@
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
-    SERVICE_ACCOUNT            = var.chart_release
-    DATABASE_HOST              = var.database_host
-    DATABASE_PORT              = var.database_port
-    DATABASE_NAME              = local.argo_db_name
-    DATABASE_USER              = local.argo_db_username
-    DATABASE_SECRET            = local.argo_db_secret
-    S3_ENDPOINT                = "${var.s3_host}:${var.s3_port}"
-    S3_BUCKET                  = var.s3_bucket
-    S3_SECRET                  = var.s3_secret
-    S3_SECRET_KEY_USERNAME     = var.s3_secret_key_username
-    S3_SECRET_KEY_PASSWORD     = var.s3_secret_key_password
+    CLUSTER_DOMAIN             = var.cluster_domain
+    NAMESPACE                  = var.tenant
     IMAGE_REGISTRY             = var.image_registry
     IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REPOSITORY           = var.image_repository
     IMAGE_TAG                  = var.image_tag
+    KEYCLOAK_CLIENT_ID         = var.keycloak_client_id
   }
-
-  argo_db_name     = "argo"
-  argo_db_username = "argo"
-  argo_db_password = random_password.argo_database_password.result
-  argo_db_secret   = kubernetes_secret.postgresql-argo.metadata[0].name
 }
 
 
-resource "helm_release" "argo" {
+resource "helm_release" "cosmotech_asset_investment_planning_webapp" {
   namespace  = var.tenant
   name       = var.chart_release
   repository = var.chart_repository

@@ -2,14 +2,6 @@ variable "tenant" {
   type = string
 }
 
-variable "image_registry" {
-  type = string
-}
-
-variable "image_registry_auth_secret" {
-  type = string
-}
-
 variable "chart_repository" {
   type = string
 }
@@ -23,6 +15,22 @@ variable "chart_tag" {
 }
 
 variable "chart_release" {
+  type = string
+}
+
+variable "image_registry" {
+  type = string
+}
+
+variable "image_registry_auth_secret" {
+  type = string
+}
+
+variable "seaweedfs_image_repository" {
+  type = string
+}
+
+variable "seaweedfs_image_tag" {
   type = string
 }
 
@@ -71,5 +79,21 @@ variable "postgresql_image_repository" {
 }
 
 variable "postgresql_image_tag" {
+  type = string
+}
+
+variable "generic_shell_image_registry" {
+  type = string
+}
+
+variable "generic_shell_image_registry_auth_secret" {
+  type = string
+}
+
+variable "generic_shell_image_repository" {
+  type = string
+}
+
+variable "generic_shell_image_tag" {
   type = string
 }

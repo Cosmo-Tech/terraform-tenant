@@ -1,0 +1,31 @@
+name: ${NAMESPACE}-webapp
+
+webapp:
+  domainName: ${CLUSTER_DOMAIN}
+  publicUrl: ${NAMESPACE}/webapp
+  server:
+    image:
+      repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
+      tag: ${IMAGE_TAG}
+      pullPolicy: IfNotPresent
+      pullSecret: ${IMAGE_REGISTRY_AUTH_SECRET}
+    nodeSelector:
+      cosmotech.com/tier: services
+    tolerations:
+      - effect: NoSchedule
+        key: vendor
+        operator: Equal
+        value: cosmotech
+
+api:
+  baseUrl: ${NAMESPACE}/api
+  scope: https://${CLUSTER_DOMAIN}/platform
+  sourceUrl: https://${CLUSTER_DOMAIN}
+
+keycloak:
+  clientId: ${KEYCLOAK_CLIENT_ID}
+  realm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
+  rolesClaim: userRoles
+
+webhookRestart:
+  enabled: false

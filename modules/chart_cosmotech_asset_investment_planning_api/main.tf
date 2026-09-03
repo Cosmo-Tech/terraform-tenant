@@ -1,30 +1,22 @@
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
-    SERVICE_ACCOUNT            = var.chart_release
-    DATABASE_HOST              = var.database_host
-    DATABASE_PORT              = var.database_port
-    DATABASE_NAME              = local.argo_db_name
-    DATABASE_USER              = local.argo_db_username
-    DATABASE_SECRET            = local.argo_db_secret
-    S3_ENDPOINT                = "${var.s3_host}:${var.s3_port}"
-    S3_BUCKET                  = var.s3_bucket
-    S3_SECRET                  = var.s3_secret
-    S3_SECRET_KEY_USERNAME     = var.s3_secret_key_username
-    S3_SECRET_KEY_PASSWORD     = var.s3_secret_key_password
+    CLUSTER_DOMAIN             = var.cluster_domain
+    NAMESPACE                  = var.tenant
     IMAGE_REGISTRY             = var.image_registry
     IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REPOSITORY           = var.image_repository
     IMAGE_TAG                  = var.image_tag
+    POSTGRESQL_HOST            = var.postgresql_host
+    POSTGRESQL_PORT            = var.postgresql_port
+    POSTGRESQL_DATABASE        = var.postgresql_database
+    POSTGRESQL_USERNAME        = data.kubernetes_secret.postgresql-config.data["username"]
+    POSTGRESQL_PASSWORD        = data.kubernetes_secret.postgresql-config.data["password"]
   }
-
-  argo_db_name     = "argo"
-  argo_db_username = "argo"
-  argo_db_password = random_password.argo_database_password.result
-  argo_db_secret   = kubernetes_secret.postgresql-argo.metadata[0].name
 }
 
 
-resource "helm_release" "argo" {
+resource "helm_release" "cosmotech_asset_investment_planning_api" {
   namespace  = var.tenant
   name       = var.chart_release
   repository = var.chart_repository
@@ -64,3 +56,13 @@ data "kubernetes_resources" "helm_release_secret" {
   kind           = "Secret"
   label_selector = "owner=helm,name=${var.chart_release}"
 }
+
+
+data "kubernetes_secret" "postgresql-config" {
+  metadata {
+    namespace = var.tenant
+    name      = "postgresql-config"
+  }
+}
+
+

@@ -1,16 +1,15 @@
-name: ${NAMESPACE}-asset-data-layer
+name: ${NAMESPACE}-api
 
 serviceAccount:
   create: true
 
 service:
-  type: ClusterIP
   port: 8080
+  type: ClusterIP
 
 ingress:
   enabled: true
   className: "traefik"
-  pathType: ImplementationSpecific
   hosts:
     - host: "${CLUSTER_DOMAIN}"
       paths:
@@ -24,14 +23,8 @@ ingress:
     hosts:
       - "${CLUSTER_DOMAIN}"
 
-apiConfig:
-  rootUri: "/"
-  dataDir: "/data"
-  corsOrigin:
-    - https://${CLUSTER_DOMAIN}/adl/main
-
 image:
-  repository: ${IMAGE_REPOSITORY}
+  repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
   tag: ${IMAGE_TAG}
   pullPolicy: IfNotPresent
 
@@ -40,7 +33,7 @@ imagePullSecrets:
 
 replicaCount: 1
 
-autoscaling:
+autoscalling:
   enabled: false
 
 podAnnotations: {}
@@ -66,11 +59,11 @@ tolerations:
 
 resources:
   limits:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 200m
+    memory: 2Gi
   requests:
     cpu: 100m
-    memory: 128Mi
+    memory: 1Gi
 
 nodeSelector:
   cosmotech.com/tier: services
@@ -80,10 +73,7 @@ extraEnvVars:
     value: cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080
 
 persistence:
-  enabled: true
-  size: "${PERSISTENCE_SIZE}"
-  storageClass: "${PERSISTENCE_STORAGE_CLASS}"
-  existingClaim: "${PERSISTENCE_PVC}"
+  enabled: false
 
 database:
   reset: false
@@ -95,29 +85,17 @@ postgres:
   database: "${POSTGRESQL_DATABASE}"
   username: "${POSTGRESQL_USERNAME}"
   password: "${POSTGRESQL_PASSWORD}"
-  schema: "cosmotech_asset_data_layer"
+  schema: "cosmotech_asset_investment_planning"
 
-keycloak:
-  realm: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}"
-  clientId: "${KEYCLOAK_CLIENT_ID}"
-
-seaweedfs:
-  enabled: false
-
-csmApi:
-  url: "http://cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080"
-  scope: ""
-  clientId: "${COSMOTECH_API_CLIENT_ID}"
-  clientSecret: "${COSMOTECH_API_CLIENT_SECRET}"
-
-usage:
-  enabled: true
-
-localStorage:
-  path: "/data/local_storage"
+apiConfig:
+  corsOrigin:
+    - https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
+  dataDir: /data
+  keycloakRealm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
+  rootUri: ${NAMESPACE}/api
 
 alembic:
-  script_location: "cosmotech/asset_data_layer/migrations"
+  script_location: cosmotech/aip/migrations
 
 webhookRestart:
   enabled: false

@@ -1,16 +1,9 @@
-rbac:
-  singleNamespace: true
-createAggregateRoles: false
+
 server:
   image:
     repository: cosmotech/argo-workflow-cli-iamguarded
+    tag: ${IMAGE_TAG}
     pullPolicy: IfNotPresent
-  auth:
-    mode: server
-  clusterWorkflowTemplates:
-    enabled: false
-  serviceAccount:
-    automountServiceAccountToken: true
   nodeSelector:
     "cosmotech.com/tier": "services"
   tolerations:
@@ -21,9 +14,17 @@ server:
   service:
     ports:
       http: 2746
+  auth:
+    mode: server
+  clusterWorkflowTemplates:
+    enabled: false
+  serviceAccount:
+    automountServiceAccountToken: true
+
 controller:
   image:
     repository: cosmotech/argo-workflow-controller-iamguarded
+    tag: ${IMAGE_TAG}
     pullPolicy: IfNotPresent
   persistence:
     archive:
@@ -145,6 +146,7 @@ controller:
       operator: "Equal"
       value: "cosmotech"
       effect: "NoSchedule"
+
 executor:
   image:
     registry: ${IMAGE_REGISTRY}
@@ -156,14 +158,23 @@ executor:
       value: 1s
     - name: WAIT_CONTAINER_STATUS_CHECK_INTERVAL
       value: 1s
+
 ingress:
   enabled: false
+
 workflows:
   serviceAccount:
     name: "${SERVICE_ACCOUNT}"
     automountServiceAccountToken: true
+
+rbac:
+  singleNamespace: true
+
+createAggregateRoles: false
+
 postgresql:
   enabled: false
+
 externalDatabase:
   enabled: true
   type: "postgresql"
@@ -172,6 +183,7 @@ externalDatabase:
   username: "${DATABASE_USER}"
   database: "${DATABASE_NAME}"
   existingSecret: "${DATABASE_SECRET}"
+
 global:
   imageRegistry: ${IMAGE_REGISTRY}
   imagePullSecrets:
