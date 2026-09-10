@@ -20,7 +20,7 @@ locals {
     # S3_SECRET_KEY               = var.s3_secret_key_password
     KEYCLOAK_CLIENT_ID         = var.keycloak_client_id
     IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    # IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
     IMAGE_REPOSITORY           = var.image_repository
     IMAGE_TAG                  = var.image_tag
   }

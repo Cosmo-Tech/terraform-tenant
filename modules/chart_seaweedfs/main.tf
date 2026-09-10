@@ -19,13 +19,11 @@ locals {
     S3_PORT                                  = local.s3_port
     FILER_ENDPOINT                           = "http://${var.chart_release}-filer.${var.tenant}.svc.cluster.local:8888"
     IMAGE_REGISTRY                           = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET               = var.image_registry_auth_secret
+    IMAGE_REGISTRY_AUTH_SECRET               = var.image_registry_auth_secret_list
     SEAWEEDFS_IMAGE_REPOSITORY               = var.seaweedfs_image_repository
     SEAWEEDFS_IMAGE_TAG                      = var.seaweedfs_image_tag
     POSTGRESQL_IMAGE_REPOSITORY              = var.postgresql_image_repository
     POSTGRESQL_IMAGE_TAG                     = var.postgresql_image_tag
-    GENERIC_SHELL_IMAGE_REGISTRY             = var.generic_shell_image_registry
-    GENERIC_SHELL_IMAGE_REGISTRY_AUTH_SECRET = var.generic_shell_image_registry_auth_secret
     GENERIC_SHELL_IMAGE_REPOSITORY           = var.generic_shell_image_repository
     GENERIC_SHELL_IMAGE_TAG                  = var.generic_shell_image_tag
   }

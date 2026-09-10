@@ -13,7 +13,8 @@ locals {
     S3_SECRET_KEY_USERNAME     = var.s3_secret_key_username
     S3_SECRET_KEY_PASSWORD     = var.s3_secret_key_password
     IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REPOSITORY_PREFIX             = var.image_repository_prefix
+    IMAGE_REGISTRY_AUTH_SECRET_LIST = var.image_registry_auth_secret_list
     IMAGE_TAG                  = var.image_tag
   }
 

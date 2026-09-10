@@ -1,4 +1,4 @@
-variable "tenant" {
+variable "namespace" {
   type = string
 }
 
@@ -26,33 +26,13 @@ variable "image_registry_auth_secret" {
   type = string
 }
 
-variable "image_repository" {
+variable "image_repository_prefix" {
   type = string
 }
 
-variable "image_tag" {
+variable "cosmotech_asset_data_layer_image_tag" {
   type = string
 }
-
-# variable "s3_host" {
-#   type = string
-# }
-
-# variable "s3_port" {
-#   type = string
-# }
-
-# variable "s3_bucket" {
-#   type = string
-# }
-
-# variable "s3_secret_key_username" {
-#   type = string
-# }
-
-# variable "s3_secret_key_password" {
-#   type = string
-# }
 
 variable "postgresql_host" {
   type = string

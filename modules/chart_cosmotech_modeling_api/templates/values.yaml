@@ -1,16 +1,3 @@
-image:
-  tag: "${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}/${IMAGE_TAG}"
-  credentials:
-    pullSecret: "${IMAGE_REGISTRY_AUTH_SECRET}"
-
-nodeSelector:
-  cosmotech.com/tier: services
-
-tolerations:
-  - key: vendor
-    value: cosmotech
-    effect: NoSchedule
-
 serviceMonitor:
   enabled: true
   namespace: monitoring
@@ -45,3 +32,16 @@ config:
       s3:
         host: "${S3_ENDPOINT}"
         bucket: ${S3_BUCKET}
+
+nodeSelector:
+  cosmotech.com/tier: services
+
+tolerations:
+  - key: vendor
+    value: cosmotech
+    effect: NoSchedule
+
+image:
+  tag: "${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}/${IMAGE_TAG}"
+  credentials:
+    "${IMAGE_REGISTRY_AUTH_SECRET_LIST}"

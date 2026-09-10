@@ -12,7 +12,7 @@ locals {
   initdb_values = {
     NAMESPACE                   = var.tenant
     IMAGE_REGISTRY              = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
+    IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret_list
     POSTGRESQL_IMAGE_REPOSITORY = var.postgresql_image_repository
     POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
     DB_HOST                     = var.database_host

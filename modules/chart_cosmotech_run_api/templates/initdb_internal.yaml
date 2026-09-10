@@ -52,4 +52,4 @@ spec:
           effect: "NoSchedule"
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+        ${IMAGE_REGISTRY_AUTH_SECRET_LIST}

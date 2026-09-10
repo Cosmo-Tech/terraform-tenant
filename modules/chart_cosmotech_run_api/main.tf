@@ -35,7 +35,7 @@ locals {
     SIMU_REGISTRY_USERNAME     = data.kubernetes_secret.registry.data["username"]
     SIMU_REGISTRY_PASSWORD     = data.kubernetes_secret.registry.data["password"]
     IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret_list
     IMAGE_REPOSITORY           = var.image_repository
     IMAGE_TAG                  = var.image_tag
   }

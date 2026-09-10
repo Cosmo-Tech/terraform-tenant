@@ -103,7 +103,7 @@ module "postgresql_cnpg_cluster" {
   tenant = local.tenant_namespace
 
   image_registry             = var.postgresql_image_registry
-  image_registry_auth_secret = var.postgresql_image_registry_auth_secret
+ image_registry_auth_secret               = = var.postgresql_image_registry_auth_secretimage_registry_auth_secret
   image_repository           = var.postgresql_image_repository
   image_tag                  = var.postgresql_image_tag
 
@@ -126,13 +126,13 @@ module "chart_seaweedfs" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.seaweedfs_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.seaweedfs_chart_name
   chart_tag        = var.seaweedfs_chart_tag
   chart_release    = "seaweedfs"
 
   image_registry                           = var.seaweedfs_image_registry
-  image_registry_auth_secret               = var.seaweedfs_image_registry_auth_secret
+ image_registry_auth_secret               =               = var.seaweedfs_image_registry_auth_secret
   seaweedfs_image_repository               = var.seaweedfs_image_repository
   seaweedfs_image_tag                      = var.seaweedfs_image_tag
   generic_shell_image_registry             = var.generic_shell_image_registry
@@ -169,28 +169,28 @@ module "chart_argo" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.argo_chart_repository
-  chart_name       = var.argo_chart_name
-  chart_tag        = var.argo_chart_tag
+   chart_repository = "${var.helm_repo}/product-charts"
+  chart_name       = var.argo_workflows_chart_name
+  chart_tag        = var.argo_workflows_chart_tag
   chart_release    = "argo-workflows"
 
-  image_registry             = var.argo_image_registry
-  image_registry_auth_secret = var.argo_image_registry_auth_secret
-  # image_repository           = var.argo_image_repository
-  image_tag = var.argo_image_tag
+  image_registry             = var.argo_workflows_image_registry
+ image_registry_auth_secret               = = var.argo_workflows_image_registry_auth_secret
+  image_repository_prefix           = var.argo_workflows_image_repository_prefix
+  image_tag = var.argo_workflows_image_tag
 
   database_host   = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
   database_port   = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
-  database_name   = try(one(module.postgresql_cnpg_cluster[*].database_argo_name), null)
-  database_user   = try(one(module.postgresql_cnpg_cluster[*].database_argo_user), null)
-  database_secret = try(one(module.postgresql_cnpg_cluster[*].database_argo_secret), null)
+  database_name   = try(one(module.postgresql_cnpg_cluster[*].database_argo_workflows_name), null)
+  database_user   = try(one(module.postgresql_cnpg_cluster[*].database_argo_workflows_user), null)
+  database_secret = try(one(module.postgresql_cnpg_cluster[*].database_argo_workflows_secret), null)
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
-  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_bucket), null)
+  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_workflows_bucket), null)
   s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
-  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_username), null)
-  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_password), null)
+  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_workflows_username), null)
+  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_workflows_password), null)
 
   postgresql_image_repository = var.postgresql_image_repository
   postgresql_image_tag        = var.postgresql_image_tag
@@ -208,13 +208,13 @@ module "chart_redis" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.redis_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.redis_chart_name
   chart_tag        = var.redis_chart_tag
   chart_release    = "redis"
 
   image_registry             = var.redis_image_registry
-  image_registry_auth_secret = var.redis_image_registry_auth_secret
+ image_registry_auth_secret               = = var.redis_image_registry_auth_secret
   image_repository           = var.redis_image_repository
   image_tag                  = var.redis_image_tag
 
@@ -244,13 +244,13 @@ module "chart_cosmotech_run_api" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.cosmotech_running_api_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.cosmotech_running_api_chart_name
   chart_tag        = var.cosmotech_running_api_chart_tag
   chart_release    = "cosmotech-running-api"
 
   image_registry             = var.cosmotech_running_api_image_registry
-  image_registry_auth_secret = var.cosmotech_running_api_image_registry_auth_secret
+ image_registry_auth_secret               = = var.cosmotech_running_api_image_registry_auth_secret
   image_repository           = var.cosmotech_running_api_image_repository
   image_tag                  = var.cosmotech_running_api_image_tag
 
@@ -293,13 +293,13 @@ module "chart_cosmotech_modeling_api" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.cosmotech_modeling_api_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.cosmotech_modeling_api_chart_name
   chart_tag        = var.cosmotech_modeling_api_chart_tag
   chart_release    = "cosmotech-modeling-api"
 
   image_registry             = var.cosmotech_modeling_api_image_registry
-  image_registry_auth_secret = var.cosmotech_modeling_api_image_repository
+ image_registry_auth_secret               = = var.cosmotech_modeling_api_image_repository
   image_repository           = var.cosmotech_modeling_api_image_repository
   image_tag                  = var.cosmotech_modeling_api_image_tag
 
@@ -307,7 +307,7 @@ module "chart_cosmotech_modeling_api" {
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
-  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_bucket), null)
+  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_workflows_bucket), null)
   s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
   s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
   s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
@@ -329,13 +329,13 @@ module "chart_cosmotech_asset_data_layer" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.cosmotech_asset_data_layer_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.cosmotech_asset_data_layer_chart_name
   chart_tag        = var.cosmotech_asset_data_layer_chart_tag
   chart_release    = "cosmotech-asset-data-layer"
 
   image_registry             = var.cosmotech_asset_data_layer_image_registry
-  image_registry_auth_secret = var.cosmotech_asset_data_layer_image_repository
+ image_registry_auth_secret               = = var.cosmotech_asset_data_layer_image_repository
   image_repository           = var.cosmotech_asset_data_layer_image_repository
   image_tag                  = var.cosmotech_asset_data_layer_image_tag
 
@@ -374,13 +374,13 @@ module "chart_cosmotech_asset_investment_planning_api" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.cosmotech_asset_investment_planning_api_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.cosmotech_asset_investment_planning_api_chart_name
   chart_tag        = var.cosmotech_asset_investment_planning_api_chart_tag
   chart_release    = "cosmotech-asset-investment-planning-api"
 
   image_registry             = var.cosmotech_asset_investment_planning_api_image_registry
-  image_registry_auth_secret = var.cosmotech_asset_investment_planning_api_image_repository
+ image_registry_auth_secret               = = var.cosmotech_asset_investment_planning_api_image_repository
   image_repository           = var.cosmotech_asset_investment_planning_api_image_repository
   image_tag                  = var.cosmotech_asset_investment_planning_api_image_tag
 
@@ -404,13 +404,13 @@ module "chart_cosmotech_asset_investment_planning_webapp" {
 
   tenant = local.tenant_namespace
 
-  chart_repository = var.cosmotech_asset_investment_planning_webapp_chart_repository
+   chart_repository = "${var.helm_repo}/product-charts"
   chart_name       = var.cosmotech_asset_investment_planning_webapp_chart_name
   chart_tag        = var.cosmotech_asset_investment_planning_webapp_chart_tag
   chart_release    = "cosmotech-asset-investment-planning-webapp"
 
   image_registry             = var.cosmotech_asset_investment_planning_webapp_image_registry
-  image_registry_auth_secret = var.cosmotech_asset_investment_planning_webapp_image_repository
+ image_registry_auth_secret               = = var.cosmotech_asset_investment_planning_webapp_image_repository
   image_repository           = var.cosmotech_asset_investment_planning_webapp_image_repository
   image_tag                  = var.cosmotech_asset_investment_planning_webapp_image_tag
 

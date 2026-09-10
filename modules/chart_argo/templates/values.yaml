@@ -1,7 +1,7 @@
 
 server:
   image:
-    repository: cosmotech/argo-workflow-cli-iamguarded
+    repository: ${IMAGE_REPOSITORY_PREFIX}-cli-iamguarded
     tag: ${IMAGE_TAG}
     pullPolicy: IfNotPresent
   nodeSelector:
@@ -23,7 +23,7 @@ server:
 
 controller:
   image:
-    repository: cosmotech/argo-workflow-controller-iamguarded
+    repository: ${IMAGE_REPOSITORY_PREFIX}-controller-iamguarded
     tag: ${IMAGE_TAG}
     pullPolicy: IfNotPresent
   persistence:
@@ -136,7 +136,7 @@ controller:
         # One of "OnWorkflowCompletion", "OnWorkflowSuccess"
         strategy: OnWorkflowCompletion
       imagePullSecrets:
-        - name: "${IMAGE_REGISTRY_AUTH_SECRET}"
+        ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
   serviceAccount:
     automountServiceAccountToken: true
   nodeSelector:
@@ -150,7 +150,7 @@ controller:
 executor:
   image:
     registry: ${IMAGE_REGISTRY}
-    repository: cosmotech/argo-workflow-exec-iamguarded
+    repository: ${IMAGE_REPOSITORY_PREFIX}-exec-iamguarded
     pullPolicy: IfNotPresent
   resourcesPreset: nano
   extraEnvVars:
@@ -187,4 +187,4 @@ externalDatabase:
 global:
   imageRegistry: ${IMAGE_REGISTRY}
   imagePullSecrets:
-    - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+    ${IMAGE_REGISTRY_AUTH_SECRET_LIST}

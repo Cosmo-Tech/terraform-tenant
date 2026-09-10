@@ -150,4 +150,4 @@ image:
 global:
   imageRegistry: ${IMAGE_REGISTRY}
   imagePullSecrets:
-    - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+    ${IMAGE_REGISTRY_AUTH_SECRET_LIST}

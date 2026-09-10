@@ -4,7 +4,7 @@ locals {
     CLUSTER_DOMAIN             = var.cluster_domain
     NAMESPACE                  = var.tenant
     IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
+    IMAGE_REGISTRY_AUTH_SECRET_LIST = var.image_registry_auth_secret_list
     IMAGE_REPOSITORY           = var.image_repository
     IMAGE_TAG                  = var.image_tag
     KEYCLOAK_CLIENT_ID         = var.keycloak_client_id
