@@ -15,7 +15,7 @@ webhookRestart:
 
 webapp:
   domainName: ${CLUSTER_DOMAIN}
-  publicUrl: ${NAMESPACE}/webapp
+  publicUrl: /${NAMESPACE}/webapp
   server:
     image:
       repository: ${REGISTRY}/${COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_NAME}

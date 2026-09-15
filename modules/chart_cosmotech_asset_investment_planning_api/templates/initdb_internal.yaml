@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: postgresql-init-cosmotech-run-api
+  name: postgresql-init-cosmotech-asset-investment-planning
   namespace: ${NAMESPACE}
 spec:
   backoffLimit: 0
@@ -9,7 +9,7 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - name: postgresql-init-cosmotech-run-api
+        - name: postgresql-init-cosmotech-asset-investment-planning
           image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
@@ -20,28 +20,25 @@ spec:
               export PGPORT='${DB_PORT}'
 
               DB_NAME='${DB_NAME}'
+              SCHEMA_NAME='${DB_SCHEMA_NAME}'
               ADMIN_USER='${DB_ADMIN_USERNAME}'
               ADMIN_PASS='${DB_ADMIN_PASSWORD}'
-              WRITER_USER='${DB_WRITER_USERNAME}'
-              WRITER_PASS='${DB_WRITER_PASSWORD}'
-              READER_USER='${DB_READER_USERNAME}'
-              READER_PASS='${DB_READER_PASSWORD}'
 
+              # Database
               if ! psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
                 echo "Creating database $DB_NAME..."
                 psql -U postgres -c "CREATE ROLE $ADMIN_USER WITH LOGIN PASSWORD '$ADMIN_PASS' CREATEDB;"
-                psql -U postgres -c "CREATE ROLE $WRITER_USER WITH LOGIN PASSWORD '$WRITER_PASS';"
-                psql -U postgres -c "CREATE ROLE $READER_USER WITH LOGIN PASSWORD '$READER_PASS';"
-                psql -U postgres -c "GRANT $WRITER_USER TO $ADMIN_USER;"
-                psql -U postgres -c "GRANT $READER_USER TO $ADMIN_USER;"
                 psql -U postgres -c "CREATE DATABASE $DB_NAME WITH OWNER $ADMIN_USER;"
-
-                export PGPASSWORD="$ADMIN_PASS"
-                psql -U $ADMIN_USER -d $DB_NAME -c "CREATE SCHEMA inputs AUTHORIZATION $WRITER_USER;"
-                psql -U $ADMIN_USER -d $DB_NAME -c "GRANT USAGE ON SCHEMA inputs TO $READER_USER;"
-                psql -U $ADMIN_USER -d $DB_NAME -c "ALTER DEFAULT PRIVILEGES IN SCHEMA inputs GRANT SELECT ON TABLES TO $READER_USER;"
               else
                 echo "Database $DB_NAME already exists, skipping."
+              fi
+
+              # Schema
+              if ! psql -U postgres -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name = '$SCHEMA_NAME'" | grep -q 1; then
+                echo "Creating schema $SCHEMA_NAME in database $DB_NAME..."
+                psql -U postgres -d $DB_NAME -c "CREATE SCHEMA IF NOT EXISTS $SCHEMA_NAME AUTHORIZATION $ADMIN_USER;"
+              else
+                echo "Schema $SCHEMA_NAME already exists in database $DB_NAME. Skipping creation."
               fi
       nodeSelector:
         "cosmotech.com/tier": services

@@ -19,8 +19,7 @@ terraform {
       version = "~> 2.4.1"
     }
     grafana = {
-      source = "grafana/grafana"
-      # version = "~> 4.14.0"
+      source  = "grafana/grafana"
       version = "~> 4.46.0"
     }
     harbor = {
@@ -29,7 +28,7 @@ terraform {
     }
     keycloak = {
       source  = "keycloak/keycloak"
-      version = "~> 5.7.0"
+      version = "~> 5.8.0"
     }
     postgresql = {
       source  = "cyrilgdn/postgresql"

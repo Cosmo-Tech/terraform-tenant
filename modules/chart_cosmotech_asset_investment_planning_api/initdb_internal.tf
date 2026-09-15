@@ -6,16 +6,13 @@ locals {
     REGISTRY_AUTH_SECRET  = var.registry_auth_secret
     POSTGRESQL_IMAGE_NAME = var.internal_postgresql_image_name
     POSTGRESQL_IMAGE_TAG  = var.internal_postgresql_image_tag
-    DB_HOST               = local.db_target.db_host
-    DB_PORT               = local.db_target.db_port
-    DB_POSTGRES_PASSWORD  = local.db_target.db_password
-    DB_NAME               = local.db_target.db_name
-    DB_ADMIN_USERNAME     = local.db_target.admin_username
-    DB_WRITER_USERNAME    = local.db_target.writer_username
-    DB_READER_USERNAME    = local.db_target.reader_username
-    DB_ADMIN_PASSWORD     = local.db_target.admin_password
-    DB_WRITER_PASSWORD    = local.db_target.writer_password
-    DB_READER_PASSWORD    = local.db_target.reader_password
+    DB_HOST               = var.database_host
+    DB_PORT               = var.database_port
+    DB_NAME               = var.database_name
+    DB_POSTGRES_PASSWORD  = data.kubernetes_secret.postgresql-config.data["password"]
+    DB_ADMIN_USERNAME     = local.database_admin_username
+    DB_ADMIN_PASSWORD     = local.database_admin_password
+    DB_SCHEMA_NAME        = local.database_schema_name
   }
 }
 

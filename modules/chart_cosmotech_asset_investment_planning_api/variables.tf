@@ -34,15 +34,27 @@ variable "cosmotech_asset_investment_planning_api_image_tag" {
   type = string
 }
 
-variable "postgresql_host" {
+variable "use_external_postgresql" {
   type = string
 }
 
-variable "postgresql_port" {
+variable "internal_postgresql_image_name" {
   type = string
 }
 
-variable "postgresql_database" {
+variable "internal_postgresql_image_tag" {
+  type = string
+}
+
+variable "database_host" {
+  type = string
+}
+
+variable "database_port" {
+  type = string
+}
+
+variable "database_name" {
   type = string
 }
 

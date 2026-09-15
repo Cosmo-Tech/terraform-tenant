@@ -37,7 +37,3 @@ variable "cosmotech_asset_investment_planning_webapp_image_tag" {
 variable "cluster_domain" {
   type = string
 }
-
-variable "keycloak_client_id" {
-  type = string
-}

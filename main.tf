@@ -385,9 +385,12 @@ module "chart_cosmotech_asset_investment_planning_api" {
   cosmotech_asset_investment_planning_api_image_name = "${var.image_prefix_product}${var.cosmotech_asset_investment_planning_api_image_name}"
   cosmotech_asset_investment_planning_api_image_tag  = var.cosmotech_asset_investment_planning_api_image_tag
 
-  postgresql_host     = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
-  postgresql_port     = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
-  postgresql_database = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
+  use_external_postgresql        = var.use_external_postgresql
+  internal_postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  internal_postgresql_image_tag  = var.postgresql_image_tag
+  database_host                  = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  database_port                  = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  database_name                  = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
 
   cluster_domain = local.cluster_domain
 
@@ -417,8 +420,6 @@ module "chart_cosmotech_asset_investment_planning_webapp" {
   cosmotech_asset_investment_planning_webapp_image_tag  = var.cosmotech_asset_investment_planning_webapp_image_tag
 
   cluster_domain = local.cluster_domain
-
-  keycloak_client_id = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
 
   depends_on = [
     time_sleep.timer,

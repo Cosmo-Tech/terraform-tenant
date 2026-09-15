@@ -6,9 +6,11 @@ locals {
     REGISTRY_AUTH_SECRET                                  = var.registry_auth_secret
     COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_NAME = var.cosmotech_asset_investment_planning_webapp_image_name
     COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_TAG  = var.cosmotech_asset_investment_planning_webapp_image_tag
-    KEYCLOAK_CLIENT_ID                                    = var.keycloak_client_id
+    KEYCLOAK_CLIENT_ID                                    = local.keycloak_client_id
     CLUSTER_DOMAIN                                        = var.cluster_domain
   }
+
+  keycloak_client_id = "cosmotech-asset-investment-planning-webapp"
 }
 
 

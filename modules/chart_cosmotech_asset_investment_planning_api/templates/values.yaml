@@ -13,7 +13,7 @@ ingress:
   hosts:
     - host: "${CLUSTER_DOMAIN}"
       paths:
-        - path: /
+        - path: /${NAMESPACE}/api
           pathType: ImplementationSpecific
   annotations:
     kubernetes.io/ingress.class: traefik
@@ -22,6 +22,24 @@ ingress:
     secretName: "letsencrypt-prod-${NAMESPACE}"
     hosts:
       - "${CLUSTER_DOMAIN}"
+
+# ingress:
+#   enabled: true
+#   className: nginx
+#   annotations:
+#     cert-manager.io/cluster-issuer: letsencrypt-prod-tenant-aip-portfolio
+#     nginx.org/client-max-body-size: "0"
+#   hosts:
+#     - host: aks-dev-aip-portfolio.azure.platform.cosmotech.com
+#       paths:
+#         - path: /api/demo
+#           pathType: ImplementationSpecific
+#   tls:
+#     enabled: true
+#     hosts:
+#       - aks-dev-aip-portfolio.azure.platform.cosmotech.com
+#     secretName: letsencrypt-prod
+
 
 image:
   repository: ${REGISTRY}/${COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_NAME}
@@ -80,12 +98,12 @@ database:
 
 postgres:
   enabled: true
-  host: "${POSTGRESQL_HOST}"
-  port: "${POSTGRESQL_PORT}"
-  database: "${POSTGRESQL_DATABASE}"
-  username: "${POSTGRESQL_USERNAME}"
-  password: "${POSTGRESQL_PASSWORD}"
-  schema: "cosmotech_asset_investment_planning"
+  host: "${DB_HOST}"
+  port: "${DB_PORT}"
+  database: "${DB_NAME}"
+  username: "${DB_ADMIN_USERNAME}"
+  password: "${DB_ADMIN_PASSWORD}"
+  schema: "${DB_SCHEMA_NAME}"
 
 apiConfig:
   corsOrigin:

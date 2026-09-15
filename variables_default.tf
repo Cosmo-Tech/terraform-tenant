@@ -54,8 +54,8 @@ variable "cosmotech_modeling_api_storage_size" { default = 8 }
 
 
 ## Cosmo Tech Asset Data Layer
-variable "cosmotech_asset_data_layer_chart_name" { default = "cosmotech-asset-data-layer" }
-variable "cosmotech_asset_data_layer_chart_tag" { default = "changeme" }
+variable "cosmotech_asset_data_layer_chart_name" { default = "cosmotech-asset-data-layer-api" }
+variable "cosmotech_asset_data_layer_chart_tag" { default = "0.2.0" }
 variable "cosmotech_asset_data_layer_image_name" { default = "cosmotech-asset-data-layer" }
 variable "cosmotech_asset_data_layer_image_tag" { default = "changeme" }
 variable "cosmotech_asset_data_layer_storage_size" { default = 8 }
@@ -65,7 +65,7 @@ variable "cosmotech_asset_data_layer_storage_size" { default = 8 }
 variable "cosmotech_asset_investment_planning_api_chart_name" { default = "cosmotech-asset-investment-planning-api" }
 variable "cosmotech_asset_investment_planning_api_chart_tag" { default = "0.2.0" }
 variable "cosmotech_asset_investment_planning_api_image_name" { default = "cosmotech-asset-investment-planning-api" }
-variable "cosmotech_asset_investment_planning_api_image_tag" { default = "changeme" }
+variable "cosmotech_asset_investment_planning_api_image_tag" { default = "main" }
 variable "cosmotech_asset_investment_planning_api_storage_size" { default = 8 }
 
 
@@ -73,7 +73,7 @@ variable "cosmotech_asset_investment_planning_api_storage_size" { default = 8 }
 variable "cosmotech_asset_investment_planning_webapp_chart_name" { default = "cosmotech-asset-investment-planning-webapp" }
 variable "cosmotech_asset_investment_planning_webapp_chart_tag" { default = "0.2.0" }
 variable "cosmotech_asset_investment_planning_webapp_image_name" { default = "cosmotech-asset-investment-planning-webapp" }
-variable "cosmotech_asset_investment_planning_webapp_image_tag" { default = "changeme" }
+variable "cosmotech_asset_investment_planning_webapp_image_tag" { default = "main" }
 
 
 ## Global
