@@ -26,8 +26,8 @@ variable "seaweedfs_storage_size" { default = 32 }
 ## Argo Workflows
 variable "argo_workflows_chart_name" { default = "argo-workflows" }
 variable "argo_workflows_chart_tag" { default = "13.0.6" }
-variable "argo_workflows_image_prefix" { default = "argo-workflow" }  ## Prefix, because Argo Workflows is composed of multiple images
-variable "argo_workflows_image_tag" { default = "4.0.10" }            ## All Argo Workflows images have the same tag
+variable "argo_workflows_image_prefix" { default = "argo-workflow" } ## Prefix, because Argo Workflows is composed of multiple images
+variable "argo_workflows_image_tag" { default = "4.0.10" }           ## All Argo Workflows images have the same tag
 
 
 ## Redis
@@ -40,7 +40,7 @@ variable "redis_storage_size" { default = 16 }
 
 ## Cosmo Tech Running API (Formerly "Cosmo Tech API")
 variable "cosmotech_run_api_chart_name" { default = "cosmotech-api" }
-variable "cosmotech_run_api_chart_tag" { default = "5.1.0" }
+variable "cosmotech_run_api_chart_tag" { default = "5.2.1" }
 variable "cosmotech_run_api_image_name" { default = "cosmotech-api" }
 variable "cosmotech_run_api_image_tag" { default = "5.1.0" }
 

@@ -114,8 +114,6 @@ tolerations:
 
 image:
   repository: ${REGISTRY}/${COSMOTECH_RUN_API_IMAGE_NAME}
+  pullSecret: ${REGISTRY_AUTH_SECRET}
   tag: ${COSMOTECH_RUN_API_IMAGE_TAG}
   pullPolicy: IfNotPresent
-
-imagePullSecrets:
-  - name: ${REGISTRY_AUTH_SECRET}

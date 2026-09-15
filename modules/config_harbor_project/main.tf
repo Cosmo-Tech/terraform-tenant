@@ -9,7 +9,7 @@ terraform {
 
 # -- Project ---
 resource "harbor_project" "tenant" {
-  name = var.tenant
+  name = var.namespace
 }
 # -- Project ---
 
@@ -25,15 +25,15 @@ resource "random_password" "password" {
 
 resource "kubernetes_secret" "harbor_tenant" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "harbor"
   }
 
   data = {
-    "project" : var.tenant,
-    "username" : var.tenant,
+    "project" : var.namespace,
+    "username" : var.namespace,
     "password" : random_password.password.result,
-    "email" : "${var.tenant}@${var.tenant}.local", # email is mandatory, this is just a fake one but it can be anything
+    "email" : "${var.namespace}@${var.namespace}.local", # email is mandatory, this is just a fake one but it can be anything
   }
 
   type = "Opaque"
@@ -42,7 +42,7 @@ resource "kubernetes_secret" "harbor_tenant" {
 # This secret (under that form/type) is used by the APIs and submitted Argo workflows to access the needed images
 resource "kubernetes_secret" "harbor_tenant_docker" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "harbor-docker"
   }
 
@@ -50,9 +50,9 @@ resource "kubernetes_secret" "harbor_tenant_docker" {
     ".dockerconfigjson" = jsonencode({
       auths = {
         (var.cluster_domain) = {
-          "username" = var.tenant
+          "username" = var.namespace
           "password" = random_password.password.result
-          "auth"     = base64encode("${var.tenant}:${random_password.password.result}")
+          "auth"     = base64encode("${var.namespace}:${random_password.password.result}")
         }
       }
     })

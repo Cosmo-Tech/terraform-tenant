@@ -1,4 +1,4 @@
-variable "tenant" {
+variable "namespace" {
   type = string
 }
 

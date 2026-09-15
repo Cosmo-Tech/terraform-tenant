@@ -19,8 +19,9 @@ terraform {
       version = "~> 2.4.1"
     }
     grafana = {
-      source  = "grafana/grafana"
-      version = "~> 4.14.0"
+      source = "grafana/grafana"
+      # version = "~> 4.14.0"
+      version = "~> 4.46.0"
     }
     harbor = {
       source  = "goharbor/harbor"
@@ -79,7 +80,7 @@ data "kubernetes_secret" "grafana" {
 
 provider "grafana" {
   url  = "https://${local.cluster_domain}/monitoring"
-  auth = "admin:${data.kubernetes_secret.grafana.data["admin-password"]}"
+  auth = "${data.kubernetes_secret.grafana.data["admin-user"]}:${data.kubernetes_secret.grafana.data["admin-password"]}"
 }
 
 

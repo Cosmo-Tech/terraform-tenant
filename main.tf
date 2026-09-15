@@ -80,7 +80,7 @@ module "config_keycloak_realm" {
   count  = contains(local.tenant_recipe_modules, "config_keycloak_realm") ? 1 : 0
   source = "./modules/config_keycloak_realm"
 
-  tenant         = local.tenant_namespace
+  namespace      = local.tenant_namespace
   cluster_domain = local.cluster_domain
 }
 
@@ -431,7 +431,7 @@ module "config_grafana_dashboard" {
   count  = contains(local.tenant_recipe_modules, "config_grafana_dashboard") ? 1 : 0
   source = "./modules/config_grafana_dashboard"
 
-  tenant         = local.tenant_namespace
+  namespace      = local.tenant_namespace
   cluster_domain = local.cluster_domain
   secret_redis   = try(one(module.chart_redis[*].redis_secret), null)
 
@@ -445,7 +445,7 @@ module "config_harbor_project" {
   count  = contains(local.tenant_recipe_modules, "config_harbor_project") ? 1 : 0
   source = "./modules/config_harbor_project"
 
-  tenant         = local.tenant_namespace
+  namespace      = local.tenant_namespace
   cluster_domain = local.cluster_domain
 }
 
@@ -454,7 +454,7 @@ module "config_superset_oauth_provider" {
   count  = contains(local.tenant_recipe_modules, "config_superset_oauth_provider") ? 1 : 0
   source = "./modules/config_superset_oauth_provider"
 
-  tenant         = local.tenant_namespace
+  namespace      = local.tenant_namespace
   cluster_domain = local.cluster_domain
 
   depends_on = [
