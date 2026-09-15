@@ -1,4 +1,4 @@
-variable "tenant" {
+variable "namespace" {
   type = string
 }
 
@@ -18,19 +18,19 @@ variable "chart_release" {
   type = string
 }
 
-variable "image_registry" {
+variable "registry" {
   type = string
 }
 
-# variable "image_registry_auth_secret" {
-#   type = string
-# }
-
-variable "image_repository" {
+variable "registry_auth_secret" {
   type = string
 }
 
-variable "image_tag" {
+variable "cosmotech_asset_investment_planning_api_image_name" {
+  type = string
+}
+
+variable "cosmotech_asset_investment_planning_api_image_tag" {
   type = string
 }
 

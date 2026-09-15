@@ -1,19 +1,19 @@
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
-    CLUSTER_DOMAIN             = var.cluster_domain
-    NAMESPACE                  = var.tenant
-    IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET_LIST = var.image_registry_auth_secret_list
-    IMAGE_REPOSITORY           = var.image_repository
-    IMAGE_TAG                  = var.image_tag
-    KEYCLOAK_CLIENT_ID         = var.keycloak_client_id
+    NAMESPACE                                             = var.namespace
+    REGISTRY                                              = var.registry
+    REGISTRY_AUTH_SECRET                                  = var.registry_auth_secret
+    COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_NAME = var.cosmotech_asset_investment_planning_webapp_image_name
+    COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_TAG  = var.cosmotech_asset_investment_planning_webapp_image_tag
+    KEYCLOAK_CLIENT_ID                                    = var.keycloak_client_id
+    CLUSTER_DOMAIN                                        = var.cluster_domain
   }
 }
 
 
 resource "helm_release" "cosmotech_asset_investment_planning_webapp" {
-  namespace  = var.tenant
+  namespace  = var.namespace
   name       = var.chart_release
   repository = var.chart_repository
   chart      = var.chart_name
@@ -34,7 +34,7 @@ resource "helm_release" "cosmotech_asset_investment_planning_webapp" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
   ]
 }
 

@@ -12,32 +12,32 @@ terraform {
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
-    CLUSTER_DOMAIN             = var.cluster_domain
-    NAMESPACE                  = var.tenant
-    NAMESPACE_MONITORING       = "monitoring"
-    KEYCLOAK_CLIENT_ID         = var.keycloak_client_id
-    KEYCLOAK_CLIENT_PASSWORD   = var.keycloak_client_secret
-    REDIS_PASSWORD             = data.kubernetes_secret.redis.data["redis-password"]
-    REDIS_PORT                 = "6379"
-    S3_ENDPOINT                = "http://${var.s3_host}:${var.s3_port}"
-    S3_BUCKET                  = var.s3_bucket
-    S3_USERNAME                = data.kubernetes_secret.s3.data[var.s3_secret_key_username]
-    S3_PASSWORD                = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
-    POSTGRESQL_DATABASE_HOST   = local.db_target.db_host
-    POSTGRESQL_DATABASE_NAME   = local.db_target.db_name
-    POSTGRESQL_ADMIN_USERNAME  = local.db_target.admin_username
-    POSTGRESQL_WRITER_USERNAME = local.db_target.writer_username
-    POSTGRESQL_READER_USERNAME = local.db_target.reader_username
-    POSTGRESQL_ADMIN_PASSWORD  = local.db_target.admin_password
-    POSTGRESQL_WRITER_PASSWORD = local.db_target.writer_password
-    POSTGRESQL_READER_PASSWORD = local.db_target.reader_password
-    SIMU_REGISTRY_URL          = var.cluster_domain
-    SIMU_REGISTRY_USERNAME     = data.kubernetes_secret.registry.data["username"]
-    SIMU_REGISTRY_PASSWORD     = data.kubernetes_secret.registry.data["password"]
-    IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret_list
-    IMAGE_REPOSITORY           = var.image_repository
-    IMAGE_TAG                  = var.image_tag
+    NAMESPACE                    = var.namespace
+    REGISTRY                     = var.registry
+    REGISTRY_AUTH_SECRET         = var.registry_auth_secret
+    COSMOTECH_RUN_API_IMAGE_NAME = var.cosmotech_run_api_image_name
+    COSMOTECH_RUN_API_IMAGE_TAG  = var.cosmotech_run_api_image_tag
+    CLUSTER_DOMAIN               = var.cluster_domain
+    NAMESPACE_MONITORING         = "monitoring"
+    KEYCLOAK_CLIENT_ID           = var.keycloak_client_id
+    KEYCLOAK_CLIENT_PASSWORD     = var.keycloak_client_secret
+    REDIS_PASSWORD               = data.kubernetes_secret.redis.data["redis-password"]
+    REDIS_PORT                   = "6379"
+    S3_ENDPOINT                  = "http://${var.s3_host}:${var.s3_port}"
+    S3_BUCKET                    = var.s3_bucket
+    S3_USERNAME                  = data.kubernetes_secret.s3.data[var.s3_secret_key_username]
+    S3_PASSWORD                  = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
+    POSTGRESQL_DATABASE_HOST     = local.db_target.db_host
+    POSTGRESQL_DATABASE_NAME     = local.db_target.db_name
+    POSTGRESQL_ADMIN_USERNAME    = local.db_target.admin_username
+    POSTGRESQL_WRITER_USERNAME   = local.db_target.writer_username
+    POSTGRESQL_READER_USERNAME   = local.db_target.reader_username
+    POSTGRESQL_ADMIN_PASSWORD    = local.db_target.admin_password
+    POSTGRESQL_WRITER_PASSWORD   = local.db_target.writer_password
+    POSTGRESQL_READER_PASSWORD   = local.db_target.reader_password
+    SIMU_REGISTRY_URL            = var.cluster_domain
+    SIMU_REGISTRY_USERNAME       = data.kubernetes_secret.registry.data["username"]
+    SIMU_REGISTRY_PASSWORD       = data.kubernetes_secret.registry.data["password"]
   }
 
   raw_db_admin_username  = "cosmotech_api_admin"
@@ -47,7 +47,7 @@ locals {
   raw_db_writer_password = random_password.api_writer_password.result
   raw_db_reader_password = random_password.api_reader_password.result
 
-  db_role_prefix = replace(var.tenant, "-", "_")
+  db_role_prefix = replace(var.namespace, "-", "_")
 
   db_target = var.use_external_postgresql ? {
     ## External
@@ -55,7 +55,7 @@ locals {
     db_port         = var.external_postgresql_port
     db_username     = var.external_postgresql_username
     db_password     = var.external_postgresql_password
-    db_name         = var.tenant
+    db_name         = var.namespace
     admin_username  = "${local.db_role_prefix}_${local.raw_db_admin_username}"
     writer_username = "${local.db_role_prefix}_${local.raw_db_writer_username}"
     reader_username = "${local.db_role_prefix}_${local.raw_db_reader_username}"
@@ -81,7 +81,7 @@ locals {
 
 data "kubernetes_secret" "redis" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "redis"
   }
 }
@@ -89,7 +89,7 @@ data "kubernetes_secret" "redis" {
 
 data "kubernetes_secret" "s3" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = var.s3_secret
   }
 }
@@ -97,7 +97,7 @@ data "kubernetes_secret" "s3" {
 
 data "kubernetes_secret" "postgresql-config" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "postgresql-config"
   }
 }
@@ -105,7 +105,7 @@ data "kubernetes_secret" "postgresql-config" {
 
 data "kubernetes_secret" "keycloak" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "keycloak-cosmotech-client-api"
   }
 }
@@ -113,7 +113,7 @@ data "kubernetes_secret" "keycloak" {
 
 data "kubernetes_secret" "registry" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "harbor"
   }
 }
@@ -140,8 +140,8 @@ resource "kubernetes_secret" "api_cert" {
 
 
 resource "helm_release" "cosmotech_api" {
-  namespace  = var.tenant
-  name       = "${var.chart_release}-${var.tenant}"
+  namespace  = var.namespace
+  name       = "${var.chart_release}-${var.namespace}"
   repository = var.chart_repository
   chart      = var.chart_name
   version    = var.chart_tag
@@ -161,7 +161,7 @@ resource "helm_release" "cosmotech_api" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
   ]
 }
 
@@ -186,7 +186,7 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
   type = "Opaque"
 
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "postgresql-cosmotechapi"
   }
 

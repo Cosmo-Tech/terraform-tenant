@@ -24,12 +24,12 @@ ingress:
       - "${CLUSTER_DOMAIN}"
 
 image:
-  repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
-  tag: ${IMAGE_TAG}
+  repository: ${REGISTRY}/${COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_NAME}
+  tag: ${COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_TAG}
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
-  ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
+  - name: ${REGISTRY_AUTH_SECRET}
 
 replicaCount: 1
 

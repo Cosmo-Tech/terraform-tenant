@@ -113,6 +113,9 @@ tolerations:
   effect: NoSchedule
 
 image:
-  repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
-  tag: ${IMAGE_TAG}
+  repository: ${REGISTRY}/${COSMOTECH_RUN_API_IMAGE_NAME}
+  tag: ${COSMOTECH_RUN_API_IMAGE_TAG}
   pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: ${REGISTRY_AUTH_SECRET}

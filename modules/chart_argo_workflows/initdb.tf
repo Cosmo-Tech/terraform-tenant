@@ -10,17 +10,17 @@ terraform {
 locals {
   initdb_template = templatefile("${path.module}/templates/initdb.yaml", local.initdb_values)
   initdb_values = {
-    NAMESPACE                   = var.tenant
-    IMAGE_REGISTRY              = var.image_registry
-    # IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
-    POSTGRESQL_IMAGE_REPOSITORY = var.postgresql_image_repository
-    POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
-    DB_HOST                     = var.database_host
-    DB_PORT                     = var.database_port
-    DB_POSTGRES_PASSWORD        = data.kubernetes_secret.postgresql-config.data["password"]
-    ARGO_DATABASE               = kubernetes_secret.postgresql-argo.data["database-name"]
-    ARGO_USERNAME               = kubernetes_secret.postgresql-argo.data["database-username"]
-    ARGO_PASSWORD               = kubernetes_secret.postgresql-argo.data["database-password"]
+    NAMESPACE             = var.namespace
+    REGISTRY              = var.registry
+    REGISTRY_AUTH_SECRET  = var.registry_auth_secret
+    POSTGRESQL_IMAGE_NAME = var.postgresql_image_name
+    POSTGRESQL_IMAGE_TAG  = var.postgresql_image_tag
+    DB_HOST               = var.database_host
+    DB_PORT               = var.database_port
+    DB_POSTGRES_PASSWORD  = data.kubernetes_secret.postgresql-config.data["password"]
+    ARGO_DATABASE         = kubernetes_secret.postgresql-argo.data["database-name"]
+    ARGO_USERNAME         = kubernetes_secret.postgresql-argo.data["database-username"]
+    ARGO_PASSWORD         = kubernetes_secret.postgresql-argo.data["database-password"]
   }
 }
 
@@ -44,7 +44,7 @@ resource "terraform_data" "initdb_trigger" {
 
 data "kubernetes_secret" "postgresql-config" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "postgresql-config"
   }
 }
@@ -55,7 +55,7 @@ resource "kubernetes_secret" "postgresql-argo" {
   type = "Opaque"
 
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "postgresql-argo"
   }
 

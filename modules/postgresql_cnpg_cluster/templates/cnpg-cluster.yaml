@@ -5,9 +5,9 @@ metadata:
   namespace: ${NAMESPACE}
 spec:
   instances: 1
-  imageName: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
+  imageName: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
   imagePullSecrets:
-    - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+    - name: ${REGISTRY_AUTH_SECRET}
   inheritedMetadata:
       labels:
         networking/traffic-allowed: "yes"    

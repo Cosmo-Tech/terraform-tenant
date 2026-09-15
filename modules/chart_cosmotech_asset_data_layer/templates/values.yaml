@@ -31,12 +31,12 @@ apiConfig:
     - https://${CLUSTER_DOMAIN}/adl/main
 
 image:
-  repository: ${IMAGE_REPOSITORY}
-  tag: ${IMAGE_TAG}
+  repository: ${REGISTRY}/${COSMOTECH_ASSET_DATA_LAYER_IMAGE_NAME}
+  tag: ${COSMOTECH_ASSET_DATA_LAYER_IMAGE_TAG}
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
-  ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
+  - name: ${REGISTRY_AUTH_SECRET}
 
 replicaCount: 1
 

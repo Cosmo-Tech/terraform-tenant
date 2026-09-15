@@ -1,23 +1,23 @@
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
-    CLUSTER_DOMAIN             = var.cluster_domain
-    NAMESPACE                  = var.tenant
-    IMAGE_REGISTRY             = var.image_registry
-    # IMAGE_REGISTRY_AUTH_SECRET = var.image_registry_auth_secret
-    IMAGE_REPOSITORY           = var.image_repository
-    IMAGE_TAG                  = var.image_tag
-    POSTGRESQL_HOST            = var.postgresql_host
-    POSTGRESQL_PORT            = var.postgresql_port
-    POSTGRESQL_DATABASE        = var.postgresql_database
-    POSTGRESQL_USERNAME        = data.kubernetes_secret.postgresql-config.data["username"]
-    POSTGRESQL_PASSWORD        = data.kubernetes_secret.postgresql-config.data["password"]
+    NAMESPACE                                          = var.namespace
+    REGISTRY                                           = var.registry
+    REGISTRY_AUTH_SECRET                               = var.registry_auth_secret
+    COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_NAME = var.cosmotech_asset_investment_planning_api_image_name
+    COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_TAG  = var.cosmotech_asset_investment_planning_api_image_tag
+    POSTGRESQL_HOST                                    = var.postgresql_host
+    POSTGRESQL_PORT                                    = var.postgresql_port
+    POSTGRESQL_DATABASE                                = var.postgresql_database
+    POSTGRESQL_USERNAME                                = data.kubernetes_secret.postgresql-config.data["username"]
+    POSTGRESQL_PASSWORD                                = data.kubernetes_secret.postgresql-config.data["password"]
+    CLUSTER_DOMAIN                                     = var.cluster_domain
   }
 }
 
 
 resource "helm_release" "cosmotech_asset_investment_planning_api" {
-  namespace  = var.tenant
+  namespace  = var.namespace
   name       = var.chart_release
   repository = var.chart_repository
   chart      = var.chart_name
@@ -38,7 +38,7 @@ resource "helm_release" "cosmotech_asset_investment_planning_api" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
   ]
 }
 
@@ -60,7 +60,7 @@ data "kubernetes_resources" "helm_release_secret" {
 
 data "kubernetes_secret" "postgresql-config" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "postgresql-config"
   }
 }

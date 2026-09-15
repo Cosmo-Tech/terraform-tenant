@@ -18,15 +18,15 @@ variable "chart_release" {
   type = string
 }
 
-variable "image_registry" {
+variable "registry" {
   type = string
 }
 
-variable "image_registry_auth_secret" {
+variable "registry_auth_secret" {
   type = string
 }
 
-variable "image_repository_prefix" {
+variable "cosmotech_asset_data_layer_image_name" {
   type = string
 }
 

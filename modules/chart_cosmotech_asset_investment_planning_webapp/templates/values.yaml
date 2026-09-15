@@ -18,10 +18,10 @@ webapp:
   publicUrl: ${NAMESPACE}/webapp
   server:
     image:
-      repository: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}
-      tag: ${IMAGE_TAG}
+      repository: ${REGISTRY}/${COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_NAME}
+      tag: ${COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_TAG}
       pullPolicy: IfNotPresent
-      pullSecret: ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
+      pullSecret: ${REGISTRY_AUTH_SECRET}
     nodeSelector:
       cosmotech.com/tier: services
     tolerations:

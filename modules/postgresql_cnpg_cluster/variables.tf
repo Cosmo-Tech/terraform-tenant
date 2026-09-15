@@ -1,20 +1,20 @@
-variable "tenant" {
+variable "namespace" {
   type = string
 }
 
-variable "image_registry" {
+variable "registry" {
   type = string
 }
 
-variable "image_registry_auth_secret" {
+variable "registry_auth_secret" {
   type = string
 }
 
-variable "image_repository" {
+variable "postgresql_image_name" {
   type = string
 }
 
-variable "image_tag" {
+variable "postgresql_image_tag" {
   type = string
 }
 
@@ -27,13 +27,5 @@ variable "pvc" {
 }
 
 variable "pvc_storage_class" {
-  type = string
-}
-
-variable "postgresql_image_repository" {
-  type = string
-}
-
-variable "postgresql_image_tag" {
   type = string
 }

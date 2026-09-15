@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgresql-init-cosmotechapi
-          image: ${IMAGE_REGISTRY}/${POSTGRESQL_IMAGE_REPOSITORY}:${POSTGRESQL_IMAGE_TAG}
+          image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
@@ -52,4 +52,4 @@ spec:
           effect: "NoSchedule"
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
+        - name: ${REGISTRY_AUTH_SECRET}

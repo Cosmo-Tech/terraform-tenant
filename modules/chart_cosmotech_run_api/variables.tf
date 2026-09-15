@@ -1,4 +1,4 @@
-variable "tenant" {
+variable "namespace" {
   type = string
 }
 
@@ -18,19 +18,27 @@ variable "chart_release" {
   type = string
 }
 
-variable "image_registry" {
+variable "registry" {
   type = string
 }
 
-variable "image_registry_auth_secret_list" {
+variable "registry_auth_secret" {
   type = string
 }
 
-variable "image_repository" {
+variable "cosmotech_run_api_image_name" {
   type = string
 }
 
-variable "image_tag" {
+variable "cosmotech_run_api_image_tag" {
+  type = string
+}
+
+variable "internal_postgresql_image_name" {
+  type = string
+}
+
+variable "internal_postgresql_image_tag" {
   type = string
 }
 
@@ -91,14 +99,6 @@ variable "internal_postgresql_host" {
 }
 
 variable "internal_postgresql_port" {
-  type = string
-}
-
-variable "internal_postgresql_image_repository" {
-  type = string
-}
-
-variable "internal_postgresql_image_tag" {
   type = string
 }
 

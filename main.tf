@@ -100,19 +100,17 @@ module "postgresql_cnpg_cluster" {
   count  = contains(local.tenant_recipe_modules, "postgresql_cnpg_cluster") ? 1 : 0
   source = "./modules/postgresql_cnpg_cluster"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-  image_registry             = var.postgresql_image_registry
- image_registry_auth_secret               = = var.postgresql_image_registry_auth_secretimage_registry_auth_secret
-  image_repository           = var.postgresql_image_repository
-  image_tag                  = var.postgresql_image_tag
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  postgresql_image_tag  = var.postgresql_image_tag
 
   size              = local.persistences.postgresql["size"]
   pvc               = local.persistences.postgresql["pvc_name"]
   pvc_storage_class = local.storage_class_name
-
-  postgresql_image_repository = var.postgresql_image_repository
-  postgresql_image_tag        = var.postgresql_image_tag
 
   depends_on = [
     time_sleep.timer,
@@ -124,21 +122,24 @@ module "chart_seaweedfs" {
   count  = contains(local.tenant_recipe_modules, "chart_seaweedfs") ? 1 : 0
   source = "./modules/chart_seaweedfs"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_thirdparty}"
   chart_name       = var.seaweedfs_chart_name
   chart_tag        = var.seaweedfs_chart_tag
   chart_release    = "seaweedfs"
 
-  image_registry                           = var.seaweedfs_image_registry
- image_registry_auth_secret               =               = var.seaweedfs_image_registry_auth_secret
-  seaweedfs_image_repository               = var.seaweedfs_image_repository
-  seaweedfs_image_tag                      = var.seaweedfs_image_tag
-  generic_shell_image_registry             = var.generic_shell_image_registry
-  generic_shell_image_registry_auth_secret = var.generic_shell_image_registry_auth_secret
-  generic_shell_image_repository           = var.generic_shell_image_repository
-  generic_shell_image_tag                  = var.generic_shell_image_tag
+  seaweedfs_image_name = "${var.image_prefix_thirdparty}${var.seaweedfs_image_name}"
+  seaweedfs_image_tag  = var.seaweedfs_image_tag
+
+  postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  postgresql_image_tag  = var.postgresql_image_tag
+
+  generic_shell_image_name = "${var.image_prefix_thirdparty}${var.generic_shell_image_name}"
+  generic_shell_image_tag  = var.generic_shell_image_tag
 
   size_master              = local.persistences.seaweedfs-master["size"]
   pvc_master               = local.persistences.seaweedfs-master["pvc_name"]
@@ -153,9 +154,6 @@ module "chart_seaweedfs" {
   database_host = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
   database_port = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
 
-  postgresql_image_repository = var.postgresql_image_repository
-  postgresql_image_tag        = var.postgresql_image_tag
-
   depends_on = [
     time_sleep.timer,
     module.postgresql_cnpg_cluster,
@@ -163,21 +161,25 @@ module "chart_seaweedfs" {
 }
 
 
-module "chart_argo" {
-  count  = contains(local.tenant_recipe_modules, "chart_argo") ? 1 : 0
-  source = "./modules/chart_argo"
+module "chart_argo_workflows" {
+  count  = contains(local.tenant_recipe_modules, "chart_argo_workflows") ? 1 : 0
+  source = "./modules/chart_argo_workflows"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_thirdparty}"
   chart_name       = var.argo_workflows_chart_name
   chart_tag        = var.argo_workflows_chart_tag
   chart_release    = "argo-workflows"
 
-  image_registry             = var.argo_workflows_image_registry
- image_registry_auth_secret               = = var.argo_workflows_image_registry_auth_secret
-  image_repository_prefix           = var.argo_workflows_image_repository_prefix
-  image_tag = var.argo_workflows_image_tag
+  argo_workflows_image_prefix = "${var.image_prefix_thirdparty}${var.argo_workflows_image_prefix}"
+  argo_workflows_image_tag    = var.argo_workflows_image_tag
+
+  postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  postgresql_image_tag  = var.postgresql_image_tag
 
   database_host   = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
   database_port   = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
@@ -187,16 +189,14 @@ module "chart_argo" {
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
-  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_workflows_bucket), null)
+  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_bucket), null)
   s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
-  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_workflows_username), null)
-  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_workflows_password), null)
-
-  postgresql_image_repository = var.postgresql_image_repository
-  postgresql_image_tag        = var.postgresql_image_tag
+  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_username), null)
+  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_password), null)
 
   depends_on = [
     time_sleep.timer,
+    module.chart_seaweedfs,
     module.postgresql_cnpg_cluster,
   ]
 }
@@ -206,17 +206,21 @@ module "chart_redis" {
   count  = contains(local.tenant_recipe_modules, "chart_redis") ? 1 : 0
   source = "./modules/chart_redis"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_thirdparty}"
   chart_name       = var.redis_chart_name
   chart_tag        = var.redis_chart_tag
   chart_release    = "redis"
 
-  image_registry             = var.redis_image_registry
- image_registry_auth_secret               = = var.redis_image_registry_auth_secret
-  image_repository           = var.redis_image_repository
-  image_tag                  = var.redis_image_tag
+  redis_image_name = "${var.image_prefix_thirdparty}${var.redis_image_name}"
+  redis_image_tag  = var.redis_image_tag
+
+  generic_shell_image_name = "${var.image_prefix_thirdparty}${var.generic_shell_image_name}"
+  generic_shell_image_tag  = var.generic_shell_image_tag
 
   size_master              = local.persistences.redis-master["size"]
   pvc_master               = local.persistences.redis-master["pvc_name"]
@@ -225,12 +229,6 @@ module "chart_redis" {
   size_replica              = local.persistences.redis-replica["size"]
   pvc_replica               = local.persistences.redis-replica["pvc_name"]
   pvc_replica_storage_class = local.storage_class_name
-
-  redis_image_repository = var.redis_image_repository
-  redis_image_tag        = var.redis_image_tag
-
-  generic_shell_image_repository = var.generic_shell_image_repository
-  generic_shell_image_tag        = var.generic_shell_image_tag
 
   depends_on = [
     time_sleep.timer,
@@ -242,17 +240,18 @@ module "chart_cosmotech_run_api" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_run_api") ? 1 : 0
   source = "./modules/chart_cosmotech_run_api"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
-  chart_name       = var.cosmotech_running_api_chart_name
-  chart_tag        = var.cosmotech_running_api_chart_tag
-  chart_release    = "cosmotech-running-api"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
 
-  image_registry             = var.cosmotech_running_api_image_registry
- image_registry_auth_secret               = = var.cosmotech_running_api_image_registry_auth_secret
-  image_repository           = var.cosmotech_running_api_image_repository
-  image_tag                  = var.cosmotech_running_api_image_tag
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
+  chart_name       = var.cosmotech_run_api_chart_name
+  chart_tag        = var.cosmotech_run_api_chart_tag
+  chart_release    = "cosmotech-run-api"
+
+  cosmotech_run_api_image_name = "${var.image_prefix_product}${var.cosmotech_run_api_image_name}"
+  cosmotech_run_api_image_tag  = var.cosmotech_run_api_image_tag
 
   use_external_postgresql      = var.use_external_postgresql
   external_postgresql_host     = var.external_postgresql_host
@@ -260,10 +259,10 @@ module "chart_cosmotech_run_api" {
   external_postgresql_username = var.external_postgresql_username
   external_postgresql_password = var.external_postgresql_password
 
-  internal_postgresql_host             = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
-  internal_postgresql_port             = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
-  internal_postgresql_image_repository = var.postgresql_image_repository
-  internal_postgresql_image_tag        = var.postgresql_image_tag
+  internal_postgresql_host       = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  internal_postgresql_port       = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  internal_postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  internal_postgresql_image_tag  = var.postgresql_image_tag
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -280,7 +279,7 @@ module "chart_cosmotech_run_api" {
   depends_on = [
     time_sleep.timer,
     module.chart_redis,
-    module.chart_argo,
+    module.chart_argo_workflows,
     module.config_harbor_project,
     module.config_keycloak_realm,
   ]
@@ -291,33 +290,33 @@ module "chart_cosmotech_modeling_api" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_modeling_api") ? 1 : 0
   source = "./modules/chart_cosmotech_modeling_api"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
   chart_name       = var.cosmotech_modeling_api_chart_name
   chart_tag        = var.cosmotech_modeling_api_chart_tag
   chart_release    = "cosmotech-modeling-api"
 
-  image_registry             = var.cosmotech_modeling_api_image_registry
- image_registry_auth_secret               = = var.cosmotech_modeling_api_image_repository
-  image_repository           = var.cosmotech_modeling_api_image_repository
-  image_tag                  = var.cosmotech_modeling_api_image_tag
+  cosmotech_modeling_api_image_name = "${var.image_prefix_product}${var.cosmotech_modeling_api_image_name}"
+  cosmotech_modeling_api_image_tag  = var.cosmotech_modeling_api_image_tag
 
   pvc = local.persistences.cosmotech-modeling-api["pvc_name"]
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
-  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_workflows_bucket), null)
+  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_bucket), null)
   s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
   s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
   s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
-
 
   cluster_domain = local.cluster_domain
 
   depends_on = [
     time_sleep.timer,
-    module.chart_argo,
+    module.chart_argo_workflows,
     module.chart_seaweedfs,
   ]
 }
@@ -327,17 +326,18 @@ module "chart_cosmotech_asset_data_layer" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_data_layer") ? 1 : 0
   source = "./modules/chart_cosmotech_asset_data_layer"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
   chart_name       = var.cosmotech_asset_data_layer_chart_name
   chart_tag        = var.cosmotech_asset_data_layer_chart_tag
   chart_release    = "cosmotech-asset-data-layer"
 
-  image_registry             = var.cosmotech_asset_data_layer_image_registry
- image_registry_auth_secret               = = var.cosmotech_asset_data_layer_image_repository
-  image_repository           = var.cosmotech_asset_data_layer_image_repository
-  image_tag                  = var.cosmotech_asset_data_layer_image_tag
+  cosmotech_asset_data_layer_image_name = "${var.image_prefix_product}${var.cosmotech_asset_data_layer_image_name}"
+  cosmotech_asset_data_layer_image_tag  = var.cosmotech_asset_data_layer_image_tag
 
   persistence_size  = local.persistences.cosmotech-asset-data-layer["size"]
   persistence_pvc   = local.persistences.cosmotech-asset-data-layer["pvc_name"]
@@ -372,23 +372,24 @@ module "chart_cosmotech_asset_investment_planning_api" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_investment_planning_api") ? 1 : 0
   source = "./modules/chart_cosmotech_asset_investment_planning_api"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
   chart_name       = var.cosmotech_asset_investment_planning_api_chart_name
   chart_tag        = var.cosmotech_asset_investment_planning_api_chart_tag
   chart_release    = "cosmotech-asset-investment-planning-api"
 
-  image_registry             = var.cosmotech_asset_investment_planning_api_image_registry
- image_registry_auth_secret               = = var.cosmotech_asset_investment_planning_api_image_repository
-  image_repository           = var.cosmotech_asset_investment_planning_api_image_repository
-  image_tag                  = var.cosmotech_asset_investment_planning_api_image_tag
-
-  cluster_domain = local.cluster_domain
+  cosmotech_asset_investment_planning_api_image_name = "${var.image_prefix_product}${var.cosmotech_asset_investment_planning_api_image_name}"
+  cosmotech_asset_investment_planning_api_image_tag  = var.cosmotech_asset_investment_planning_api_image_tag
 
   postgresql_host     = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
   postgresql_port     = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
   postgresql_database = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
+
+  cluster_domain = local.cluster_domain
 
   depends_on = [
     time_sleep.timer,
@@ -402,17 +403,18 @@ module "chart_cosmotech_asset_investment_planning_webapp" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_investment_planning_webapp") ? 1 : 0
   source = "./modules/chart_cosmotech_asset_investment_planning_webapp"
 
-  tenant = local.tenant_namespace
+  namespace = local.tenant_namespace
 
-   chart_repository = "${var.helm_repo}/product-charts"
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
   chart_name       = var.cosmotech_asset_investment_planning_webapp_chart_name
   chart_tag        = var.cosmotech_asset_investment_planning_webapp_chart_tag
   chart_release    = "cosmotech-asset-investment-planning-webapp"
 
-  image_registry             = var.cosmotech_asset_investment_planning_webapp_image_registry
- image_registry_auth_secret               = = var.cosmotech_asset_investment_planning_webapp_image_repository
-  image_repository           = var.cosmotech_asset_investment_planning_webapp_image_repository
-  image_tag                  = var.cosmotech_asset_investment_planning_webapp_image_tag
+  cosmotech_asset_investment_planning_webapp_image_name = "${var.image_prefix_product}${var.cosmotech_asset_investment_planning_webapp_image_name}"
+  cosmotech_asset_investment_planning_webapp_image_tag  = var.cosmotech_asset_investment_planning_webapp_image_tag
 
   cluster_domain = local.cluster_domain
 

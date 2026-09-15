@@ -32,7 +32,7 @@
 
 
 # ## GLOBAL VARIABLES EXAMPLES
-# tenant_type = "running"
+# tenant_type = "run"
 # tenant_type = "modeling"
 # tenant_type = "asset"
 # tenant_type = "asset-investment-planning"
@@ -43,5 +43,3 @@
 # ## Do not store credentials in current file
 # export TF_VAR_external_postgresql_username="changeme"
 # export TF_VAR_external_postgresql_password="changeme"
-
-

@@ -1,21 +1,21 @@
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
-    SERVICE_ACCOUNT            = var.chart_release
-    DATABASE_HOST              = var.database_host
-    DATABASE_PORT              = var.database_port
-    DATABASE_NAME              = local.argo_db_name
-    DATABASE_USER              = local.argo_db_username
-    DATABASE_SECRET            = local.argo_db_secret
-    S3_ENDPOINT                = "${var.s3_host}:${var.s3_port}"
-    S3_BUCKET                  = var.s3_bucket
-    S3_SECRET                  = var.s3_secret
-    S3_SECRET_KEY_USERNAME     = var.s3_secret_key_username
-    S3_SECRET_KEY_PASSWORD     = var.s3_secret_key_password
-    IMAGE_REGISTRY             = var.image_registry
-    IMAGE_REPOSITORY_PREFIX             = var.image_repository_prefix
-    IMAGE_REGISTRY_AUTH_SECRET_LIST = var.image_registry_auth_secret_list
-    IMAGE_TAG                  = var.image_tag
+    REGISTRY                    = var.registry
+    REGISTRY_AUTH_SECRET        = var.registry_auth_secret
+    ARGO_WORKFLOWS_IMAGE_PREFIX = var.argo_workflows_image_prefix
+    ARGO_WORKFLOWS_IMAGE_TAG    = var.argo_workflows_image_tag
+    SERVICE_ACCOUNT             = var.chart_release
+    DATABASE_HOST               = var.database_host
+    DATABASE_PORT               = var.database_port
+    DATABASE_NAME               = local.argo_db_name
+    DATABASE_USER               = local.argo_db_username
+    DATABASE_SECRET             = local.argo_db_secret
+    S3_ENDPOINT                 = "${var.s3_host}:${var.s3_port}"
+    S3_BUCKET                   = var.s3_bucket
+    S3_SECRET                   = var.s3_secret
+    S3_SECRET_KEY_USERNAME      = var.s3_secret_key_username
+    S3_SECRET_KEY_PASSWORD      = var.s3_secret_key_password
   }
 
   argo_db_name     = "argo"
@@ -26,7 +26,7 @@ locals {
 
 
 resource "helm_release" "argo" {
-  namespace  = var.tenant
+  namespace  = var.namespace
   name       = var.chart_release
   repository = var.chart_repository
   chart      = var.chart_name
@@ -47,7 +47,7 @@ resource "helm_release" "argo" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
   ]
 }
 

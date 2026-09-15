@@ -129,7 +129,7 @@ mariadb:
 
 postgresql:
   image:
-    repository: "${POSTGRESQL_IMAGE_REPOSITORY}"
+    repository: "${POSTGRESQL_IMAGE_NAME}"
     tag: "${POSTGRESQL_IMAGE_TAG}"
     pullPolicy: IfNotPresent
   enabled: false  # disable the PostgreSQL provided from SeaweedFS chart
@@ -138,16 +138,16 @@ postgresql:
 volumePermissions:
   enabled: true
   image:
-    repository: ${GENERIC_SHELL_IMAGE_REPOSITORY}
+    repository: ${GENERIC_SHELL_IMAGE_NAME}
     tag: ${GENERIC_SHELL_IMAGE_TAG}
     pullPolicy: IfNotPresent
 
 image:
-  repository: ${SEAWEEDFS_IMAGE_REPOSITORY}
+  repository: ${SEAWEEDFS_IMAGE_NAME}
   tag: ${SEAWEEDFS_IMAGE_TAG}
   pullPolicy: IfNotPresent
 
 global:
-  imageRegistry: ${IMAGE_REGISTRY}
+  imageRegistry: ${REGISTRY}
   imagePullSecrets:
-    ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
+    - name: ${REGISTRY_AUTH_SECRET}

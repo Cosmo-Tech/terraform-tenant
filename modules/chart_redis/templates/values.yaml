@@ -92,20 +92,20 @@ replica:
       cpu: "2000m"
 
 image:
-  repository: ${REDIS_IMAGE_REPOSITORY}
+  repository: ${REDIS_IMAGE_NAME}
   tag: "${REDIS_IMAGE_TAG}"
   pullPolicy: IfNotPresent
 
 sysctl:
   image:
-    repository: ${GENERIC_SHELL_IMAGE_REPOSITORY}
-    tag: ${GENERIC_SHELL_IMAGE_TAG}
+    repository: ${GENERIC_SHELL_IMAGE_NAME}
+    tag: "${GENERIC_SHELL_IMAGE_TAG}"
     pullPolicy: IfNotPresent
 
 volumePermissions:
   enabled: false
 
 global:
-  imageRegistry: ${IMAGE_REGISTRY}
+  imageRegistry: ${REGISTRY}
   imagePullSecrets:
-    ${IMAGE_REGISTRY_AUTH_SECRET_LIST}
+    - name: ${REGISTRY_AUTH_SECRET}

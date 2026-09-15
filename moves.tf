@@ -55,3 +55,8 @@ moved {
   from = module.chart_cosmotech_api
   to   = module.chart_cosmotech_run_api
 }
+
+moved {
+  from = module.chart_argo
+  to   = module.chart_argo_workflows
+}
