@@ -23,6 +23,12 @@ filer:
       effect: NoSchedule
   podLabels:
     networking/traffic-allowed: "yes"
+  initContainers:
+    - name: wait-for-db-custom
+      image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
+      command: ['sh', '-c']
+      args:
+        - "until pg_isready -h ${DATABASE_HOST} -p ${DATABASE_PORT} -U ${DATABASE_USER}; do sleep 2; done;"
 
 s3:
   enabled: true
@@ -123,6 +129,7 @@ externalDatabase:
   database: ${DATABASE_NAME}
   user: ${DATABASE_USER}
   existingSecret: ${DATABASE_SECRET}
+  waitForDatabaseEnabled: false
 
 mariadb:
   enabled: false
