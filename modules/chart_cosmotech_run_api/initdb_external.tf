@@ -2,8 +2,8 @@
 resource "postgresql_role" "admin" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name            = local.db_target.admin_username
-  password        = local.db_target.admin_password
+  name            = local.database_admin_username
+  password        = local.database_admin_password
   login           = true
   create_database = true
 }
@@ -11,16 +11,16 @@ resource "postgresql_role" "admin" {
 resource "postgresql_role" "writer" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name     = local.db_target.writer_username
-  password = local.db_target.writer_password
+  name     = local.database_writer_username
+  password = local.database_writer_password
   login    = true
 }
 
 resource "postgresql_role" "reader" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name     = local.db_target.reader_username
-  password = local.db_target.reader_password
+  name     = local.database_reader_username
+  password = local.database_reader_password
   login    = true
 }
 
@@ -45,7 +45,7 @@ resource "postgresql_grant_role" "admin_reader" {
 resource "postgresql_database" "tenant_cosmotech_api" {
   count = var.use_external_postgresql ? 1 : 0
 
-  name              = local.db_target.db_name
+  name              = var.database_name
   owner             = postgresql_role.admin[0].name
   connection_limit  = -1
   allow_connections = true

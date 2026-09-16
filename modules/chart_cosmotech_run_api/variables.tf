@@ -34,11 +34,35 @@ variable "cosmotech_run_api_image_tag" {
   type = string
 }
 
+variable "use_external_postgresql" {
+  type = string
+}
+
 variable "internal_postgresql_image_name" {
   type = string
 }
 
 variable "internal_postgresql_image_tag" {
+  type = string
+}
+
+variable "database_host" {
+  type = string
+}
+
+variable "database_port" {
+  type = string
+}
+
+variable "database_name" {
+  type = string
+}
+
+variable "database_username" {
+  type = string
+}
+
+variable "database_password" {
   type = string
 }
 
@@ -71,34 +95,6 @@ variable "keycloak_client_id" {
 }
 
 variable "keycloak_client_secret" {
-  type = string
-}
-
-variable "use_external_postgresql" {
-  type = bool
-}
-
-variable "external_postgresql_host" {
-  type = string
-}
-
-variable "external_postgresql_port" {
-  type = string
-}
-
-variable "external_postgresql_username" {
-  type = string
-}
-
-variable "external_postgresql_password" {
-  type = string
-}
-
-variable "internal_postgresql_host" {
-  type = string
-}
-
-variable "internal_postgresql_port" {
   type = string
 }
 

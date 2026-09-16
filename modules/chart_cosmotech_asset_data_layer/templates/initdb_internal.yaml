@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: postgresql-init-cosmotech-asset-investment-planning
+  name: postgresql-init-cosmotech-asset-data-layer
   namespace: ${NAMESPACE}
 spec:
   backoffLimit: 0
@@ -9,7 +9,7 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - name: postgresql-init-cosmotech-asset-investment-planning
+        - name: postgresql-init-cosmotech-asset-data-layer
           image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
@@ -23,16 +23,7 @@ spec:
               DB_NAME='${DB_NAME}'
               SCHEMA_NAME='${DB_SCHEMA_NAME}'
               ADMIN_USER='${DB_ADMIN_USERNAME}'
-              ADMIN_PASS='${DB_ADMIN_PASSWORD}'
 
-              # Database
-              if ! psql -U $PGUSER -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
-                echo "Creating database $DB_NAME..."
-                psql -U $PGUSER -c "CREATE ROLE $ADMIN_USER WITH LOGIN PASSWORD '$ADMIN_PASS' CREATEDB;"
-                psql -U $PGUSER -c "CREATE DATABASE $DB_NAME WITH OWNER $ADMIN_USER;"
-              else
-                echo "Database $DB_NAME already exists, skipping."
-              fi
 
               # Schema
               if ! psql -U $PGUSER -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name = '$SCHEMA_NAME'" | grep -q 1; then

@@ -15,9 +15,10 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              export PGPASSWORD='${DB_POSTGRES_PASSWORD}'
               export PGHOST='${DB_HOST}'
               export PGPORT='${DB_PORT}'
+              export PGUSER='${DB_POSTGRES_USERNAME}'
+              export PGPASSWORD='${DB_POSTGRES_PASSWORD}'
 
               DB_NAME='${DB_NAME}'
               ADMIN_USER='${DB_ADMIN_USERNAME}'
@@ -27,14 +28,14 @@ spec:
               READER_USER='${DB_READER_USERNAME}'
               READER_PASS='${DB_READER_PASSWORD}'
 
-              if ! psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
+              if ! psql -U $PGUSER -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
                 echo "Creating database $DB_NAME..."
-                psql -U postgres -c "CREATE ROLE $ADMIN_USER WITH LOGIN PASSWORD '$ADMIN_PASS' CREATEDB;"
-                psql -U postgres -c "CREATE ROLE $WRITER_USER WITH LOGIN PASSWORD '$WRITER_PASS';"
-                psql -U postgres -c "CREATE ROLE $READER_USER WITH LOGIN PASSWORD '$READER_PASS';"
-                psql -U postgres -c "GRANT $WRITER_USER TO $ADMIN_USER;"
-                psql -U postgres -c "GRANT $READER_USER TO $ADMIN_USER;"
-                psql -U postgres -c "CREATE DATABASE $DB_NAME WITH OWNER $ADMIN_USER;"
+                psql -U $PGUSER -c "CREATE ROLE $ADMIN_USER WITH LOGIN PASSWORD '$ADMIN_PASS' CREATEDB;"
+                psql -U $PGUSER -c "CREATE ROLE $WRITER_USER WITH LOGIN PASSWORD '$WRITER_PASS';"
+                psql -U $PGUSER -c "CREATE ROLE $READER_USER WITH LOGIN PASSWORD '$READER_PASS';"
+                psql -U $PGUSER -c "GRANT $WRITER_USER TO $ADMIN_USER;"
+                psql -U $PGUSER -c "GRANT $READER_USER TO $ADMIN_USER;"
+                psql -U $PGUSER -c "CREATE DATABASE $DB_NAME WITH OWNER $ADMIN_USER;"
 
                 export PGPASSWORD="$ADMIN_PASS"
                 psql -U $ADMIN_USER -d $DB_NAME -c "CREATE SCHEMA inputs AUTHORIZATION $WRITER_USER;"

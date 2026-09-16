@@ -110,7 +110,7 @@ apiConfig:
     - https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
   dataDir: /data
   keycloakRealm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
-  rootUri: ${NAMESPACE}/api
+  rootUri: /${NAMESPACE}/api
 
 alembic:
   script_location: cosmotech/aip/migrations

@@ -27,55 +27,30 @@ locals {
     S3_BUCKET                    = var.s3_bucket
     S3_USERNAME                  = data.kubernetes_secret.s3.data[var.s3_secret_key_username]
     S3_PASSWORD                  = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
-    POSTGRESQL_DATABASE_HOST     = local.db_target.db_host
-    POSTGRESQL_DATABASE_NAME     = local.db_target.db_name
-    POSTGRESQL_ADMIN_USERNAME    = local.db_target.admin_username
-    POSTGRESQL_WRITER_USERNAME   = local.db_target.writer_username
-    POSTGRESQL_READER_USERNAME   = local.db_target.reader_username
-    POSTGRESQL_ADMIN_PASSWORD    = local.db_target.admin_password
-    POSTGRESQL_WRITER_PASSWORD   = local.db_target.writer_password
-    POSTGRESQL_READER_PASSWORD   = local.db_target.reader_password
+    DB_HOST                      = var.database_host
+    DB_NAME                      = var.database_name
+    DB_ADMIN_USERNAME            = local.database_admin_username
+    DB_ADMIN_PASSWORD            = local.database_admin_password
+    DB_WRITER_USERNAME           = local.database_writer_username
+    DB_WRITER_PASSWORD           = local.database_writer_password
+    DB_READER_USERNAME           = local.database_reader_username
+    DB_READER_PASSWORD           = local.database_reader_password
     SIMU_REGISTRY_URL            = var.cluster_domain
     SIMU_REGISTRY_USERNAME       = data.kubernetes_secret.registry.data["username"]
     SIMU_REGISTRY_PASSWORD       = data.kubernetes_secret.registry.data["password"]
   }
 
-  raw_db_admin_username  = "cosmotech_api_admin"
-  raw_db_writer_username = "cosmotech_api_writer"
-  raw_db_reader_username = "cosmotech_api_reader"
-  raw_db_admin_password  = random_password.api_admin_password.result
-  raw_db_writer_password = random_password.api_writer_password.result
-  raw_db_reader_password = random_password.api_reader_password.result
+  database_role_prefix         = replace(var.namespace, "-", "_")
+  raw_database_admin_username  = "cosmotech_api_admin"
+  raw_database_writer_username = "cosmotech_api_writer"
+  raw_database_reader_username = "cosmotech_api_reader"
 
-  db_role_prefix = replace(var.namespace, "-", "_")
-
-  db_target = var.use_external_postgresql ? {
-    ## External
-    db_host         = var.external_postgresql_host
-    db_port         = var.external_postgresql_port
-    db_username     = var.external_postgresql_username
-    db_password     = var.external_postgresql_password
-    db_name         = var.namespace
-    admin_username  = "${local.db_role_prefix}_${local.raw_db_admin_username}"
-    writer_username = "${local.db_role_prefix}_${local.raw_db_writer_username}"
-    reader_username = "${local.db_role_prefix}_${local.raw_db_reader_username}"
-    admin_password  = local.raw_db_admin_password
-    writer_password = local.raw_db_writer_password
-    reader_password = local.raw_db_reader_password
-    } : {
-    ## Internal
-    db_host = var.internal_postgresql_host
-    db_port = var.internal_postgresql_port
-    # db_username     = data.kubernetes_secret.postgresql-config.data["username"]
-    db_password     = data.kubernetes_secret.postgresql-config.data["password"]
-    db_name         = "cosmotech"
-    admin_username  = local.raw_db_admin_username
-    writer_username = local.raw_db_writer_username
-    reader_username = local.raw_db_reader_username
-    admin_password  = local.raw_db_admin_password
-    writer_password = local.raw_db_writer_password
-    reader_password = local.raw_db_reader_password
-  }
+  database_admin_username  = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_admin_username}" : local.raw_database_admin_username
+  database_writer_username = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_writer_username}" : local.raw_database_writer_username
+  database_reader_username = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_reader_username}" : local.raw_database_reader_username
+  database_admin_password  = random_password.api_admin_password.result
+  database_writer_password = random_password.api_writer_password.result
+  database_reader_password = random_password.api_reader_password.result
 }
 
 
@@ -191,15 +166,15 @@ resource "kubernetes_secret" "postgresql-cosmotechapi" {
   }
 
   data = {
-    "database-host"   = local.db_target.db_host
-    "database-port"   = local.db_target.db_port
-    "database-name"   = local.db_target.db_name
-    "admin-username"  = local.db_target.admin_username
-    "admin-password"  = local.db_target.admin_password
-    "writer-username" = local.db_target.writer_username
-    "writer-password" = local.db_target.writer_password
-    "reader-username" = local.db_target.reader_username
-    "reader-password" = local.db_target.reader_password
+    "database-host"   = var.database_host
+    "database-port"   = var.database_port
+    "database-name"   = var.database_name
+    "admin-username"  = local.database_admin_username
+    "admin-password"  = local.database_admin_password
+    "writer-username" = local.database_writer_username
+    "writer-password" = local.database_writer_password
+    "reader-username" = local.database_reader_username
+    "reader-password" = local.database_reader_password
   }
 }
 

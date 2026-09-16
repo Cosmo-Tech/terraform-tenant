@@ -9,11 +9,11 @@ locals {
     PERSISTENCE_PVC                       = var.persistence_pvc
     PERSISTENCE_SIZE                      = var.persistence_size
     PERSISTENCE_STORAGE_CLASS             = var.pvc_storage_class
-    POSTGRESQL_HOST                       = var.postgresql_host
-    POSTGRESQL_PORT                       = var.postgresql_port
-    POSTGRESQL_DATABASE                   = var.postgresql_database
-    POSTGRESQL_USERNAME                   = data.kubernetes_secret.postgresql-config.data["username"]
-    POSTGRESQL_PASSWORD                   = data.kubernetes_secret.postgresql-config.data["password"]
+    DB_HOST                               = var.database_host
+    DB_PORT                               = var.database_port
+    DB_NAME                               = var.database_name
+    DB_USERNAME                           = var.database_username
+    DB_PASSWORD                           = var.database_password
     COSMOTECH_API_CLIENT_ID               = var.cosmotech_api_client_id
     COSMOTECH_API_CLIENT_SECRET           = var.cosmotech_api_client_secret
     # S3_HOST                     = var.s3_host
@@ -24,6 +24,14 @@ locals {
     KEYCLOAK_CLIENT_ID = var.keycloak_client_id
     CLUSTER_DOMAIN     = var.cluster_domain
   }
+
+  database_role_prefix        = replace(var.namespace, "-", "_")
+  raw_database_admin_username = "cosmotech_api_admin"
+
+  database_admin_username = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_admin_username}" : local.raw_database_admin_username
+  database_admin_password = random_password.api_admin_password.result
+
+  database_schema_name = use_external_postgresql ? "${var.namespace}_cosmotech_asset_data_layer" : "cosmotech_asset_data_layer"
 }
 
 
