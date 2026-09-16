@@ -33,11 +33,7 @@ resource "postgresql_schema" "schema" {
   count = var.use_external_postgresql ? 1 : 0
 
   name     = local.database_schema_name
-  database = postgresql_database.cosmotech[0].name
+  database = var.database_name
 
-  owner = postgresql_role.admin[0].name
-
-  depends_on = [
-    postgresql_database.cosmotech,
-  ]
+  owner = var.database_admin_username
 }

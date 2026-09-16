@@ -352,6 +352,7 @@ module "chart_cosmotech_asset_data_layer" {
   persistence_pvc   = local.persistences.cosmotech-asset-data-layer["pvc_name"]
   pvc_storage_class = local.storage_class_name
 
+  # Reuse the same database from cosmotech-run-api
   use_external_postgresql        = var.use_external_postgresql
   internal_postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
   internal_postgresql_image_tag  = var.postgresql_image_tag
@@ -360,6 +361,8 @@ module "chart_cosmotech_asset_data_layer" {
   database_username              = var.use_external_postgresql == true ? var.external_postgresql_username : try(one(module.postgresql_cnpg_cluster[*].database_username), null)
   database_password              = var.use_external_postgresql == true ? var.external_postgresql_password : try(one(module.postgresql_cnpg_cluster[*].database_password), null)
   database_name                  = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
+  database_admin_username        = try(one(module.chart_cosmotech_run_api[*].database_admin_username), null)
+  database_admin_password        = try(one(module.chart_cosmotech_run_api[*].database_admin_password), null)
 
   # s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   # s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)

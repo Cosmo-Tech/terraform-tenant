@@ -11,9 +11,9 @@ output "database_port" {
 # }
 
 output "database_username" {
-  value = data.kubernetes_secret.postgresql-config.data["username"]
+  value = kubernetes_secret.postgresql-config.data["username"]
 }
 
 output "database_password" {
-  value = data.kubernetes_secret.postgresql-config.data["password"]
+  value = kubernetes_secret.postgresql-config.data["password"]
 }

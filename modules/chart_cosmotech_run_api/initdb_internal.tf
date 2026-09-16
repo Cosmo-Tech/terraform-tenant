@@ -1,5 +1,5 @@
 locals {
-  initdatabase_template = templatefile("${path.module}/templates/initdatabase_internal.yaml", local.initdatabase_values)
+  initdatabase_template = templatefile("${path.module}/templates/initdb_internal.yaml", local.initdatabase_values)
   initdatabase_values = {
     NAMESPACE             = var.namespace
     REGISTRY              = var.registry

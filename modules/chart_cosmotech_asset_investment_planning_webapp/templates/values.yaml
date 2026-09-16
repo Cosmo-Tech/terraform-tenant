@@ -1,7 +1,7 @@
 name: ${NAMESPACE}-webapp
 
 api:
-  baseUrl: ${NAMESPACE}/api
+  baseUrl: https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
   scope: https://${CLUSTER_DOMAIN}/platform
   sourceUrl: https://${CLUSTER_DOMAIN}
 

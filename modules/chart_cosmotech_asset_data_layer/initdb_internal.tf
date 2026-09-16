@@ -9,9 +9,10 @@ locals {
     DB_HOST               = var.database_host
     DB_PORT               = var.database_port
     DB_NAME               = var.database_name
+    DB_POSTGRES_USERNAME  = var.database_username
     DB_POSTGRES_PASSWORD  = var.database_password
-    DB_ADMIN_USERNAME     = local.database_admin_username
-    DB_ADMIN_PASSWORD     = local.database_admin_password
+    DB_ADMIN_USERNAME     = var.database_admin_username
+    DB_ADMIN_PASSWORD     = var.database_admin_password
     DB_SCHEMA_NAME        = local.database_schema_name
   }
 }

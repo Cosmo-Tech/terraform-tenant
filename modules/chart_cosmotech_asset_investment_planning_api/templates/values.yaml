@@ -23,24 +23,6 @@ ingress:
     hosts:
       - "${CLUSTER_DOMAIN}"
 
-# ingress:
-#   enabled: true
-#   className: nginx
-#   annotations:
-#     cert-manager.io/cluster-issuer: letsencrypt-prod-tenant-aip-portfolio
-#     nginx.org/client-max-body-size: "0"
-#   hosts:
-#     - host: aks-dev-aip-portfolio.azure.platform.cosmotech.com
-#       paths:
-#         - path: /api/demo
-#           pathType: ImplementationSpecific
-#   tls:
-#     enabled: true
-#     hosts:
-#       - aks-dev-aip-portfolio.azure.platform.cosmotech.com
-#     secretName: letsencrypt-prod
-
-
 image:
   repository: ${REGISTRY}/${COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_NAME}
   tag: ${COSMOTECH_ASSET_INVESTMENT_PLANNING_API_IMAGE_TAG}

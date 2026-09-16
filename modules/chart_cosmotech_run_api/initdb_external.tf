@@ -42,7 +42,7 @@ resource "postgresql_grant_role" "admin_reader" {
 
 
 # Database
-resource "postgresql_database" "tenant_cosmotech_api" {
+resource "postgresql_database" "cosmotech" {
   count = var.use_external_postgresql ? 1 : 0
 
   name              = var.database_name
@@ -67,19 +67,19 @@ resource "postgresql_schema" "inputs" {
   count = var.use_external_postgresql ? 1 : 0
 
   name     = "inputs"
-  database = postgresql_database.tenant_cosmotech_api[0].name
+  database = postgresql_database.cosmotech[0].name
 
   owner = postgresql_role.writer[0].name
 
   depends_on = [
-    postgresql_database.tenant_cosmotech_api,
+    postgresql_database.cosmotech,
   ]
 }
 
 resource "postgresql_grant" "reader_schema_usage" {
   count = var.use_external_postgresql ? 1 : 0
 
-  database    = postgresql_database.tenant_cosmotech_api[0].name
+  database    = postgresql_database.cosmotech[0].name
   role        = postgresql_role.reader[0].name
   schema      = postgresql_schema.inputs[0].name
   object_type = "schema"
@@ -93,7 +93,7 @@ resource "postgresql_grant" "reader_schema_usage" {
 resource "postgresql_default_privileges" "reader_select_tables" {
   count = var.use_external_postgresql ? 1 : 0
 
-  database    = postgresql_database.tenant_cosmotech_api[0].name
+  database    = postgresql_database.cosmotech[0].name
   role        = postgresql_role.reader[0].name
   owner       = postgresql_role.writer[0].name
   schema      = postgresql_schema.inputs[0].name

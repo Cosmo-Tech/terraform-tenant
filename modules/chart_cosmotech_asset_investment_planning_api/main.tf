@@ -9,6 +9,7 @@ terraform {
   }
 }
 
+
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
@@ -29,10 +30,10 @@ locals {
   database_role_prefix        = replace(var.namespace, "-", "_")
   raw_database_admin_username = "cosmotech_api_admin"
 
-  database_admin_username = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_admin_username}" : local.raw_database_admin_username
+  database_admin_username = var.use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_admin_username}" : local.raw_database_admin_username
   database_admin_password = random_password.api_admin_password.result
 
-  database_schema_name = use_external_postgresql ? "${var.namespace}_cosmotech_asset_investment_planning" : "cosmotech_asset_investment_planning"
+  database_schema_name = var.use_external_postgresql ? "${var.namespace}_cosmotech_asset_investment_planning" : "cosmotech_asset_investment_planning"
 }
 
 

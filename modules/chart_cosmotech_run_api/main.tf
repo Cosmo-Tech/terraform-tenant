@@ -9,6 +9,7 @@ terraform {
   }
 }
 
+
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
@@ -45,9 +46,9 @@ locals {
   raw_database_writer_username = "cosmotech_api_writer"
   raw_database_reader_username = "cosmotech_api_reader"
 
-  database_admin_username  = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_admin_username}" : local.raw_database_admin_username
-  database_writer_username = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_writer_username}" : local.raw_database_writer_username
-  database_reader_username = use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_reader_username}" : local.raw_database_reader_username
+  database_admin_username  = var.use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_admin_username}" : local.raw_database_admin_username
+  database_writer_username = var.use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_writer_username}" : local.raw_database_writer_username
+  database_reader_username = var.use_external_postgresql ? "${local.database_role_prefix}_${local.raw_database_reader_username}" : local.raw_database_reader_username
   database_admin_password  = random_password.api_admin_password.result
   database_writer_password = random_password.api_writer_password.result
   database_reader_password = random_password.api_reader_password.result
@@ -114,7 +115,7 @@ resource "kubernetes_secret" "api_cert" {
 }
 
 
-resource "helm_release" "cosmotech_api" {
+resource "helm_release" "cosmotech_run_api" {
   namespace  = var.namespace
   name       = "${var.chart_release}-${var.namespace}"
   repository = var.chart_repository

@@ -66,6 +66,14 @@ variable "database_password" {
   type = string
 }
 
+variable "database_admin_username" {
+  type = string
+}
+
+variable "database_admin_password" {
+  type = string
+}
+
 variable "keycloak_client_id" {
   type = string
 }
