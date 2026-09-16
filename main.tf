@@ -253,16 +253,25 @@ module "chart_cosmotech_run_api" {
   cosmotech_run_api_image_name = "${var.image_prefix_product}${var.cosmotech_run_api_image_name}"
   cosmotech_run_api_image_tag  = var.cosmotech_run_api_image_tag
 
-  use_external_postgresql      = var.use_external_postgresql
-  external_postgresql_host     = var.external_postgresql_host
-  external_postgresql_port     = var.external_postgresql_port
-  external_postgresql_username = var.external_postgresql_username
-  external_postgresql_password = var.external_postgresql_password
+  # use_external_postgresql      = var.use_external_postgresql
+  # external_postgresql_host     = var.external_postgresql_host
+  # external_postgresql_port     = var.external_postgresql_port
+  # external_postgresql_username = var.external_postgresql_username
+  # external_postgresql_password = var.external_postgresql_password
 
-  internal_postgresql_host       = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
-  internal_postgresql_port       = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  # internal_postgresql_host       = try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  # internal_postgresql_port       = try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  # internal_postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  # internal_postgresql_image_tag  = var.postgresql_image_tag
+
+  use_external_postgresql        = var.use_external_postgresql
   internal_postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
   internal_postgresql_image_tag  = var.postgresql_image_tag
+  database_host                  = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  database_port                  = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  database_username              = var.use_external_postgresql == true ? var.external_postgresql_username : try(one(module.postgresql_cnpg_cluster[*].database_username), null)
+  database_password              = var.use_external_postgresql == true ? var.external_postgresql_password : try(one(module.postgresql_cnpg_cluster[*].database_password), null)
+  database_name                  = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
 
   s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -343,9 +352,17 @@ module "chart_cosmotech_asset_data_layer" {
   persistence_pvc   = local.persistences.cosmotech-asset-data-layer["pvc_name"]
   pvc_storage_class = local.storage_class_name
 
-  postgresql_host     = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
-  postgresql_port     = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
-  postgresql_database = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
+  # Reuse the same database from cosmotech-run-api
+  use_external_postgresql        = var.use_external_postgresql
+  internal_postgresql_image_name = "${var.image_prefix_thirdparty}${var.postgresql_image_name}"
+  internal_postgresql_image_tag  = var.postgresql_image_tag
+  database_host                  = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
+  database_port                  = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  database_username              = var.use_external_postgresql == true ? var.external_postgresql_username : try(one(module.postgresql_cnpg_cluster[*].database_username), null)
+  database_password              = var.use_external_postgresql == true ? var.external_postgresql_password : try(one(module.postgresql_cnpg_cluster[*].database_password), null)
+  database_name                  = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
+  database_admin_username        = try(one(module.chart_cosmotech_run_api[*].database_admin_username), null)
+  database_admin_password        = try(one(module.chart_cosmotech_run_api[*].database_admin_password), null)
 
   # s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
   # s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
@@ -390,6 +407,8 @@ module "chart_cosmotech_asset_investment_planning_api" {
   internal_postgresql_image_tag  = var.postgresql_image_tag
   database_host                  = var.use_external_postgresql == true ? var.external_postgresql_host : try(one(module.postgresql_cnpg_cluster[*].database_host), null)
   database_port                  = var.use_external_postgresql == true ? var.external_postgresql_port : try(one(module.postgresql_cnpg_cluster[*].database_port), null)
+  database_username              = var.use_external_postgresql == true ? var.external_postgresql_username : try(one(module.postgresql_cnpg_cluster[*].database_username), null)
+  database_password              = var.use_external_postgresql == true ? var.external_postgresql_password : try(one(module.postgresql_cnpg_cluster[*].database_password), null)
   database_name                  = var.use_external_postgresql == true ? local.tenant_namespace : local.internal_postgresql_database
 
   cluster_domain = local.cluster_domain

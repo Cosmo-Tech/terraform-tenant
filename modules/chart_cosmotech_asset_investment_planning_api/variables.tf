@@ -58,6 +58,14 @@ variable "database_name" {
   type = string
 }
 
+variable "database_username" {
+  type = string
+}
+
+variable "database_password" {
+  type = string
+}
+
 variable "cluster_domain" {
   type = string
 }

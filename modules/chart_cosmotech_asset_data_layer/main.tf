@@ -1,3 +1,15 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "alekc/kubectl"
+    }
+    postgresql = {
+      source = "cyrilgdn/postgresql"
+    }
+  }
+}
+
+
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
@@ -9,11 +21,11 @@ locals {
     PERSISTENCE_PVC                       = var.persistence_pvc
     PERSISTENCE_SIZE                      = var.persistence_size
     PERSISTENCE_STORAGE_CLASS             = var.pvc_storage_class
-    POSTGRESQL_HOST                       = var.postgresql_host
-    POSTGRESQL_PORT                       = var.postgresql_port
-    POSTGRESQL_DATABASE                   = var.postgresql_database
-    POSTGRESQL_USERNAME                   = data.kubernetes_secret.postgresql-config.data["username"]
-    POSTGRESQL_PASSWORD                   = data.kubernetes_secret.postgresql-config.data["password"]
+    DB_HOST                               = var.database_host
+    DB_PORT                               = var.database_port
+    DB_NAME                               = var.database_name
+    DB_USERNAME                           = var.database_username
+    DB_PASSWORD                           = var.database_password
     COSMOTECH_API_CLIENT_ID               = var.cosmotech_api_client_id
     COSMOTECH_API_CLIENT_SECRET           = var.cosmotech_api_client_secret
     # S3_HOST                     = var.s3_host
@@ -24,6 +36,8 @@ locals {
     KEYCLOAK_CLIENT_ID = var.keycloak_client_id
     CLUSTER_DOMAIN     = var.cluster_domain
   }
+
+  database_schema_name = var.use_external_postgresql ? "${var.namespace}_cosmotech_asset_data_layer" : "cosmotech_asset_data_layer"
 }
 
 
@@ -65,12 +79,4 @@ data "kubernetes_resources" "helm_release_secret" {
   api_version    = "v1"
   kind           = "Secret"
   label_selector = "owner=helm,name=${var.chart_release}"
-}
-
-
-data "kubernetes_secret" "postgresql-config" {
-  metadata {
-    namespace = var.namespace
-    name      = "postgresql-config"
-  }
 }

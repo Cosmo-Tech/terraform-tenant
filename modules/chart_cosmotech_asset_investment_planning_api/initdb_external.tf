@@ -29,7 +29,7 @@ resource "postgresql_database" "cosmotech" {
 
 
 # Schema
-resource "postgresql_schema" "inputs" {
+resource "postgresql_schema" "schema" {
   count = var.use_external_postgresql ? 1 : 0
 
   name     = local.database_schema_name

@@ -34,15 +34,43 @@ variable "cosmotech_asset_data_layer_image_tag" {
   type = string
 }
 
-variable "postgresql_host" {
+variable "use_external_postgresql" {
   type = string
 }
 
-variable "postgresql_port" {
+variable "internal_postgresql_image_name" {
   type = string
 }
 
-variable "postgresql_database" {
+variable "internal_postgresql_image_tag" {
+  type = string
+}
+
+variable "database_host" {
+  type = string
+}
+
+variable "database_port" {
+  type = string
+}
+
+variable "database_name" {
+  type = string
+}
+
+variable "database_username" {
+  type = string
+}
+
+variable "database_password" {
+  type = string
+}
+
+variable "database_admin_username" {
+  type = string
+}
+
+variable "database_admin_password" {
   type = string
 }
 

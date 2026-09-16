@@ -57,18 +57,18 @@ config:
           username: default
           password: ${REDIS_PASSWORD}
         data:
-          host: ${POSTGRESQL_DATABASE_HOST}
+          host: ${DB_HOST}
           port: 5432
-          database: ${POSTGRESQL_DATABASE_NAME}
+          database: ${DB_NAME}
           reader:
-            username: ${POSTGRESQL_READER_USERNAME}
-            password: ${POSTGRESQL_READER_PASSWORD}
+            username: ${DB_READER_USERNAME}
+            password: ${DB_READER_PASSWORD}
           writer:
-            username: ${POSTGRESQL_WRITER_USERNAME}
-            password: ${POSTGRESQL_WRITER_PASSWORD}
+            username: ${DB_WRITER_USERNAME}
+            password: ${DB_WRITER_PASSWORD}
           admin:
-            username: ${POSTGRESQL_ADMIN_USERNAME}
-            password: ${POSTGRESQL_ADMIN_PASSWORD}
+            username: ${DB_ADMIN_USERNAME}
+            password: ${DB_ADMIN_PASSWORD}
 
 ingress:
   enabled: true
