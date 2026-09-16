@@ -39,24 +39,24 @@ data "keycloak_role" "realm_management_manage_users" {
 }
 
 resource "keycloak_openid_client_service_account_role" "cosmotech_admin_view_users" {
-  realm_id                 = keycloak_realm.realm.id
-  service_account_user_id  = keycloak_openid_client.cosmotech_admin.service_account_user_id
-  client_id                = data.keycloak_openid_client.realm_management.id
-  role                     = data.keycloak_role.realm_management_view_users.name
+  realm_id                = keycloak_realm.realm.id
+  service_account_user_id = keycloak_openid_client.cosmotech_admin.service_account_user_id
+  client_id               = data.keycloak_openid_client.realm_management.id
+  role                    = data.keycloak_role.realm_management_view_users.name
 }
 
 resource "keycloak_openid_client_service_account_role" "cosmotech_admin_query_groups" {
-  realm_id                 = keycloak_realm.realm.id
-  service_account_user_id  = keycloak_openid_client.cosmotech_admin.service_account_user_id
-  client_id                = data.keycloak_openid_client.realm_management.id
-  role                     = data.keycloak_role.realm_management_query_groups.name
+  realm_id                = keycloak_realm.realm.id
+  service_account_user_id = keycloak_openid_client.cosmotech_admin.service_account_user_id
+  client_id               = data.keycloak_openid_client.realm_management.id
+  role                    = data.keycloak_role.realm_management_query_groups.name
 }
 
 resource "keycloak_openid_client_service_account_role" "cosmotech_admin_manage_users" {
-  realm_id                 = keycloak_realm.realm.id
-  service_account_user_id  = keycloak_openid_client.cosmotech_admin.service_account_user_id
-  client_id                = data.keycloak_openid_client.realm_management.id
-  role                     = data.keycloak_role.realm_management_manage_users.name
+  realm_id                = keycloak_realm.realm.id
+  service_account_user_id = keycloak_openid_client.cosmotech_admin.service_account_user_id
+  client_id               = data.keycloak_openid_client.realm_management.id
+  role                    = data.keycloak_role.realm_management_manage_users.name
 }
 
 
@@ -64,7 +64,7 @@ resource "keycloak_openid_client_service_account_role" "cosmotech_admin_manage_u
 resource "kubernetes_secret" "cosmotech-client-admin-credentials" {
   metadata {
     name      = "cosmotech-client-admin-credentials"
-    namespace = var.tenant
+    namespace = var.namespace
   }
 
   data = {

@@ -90,8 +90,8 @@ variable "generic_shell_image_name" { default = "os-shell-iamguarded" }
 variable "generic_shell_image_tag" { default = "latest" }
 
 locals {
-  module_storage_onprem_tag = "main"
-  module_storage_azure_tag  = "main"
-  module_storage_aws_tag    = "main"
-  module_storage_gcp_tag    = "main"
+  module_storage_kob_tag   = "main"
+  module_storage_azure_tag = "main"
+  module_storage_aws_tag   = "main"
+  module_storage_gcp_tag   = "main"
 }
