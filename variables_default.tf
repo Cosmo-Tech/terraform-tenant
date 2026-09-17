@@ -42,7 +42,7 @@ variable "redis_storage_size" { default = 16 }
 variable "cosmotech_run_api_chart_name" { default = "cosmotech-api" }
 variable "cosmotech_run_api_chart_tag" { default = "5.2.1" }
 variable "cosmotech_run_api_image_name" { default = "cosmotech-api" }
-variable "cosmotech_run_api_image_tag" { default = "5.1.0" }
+variable "cosmotech_run_api_image_tag" { default = "5.2.0" }
 
 
 ## Cosmo Tech Modeling API

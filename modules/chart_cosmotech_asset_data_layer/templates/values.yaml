@@ -77,7 +77,7 @@ nodeSelector:
 
 extraEnvVars:
   - name: CSM_API_URL
-    value: cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080
+    value: "${COSMOTECH_RUN_API_SERVICE_ADDRESS}"
 
 persistence:
   enabled: true
@@ -105,10 +105,10 @@ seaweedfs:
   enabled: false
 
 csmApi:
-  url: "http://cosmotech-api-${NAMESPACE}.${NAMESPACE}.svc.cluster.local:8080"
+  url: "http://${COSMOTECH_RUN_API_SERVICE_ADDRESS}"
   scope: ""
-  clientId: "${COSMOTECH_API_CLIENT_ID}"
-  clientSecret: "${COSMOTECH_API_CLIENT_SECRET}"
+  clientId: "${COSMOTECH_RUN_API_CLIENT_ID}"
+  clientSecret: "${COSMOTECH_RUN_API_CLIENT_SECRET}"
 
 usage:
   enabled: true

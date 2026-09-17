@@ -90,11 +90,15 @@ variable "pvc_storage_class" {
   type = string
 }
 
-variable "cosmotech_api_client_id" {
+variable "cosmotech_run_api_service_address" {
   type = string
 }
 
-variable "cosmotech_api_client_secret" {
+variable "cosmotech_run_api_client_id" {
+  type = string
+}
+
+variable "cosmotech_run_api_client_secret" {
   type = string
 }
 

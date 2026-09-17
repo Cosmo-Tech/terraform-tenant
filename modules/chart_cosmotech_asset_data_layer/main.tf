@@ -26,8 +26,9 @@ locals {
     DB_NAME                               = var.database_name
     DB_USERNAME                           = var.database_username
     DB_PASSWORD                           = var.database_password
-    COSMOTECH_API_CLIENT_ID               = var.cosmotech_api_client_id
-    COSMOTECH_API_CLIENT_SECRET           = var.cosmotech_api_client_secret
+    COSMOTECH_RUN_API_SERVICE_ADDRESS     = var.cosmotech_run_api_service_address
+    COSMOTECH_RUN_API_CLIENT_ID           = var.cosmotech_run_api_client_id
+    COSMOTECH_RUN_API_CLIENT_SECRET       = var.cosmotech_run_api_client_secret
     # S3_HOST                     = var.s3_host
     # S3_PORT                     = var.s3_port
     # S3_BUCKET                   = var.s3_bucket

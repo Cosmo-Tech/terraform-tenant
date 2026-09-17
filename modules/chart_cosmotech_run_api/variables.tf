@@ -90,11 +90,19 @@ variable "s3_secret_key_password" {
   type = string
 }
 
-variable "keycloak_client_id" {
+variable "keycloak_api_client_id" {
   type = string
 }
 
-variable "keycloak_client_secret" {
+variable "keycloak_api_client_secret" {
+  type = string
+}
+
+variable "keycloak_admin_client_id" {
+  type = string
+}
+
+variable "keycloak_admin_client_secret" {
   type = string
 }
 

@@ -18,10 +18,13 @@ locals {
     REGISTRY_AUTH_SECRET         = var.registry_auth_secret
     COSMOTECH_RUN_API_IMAGE_NAME = var.cosmotech_run_api_image_name
     COSMOTECH_RUN_API_IMAGE_TAG  = var.cosmotech_run_api_image_tag
+    NAME                         = var.chart_release
     CLUSTER_DOMAIN               = var.cluster_domain
     NAMESPACE_MONITORING         = "monitoring"
-    KEYCLOAK_CLIENT_ID           = var.keycloak_client_id
-    KEYCLOAK_CLIENT_PASSWORD     = var.keycloak_client_secret
+    KEYCLOAK_API_CLIENT_ID       = var.keycloak_api_client_id
+    KEYCLOAK_API_CLIENT_SECRET   = var.keycloak_api_client_secret
+    KEYCLOAK_ADMIN_CLIENT_ID     = var.keycloak_admin_client_id
+    KEYCLOAK_ADMIN_CLIENT_SECRET = var.keycloak_admin_client_secret
     REDIS_PASSWORD               = data.kubernetes_secret.redis.data["redis-password"]
     REDIS_PORT                   = "6379"
     S3_ENDPOINT                  = "http://${var.s3_host}:${var.s3_port}"
@@ -40,6 +43,8 @@ locals {
     SIMU_REGISTRY_USERNAME       = data.kubernetes_secret.registry.data["username"]
     SIMU_REGISTRY_PASSWORD       = data.kubernetes_secret.registry.data["password"]
   }
+  chart_release_name="${var.chart_release}-${var.namespace}"
+
 
   database_role_prefix         = replace(var.namespace, "-", "_")
   raw_database_admin_username  = "cosmotech_api_admin"
@@ -117,7 +122,7 @@ resource "kubernetes_secret" "api_cert" {
 
 resource "helm_release" "cosmotech_run_api" {
   namespace  = var.namespace
-  name       = "${var.chart_release}-${var.namespace}"
+  name       = local.chart_release_name
   repository = var.chart_repository
   chart      = var.chart_name
   version    = var.chart_tag
@@ -202,4 +207,19 @@ resource "random_password" "api_reader_password" {
   min_upper   = 5
   min_numeric = 5
   special     = false
+}
+
+
+# List all services to be able retrieving the service name of the cosmotech-run-api
+data "kubernetes_resources" "services" {
+  api_version    = "v1"
+  kind           = "Service"
+  namespace      = var.namespace
+  # label_selector = "app.kubernetes.io/instance=${var.chart_release}"
+  # field_selector = "metadata.annotations[].meta.helm.sh/release-name=${var.chart_release}"
+  label_selector = "app.kubernetes.io/instance=${local.chart_release_name}"
+
+  depends_on = [
+    helm_release.cosmotech_run_api,
+  ]
 }

@@ -25,6 +25,8 @@ config:
         host: "${CLUSTER_DOMAIN}"
         defaultPrefix: "${NAMESPACE}"
         pushSecret: harbor-docker
+      simulatorBaseImage:
+        pullSecret: "${REGISTRY_AUTH_SECRET}"
       argoWorkflows:
         host: http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746
         namespace: "${NAMESPACE}"
@@ -44,4 +46,4 @@ tolerations:
 image:
   tag: "${REGISTRY}/${COSMOTECH_MODELING_API_IMAGE_NAME}/${COSMOTECH_MODELING_API_IMAGE_TAG}"
   credentials:
-    - pullSecret: ${REGISTRY_AUTH_SECRET}
+    pullSecret: ${REGISTRY_AUTH_SECRET}

@@ -43,15 +43,19 @@ locals {
     cosmotech-asset-data-layer = {
       module     = "chart_cosmotech_asset_data_layer"
       size       = var.cosmotech_asset_data_layer_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
-      pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
+      # main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
+      # pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
+      main_name  = "${var.cluster_name}-${local.tenant_namespace}-csm-adl"
+      pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-csm-adl"
       create_pvc = true
     }
     cosmotech-modeling-api = {
       module     = "chart_cosmotech_modeling_api"
       size       = var.cosmotech_modeling_api_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
-      pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
+      # main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
+      # pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
+      main_name  = "${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"
+      pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"
       create_pvc = true
     }
   }
@@ -282,8 +286,10 @@ module "chart_cosmotech_run_api" {
 
   cluster_domain = local.cluster_domain
 
-  keycloak_client_id     = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
-  keycloak_client_secret = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
+  keycloak_api_client_id       = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
+  keycloak_api_client_secret   = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
+  keycloak_admin_client_id     = try(one(module.config_keycloak_realm[*].keycloak_admin_client_id), null)
+  keycloak_admin_client_secret = try(one(module.config_keycloak_realm[*].keycloak_admin_client_secret), null)
 
   depends_on = [
     time_sleep.timer,
@@ -344,7 +350,7 @@ module "chart_cosmotech_asset_data_layer" {
   chart_name       = var.cosmotech_asset_data_layer_chart_name
   chart_tag        = var.cosmotech_asset_data_layer_chart_tag
   # chart_release    = "cosmotech-asset-data-layer"
-  chart_release    = "cosmotech-adl"
+  chart_release = "cosmotech-adl"
 
   cosmotech_asset_data_layer_image_name = "${var.image_prefix_product}${var.cosmotech_asset_data_layer_image_name}"
   cosmotech_asset_data_layer_image_tag  = var.cosmotech_asset_data_layer_image_tag
@@ -375,8 +381,9 @@ module "chart_cosmotech_asset_data_layer" {
 
   keycloak_client_id = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
 
-  cosmotech_api_client_id     = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
-  cosmotech_api_client_secret = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
+  cosmotech_run_api_service_address = try(one(module.chart_cosmotech_run_api[*].service_address), null)
+  cosmotech_run_api_client_id       = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
+  cosmotech_run_api_client_secret   = try(one(module.config_keycloak_realm[*].keycloak_api_client_secret), null)
 
   depends_on = [
     time_sleep.timer,
