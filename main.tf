@@ -371,11 +371,12 @@ module "chart_cosmotech_asset_data_layer" {
   database_admin_username        = try(one(module.chart_cosmotech_run_api[*].database_admin_username), null)
   database_admin_password        = try(one(module.chart_cosmotech_run_api[*].database_admin_password), null)
 
-  # s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
-  # s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
-  # s3_bucket              = try(one(module.chart_seaweedfs[*].s3_cosmotech_api_bucket), null)
-  # s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
-  # s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
+  s3_host                = try(one(module.chart_seaweedfs[*].s3_host), null)
+  s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
+  s3_bucket              = try(one(module.chart_seaweedfs[*].s3_cosmotech_api_bucket), null)
+  s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
+  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
+  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
 
   cluster_domain = local.cluster_domain
 

@@ -30,13 +30,12 @@ locals {
     COSMOTECH_RUN_API_SERVICE_ADDRESS     = var.cosmotech_run_api_service_address
     COSMOTECH_RUN_API_CLIENT_ID           = var.cosmotech_run_api_client_id
     COSMOTECH_RUN_API_CLIENT_SECRET       = var.cosmotech_run_api_client_secret
-    # S3_HOST                     = var.s3_host
-    # S3_PORT                     = var.s3_port
-    # S3_BUCKET                   = var.s3_bucket
-    # S3_ACCESS_KEY               = var.s3_secret_key_username
-    # S3_SECRET_KEY               = var.s3_secret_key_password
-    KEYCLOAK_CLIENT_ID = var.keycloak_client_id
-    CLUSTER_DOMAIN     = var.cluster_domain
+    S3_ENDPOINT                           = "http://${var.s3_host}:${var.s3_port}"
+    S3_BUCKET                             = var.s3_bucket
+    S3_USERNAME                           = data.kubernetes_secret.s3.data[var.s3_secret_key_username]
+    S3_PASSWORD                           = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
+    KEYCLOAK_CLIENT_ID                    = var.keycloak_client_id
+    CLUSTER_DOMAIN                        = var.cluster_domain
   }
 
   database_schema_name = var.use_external_postgresql ? "${var.namespace}_cosmotech_asset_data_layer" : "cosmotech_asset_data_layer"
@@ -81,4 +80,12 @@ data "kubernetes_resources" "helm_release_secret" {
   api_version    = "v1"
   kind           = "Secret"
   label_selector = "owner=helm,name=${var.chart_release}"
+}
+
+
+data "kubernetes_secret" "s3" {
+  metadata {
+    namespace = var.namespace
+    name      = var.s3_secret
+  }
 }

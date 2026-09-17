@@ -14,7 +14,7 @@ ingress:
   hosts:
     - host: "${CLUSTER_DOMAIN}"
       paths:
-        - path: /${NAMESPACE}/api/asset
+        - path: /${NAMESPACE}/asset
           pathType: ImplementationSpecific
   annotations:
     kubernetes.io/ingress.class: traefik
@@ -102,7 +102,12 @@ keycloak:
   clientId: "${KEYCLOAK_CLIENT_ID}"
 
 seaweedfs:
-  enabled: false
+  enabled: true
+  endpointUrl: "${S3_ENDPOINT}"
+  bucket: "${S3_BUCKET}"
+  accessKey: "${S3_USERNAME}"
+  secretKey: "${S3_PASSWORD}"
+  region: ""
 
 csmApi:
   url: "http://${COSMOTECH_RUN_API_SERVICE_ADDRESS}"
