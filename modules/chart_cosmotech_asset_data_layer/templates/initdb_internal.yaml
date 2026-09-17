@@ -24,7 +24,6 @@ spec:
               SCHEMA_NAME='${DB_SCHEMA_NAME}'
               ADMIN_USER='${DB_ADMIN_USERNAME}'
 
-
               # Schema
               if ! psql -U $PGUSER -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name = '$SCHEMA_NAME'" | grep -q 1; then
                 echo "Creating schema $SCHEMA_NAME in database $DB_NAME..."
@@ -32,6 +31,10 @@ spec:
               else
                 echo "Schema $SCHEMA_NAME already exists in database $DB_NAME. Skipping creation."
               fi
+
+              psql -U $PGUSER -d $DB_NAME -c "GRANT ALL PRIVILEGES ON SCHEMA $SCHEMA_NAME TO $ADMIN_USER;"
+              psql -U $PGUSER -d $DB_NAME -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA $SCHEMA_NAME TO $ADMIN_USER;"
+              psql -U $PGUSER -d $DB_NAME -c "ALTER DEFAULT PRIVILEGES FOR ROLE $PGUSER IN SCHEMA $SCHEMA_NAME GRANT ALL ON TABLES TO $ADMIN_USER;"
       nodeSelector:
         "cosmotech.com/tier": services
       tolerations:

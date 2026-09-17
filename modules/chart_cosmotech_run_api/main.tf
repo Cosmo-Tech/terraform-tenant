@@ -19,6 +19,7 @@ locals {
     COSMOTECH_RUN_API_IMAGE_NAME = var.cosmotech_run_api_image_name
     COSMOTECH_RUN_API_IMAGE_TAG  = var.cosmotech_run_api_image_tag
     NAME                         = var.chart_release
+    URL_SUFFIX                   = local.cosmotech_run_api_url_suffix
     CLUSTER_DOMAIN               = var.cluster_domain
     NAMESPACE_MONITORING         = "monitoring"
     KEYCLOAK_API_CLIENT_ID       = var.keycloak_api_client_id
@@ -45,6 +46,7 @@ locals {
   }
   chart_release_name = "${var.chart_release}-${var.namespace}"
 
+  cosmotech_run_api_url_suffix = "api"
 
   database_role_prefix         = replace(var.namespace, "-", "_")
   raw_database_admin_username  = "cosmotech_api_admin"
@@ -212,9 +214,9 @@ resource "random_password" "api_reader_password" {
 
 # List all services to be able retrieving the service name of the cosmotech-run-api
 data "kubernetes_resources" "services" {
-  api_version = "v1"
-  kind        = "Service"
-  namespace   = var.namespace
+  api_version    = "v1"
+  kind           = "Service"
+  namespace      = var.namespace
   label_selector = "app.kubernetes.io/instance=${local.chart_release_name}"
 
   depends_on = [

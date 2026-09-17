@@ -1,6 +1,6 @@
 api:
   servletContextPath: /
-  version: api
+  version: ${URL_SUFFIX}
   multiTenant: true
   serviceMonitor:
     name: "${NAME}-${NAMESPACE}"

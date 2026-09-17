@@ -24,8 +24,8 @@ locals {
     DB_HOST                               = var.database_host
     DB_PORT                               = var.database_port
     DB_NAME                               = var.database_name
-    DB_USERNAME                           = var.database_username
-    DB_PASSWORD                           = var.database_password
+    DB_ADMIN_USERNAME                     = var.database_admin_username
+    DB_ADMIN_PASSWORD                     = var.database_admin_password
     COSMOTECH_RUN_API_SERVICE_ADDRESS     = var.cosmotech_run_api_service_address
     COSMOTECH_RUN_API_CLIENT_ID           = var.cosmotech_run_api_client_id
     COSMOTECH_RUN_API_CLIENT_SECRET       = var.cosmotech_run_api_client_secret

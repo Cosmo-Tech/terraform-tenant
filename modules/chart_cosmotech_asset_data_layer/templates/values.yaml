@@ -93,8 +93,8 @@ postgres:
   host: "${DB_HOST}"
   port: "${DB_PORT}"
   database: "${DB_NAME}"
-  username: "${DB_USERNAME}"
-  password: "${DB_PASSWORD}"
+  username: "${DB_ADMIN_USERNAME}"
+  password: "${DB_ADMIN_PASSWORD}"
   schema: "cosmotech_asset_data_layer"
 
 keycloak:
