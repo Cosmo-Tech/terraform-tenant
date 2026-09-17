@@ -1,8 +1,7 @@
 terraform {
   required_providers {
     kubectl = {
-      source  = "alekc/kubectl"
-      version = "~> 2.1.3"
+      source = "alekc/kubectl"
     }
   }
 }
@@ -10,14 +9,14 @@ terraform {
 locals {
   keycloak_client        = "cosmotech-client-superset"
   keycloak_client_secret = data.kubernetes_secret.keycloak_client_secret.data["client-secret"]
-  keycloak_metadata_url  = "https://${var.cluster_domain}/keycloak/realms/${var.tenant}/.well-known/openid-configuration"
+  keycloak_metadata_url  = "https://${var.cluster_domain}/keycloak/realms/${var.namespace}/.well-known/openid-configuration"
 
   superset_namespace             = "superset"
   oauth_providers_configmap_name = "superset-oauth-providers"
   # new_oauth_providers = concat(
   #   jsondecode(data.kubernetes_config_map.oauth_providers.data == null ? "[]" : data.kubernetes_config_map.oauth_providers.data["oauth-providers"]),
   #   jsondecode(templatefile("${path.module}/templates/oauth_providers.json", {
-  #     TENANT_NAME            = var.tenant,
+  #     TENANT_NAME            = var.namespace,
   #     KEYCLOAK_METADATA_URL  = local.keycloak_metadata_url,
   #     KEYCLOAK_CLIENT_NAME   = local.keycloak_client
   #     KEYCLOAK_CLIENT_SECRET = local.keycloak_client_secret,
@@ -26,7 +25,7 @@ locals {
 
   # Create new oauth provider for the tenant
   tenant_oauth_provider = jsondecode(templatefile("${path.module}/templates/oauth_providers.json", {
-    TENANT_NAME            = var.tenant,
+    TENANT_NAME            = var.namespace,
     KEYCLOAK_METADATA_URL  = local.keycloak_metadata_url,
     KEYCLOAK_CLIENT_NAME   = local.keycloak_client,
     KEYCLOAK_CLIENT_SECRET = local.keycloak_client_secret,
@@ -40,7 +39,7 @@ locals {
 
   # Replace the existing tenant oauth provider in the list
   new_oauth_providers_list = concat(
-    [for provider in local.current_oauth_providers_list : provider if provider.name != var.tenant],
+    [for provider in local.current_oauth_providers_list : provider if provider.name != var.namespace],
     local.tenant_oauth_provider
   )
 
@@ -63,7 +62,7 @@ data "kubernetes_config_map" "oauth_providers" {
 data "kubernetes_secret" "keycloak_client_secret" {
   metadata {
     name      = "keycloak-superset"
-    namespace = var.tenant
+    namespace = var.namespace
   }
 }
 

@@ -1,6 +1,14 @@
 locals {
-  chart_values_file = templatefile("${path.module}/values.yaml", local.chart_values)
+  chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
+    REGISTRY                         = var.registry
+    REGISTRY_AUTH_SECRET             = var.registry_auth_secret
+    SEAWEEDFS_IMAGE_NAME             = var.seaweedfs_image_name
+    SEAWEEDFS_IMAGE_TAG              = var.seaweedfs_image_tag
+    POSTGRESQL_IMAGE_NAME            = var.postgresql_image_name
+    POSTGRESQL_IMAGE_TAG             = var.postgresql_image_tag
+    GENERIC_SHELL_IMAGE_NAME         = var.generic_shell_image_name
+    GENERIC_SHELL_IMAGE_TAG          = var.generic_shell_image_tag
     PERSISTENCE_MASTER_SIZE          = var.size_master
     PERSISTENCE_MASTER_PVC           = var.pvc_master
     PERSISTENCE_MASTER_STORAGE_CLASS = var.pvc_master_storage_class
@@ -11,17 +19,13 @@ locals {
     PERSISTENCE_VOLUME_ACCESS_MODES  = var.pvc_volume_access_modes
     DATABASE_HOST                    = var.database_host
     DATABASE_PORT                    = var.database_port
-    DATABASE_NAME                    = var.database_seaweedfs_name
-    DATABASE_USER                    = var.database_seaweedfs_user
-    DATABASE_SECRET                  = var.database_seaweedfs_secret
-    S3_INIT_BUCKETS                  = ["${local.s3_argo_workflows_bucket}", "${local.s3_cosmotech_api_bucket}"]
+    DATABASE_NAME                    = local.seaweedfs_db_name
+    DATABASE_USER                    = local.seaweedfs_db_username
+    DATABASE_SECRET                  = local.seaweedfs_db_secret
+    S3_INIT_BUCKETS                  = [local.s3_argo_workflows_bucket, local.s3_cosmotech_api_bucket]
     S3_SECRET                        = kubernetes_secret.s3_secret.metadata[0].name
     S3_PORT                          = local.s3_port
-    FILER_ENDPOINT                   = "http://${var.chart_release}-filer.${var.tenant}.svc.cluster.local:8888"
-    IMAGE_REGISTRY                   = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET       = var.image_registry_auth_secret
-    POSTGRESQL_IMAGE_REPOSITORY      = var.postgresql_image_repository
-    POSTGRESQL_IMAGE_TAG             = var.postgresql_image_tag
+    FILER_ENDPOINT                   = "http://${var.chart_release}-filer.${var.namespace}.svc.cluster.local:8888"
   }
 
   s3_host = "${helm_release.seaweedfs.name}-s3.${helm_release.seaweedfs.namespace}.svc.cluster.local"
@@ -29,22 +33,33 @@ locals {
 
   s3_argo_workflows_bucket              = "argo-workflows"
   s3_argo_workflows_username            = "argo_workflows"
-  s3_argo_workflows_password            = random_password.password[0].result
+  s3_argo_workflows_password            = random_password.s3_argo_workflows_password.result
   s3_secret_key_argo_workflows_username = "argo-workflows-username"
   s3_secret_key_argo_workflows_password = "argo-workflows-password"
 
   s3_cosmotech_api_bucket              = "cosmotech-api"
   s3_cosmotech_api_username            = "cosmotech_api"
-  s3_cosmotech_api_password            = random_password.password[1].result
+  s3_cosmotech_api_password            = random_password.s3_cosmotech_api_password.result
   s3_secret_key_cosmotech_api_username = "cosmotech-api-username"
   s3_secret_key_cosmotech_api_password = "cosmotech-api-password"
+
+  seaweedfs_db_name     = "seaweedfs"
+  seaweedfs_db_username = "seaweedfs"
+  seaweedfs_db_password = random_password.seaweedfs_postgresql_password.result
+  seaweedfs_db_secret   = kubernetes_secret.postgresql-seaweedfs.metadata[0].name
 }
 
 
-# Just generate an amount of secured passwords
-resource "random_password" "password" {
-  count = 10
+resource "random_password" "s3_argo_workflows_password" {
+  length      = 40
+  min_lower   = 5
+  min_upper   = 5
+  min_numeric = 5
+  special     = false
+}
 
+
+resource "random_password" "s3_cosmotech_api_password" {
   length      = 40
   min_lower   = 5
   min_upper   = 5
@@ -55,16 +70,16 @@ resource "random_password" "password" {
 
 resource "kubernetes_secret" "s3_secret" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "${var.chart_release}-s3"
   }
 
   data = {
-    "${local.s3_secret_key_argo_workflows_username}" = local.s3_argo_workflows_username
-    "${local.s3_secret_key_argo_workflows_password}" = local.s3_argo_workflows_password
-    "${local.s3_secret_key_cosmotech_api_username}"  = local.s3_cosmotech_api_username
-    "${local.s3_secret_key_cosmotech_api_password}"  = local.s3_cosmotech_api_password
-    "config.json" = templatefile("${path.module}/s3_config.json", {
+    (local.s3_secret_key_argo_workflows_username) = local.s3_argo_workflows_username
+    (local.s3_secret_key_argo_workflows_password) = local.s3_argo_workflows_password
+    (local.s3_secret_key_cosmotech_api_username)  = local.s3_cosmotech_api_username
+    (local.s3_secret_key_cosmotech_api_password)  = local.s3_cosmotech_api_password
+    "config.json" = templatefile("${path.module}/templates/s3_config.json", {
       "ARGO_WORKFLOWS_USERNAME" = local.s3_argo_workflows_username
       "ARGO_WORKFLOWS_PASSWORD" = local.s3_argo_workflows_password
       "COSMOTECH_API_USERNAME"  = local.s3_cosmotech_api_username
@@ -77,7 +92,7 @@ resource "kubernetes_secret" "s3_secret" {
 
 
 resource "helm_release" "seaweedfs" {
-  namespace  = var.tenant
+  namespace  = var.namespace
   name       = var.chart_release
   repository = var.chart_repository
   chart      = var.chart_name
@@ -98,11 +113,10 @@ resource "helm_release" "seaweedfs" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
     var.pvc_master,
     var.pvc_volume,
-    var.database_seaweedfs_name,
-    var.database_seaweedfs_secret,
+    kubernetes_secret.postgresql-seaweedfs,
     kubernetes_secret.s3_secret,
   ]
 }

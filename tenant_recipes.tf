@@ -1,0 +1,46 @@
+locals {
+  # Define only the required modules for each tenant type. A module in this list means it will be deployed, do not write a module that is not required.
+  tenant_recipes = {
+    run = [
+      "chart_cosmotech_run_api",
+      "chart_argo_workflows",
+      "chart_redis",
+      "chart_seaweedfs",
+      "postgresql_cnpg_cluster",
+      "config_grafana_dashboard",
+      "config_harbor_project",
+      "config_keycloak_realm",
+      "config_superset_oauth",
+    ]
+
+    modeling = [
+      "chart_cosmotech_modeling_api",
+      "chart_argo_workflows",
+      "chart_seaweedfs",
+      "postgresql_cnpg_cluster", # Required for Argo Workflows & SeaweedFS
+    ]
+
+    asset = [
+      "chart_cosmotech_asset_data_layer",
+      "chart_cosmotech_run_api",
+      "chart_argo_workflows",
+      "chart_redis",
+      "chart_seaweedfs",
+      "postgresql_cnpg_cluster",
+      "config_grafana_dashboard",
+      "config_harbor_project",
+      "config_keycloak_realm",
+      "config_superset_oauth",
+    ]
+
+    asset-investment-planning = [
+      "chart_cosmotech_asset_investment_planning_api",
+      "chart_cosmotech_asset_investment_planning_webapp",
+      "postgresql_cnpg_cluster",
+      "config_keycloak_realm",
+    ]
+  }
+
+  # Get the list of the required modules
+  tenant_recipe_modules = local.tenant_recipes[var.tenant_type]
+}

@@ -1,0 +1,111 @@
+commonConfiguration: |-
+  ## Enable ReJSON, Redisearch, redistimeseries
+  loadmodule /opt/iamguarded/redis/lib/redis/modules/redisearch.so
+  loadmodule /opt/iamguarded/redis/lib/redis/modules/rejson.so
+  loadmodule /opt/iamguarded/redis/lib/redis/modules/redistimeseries.so ts-duplicate-policy LAST
+  ## AOF persistence (commented = disabled)
+  # appendonly yes
+  ## RDB persistence (commented = enabled)
+  # save ""
+  ## AOF & RDB persistences can be enabled together without problem.
+  ## Only RDB was enabled in previous versions of this Terraform module (it was also Redis 7) -> to ensure data continuity, RDB must remains enabled.
+
+auth:
+  password: ${REDIS_PASSWORD}
+
+serviceBindings:
+  enabled: true
+
+master:
+  podSecurityContext:
+    enabled: true
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+  persistence:
+    enabled: true
+    size: "${PERSISTENCE_MASTER_SIZE}"
+    storageClass: "${PERSISTENCE_MASTER_STORAGE_CLASS}"
+    existingClaim: "${PERSISTENCE_MASTER_PVC}"
+  podLabels:
+    networking/traffic-allowed: "yes"
+  tolerations:
+  - key: "vendor"
+    operator: "Equal"
+    value: "cosmotech"
+    effect: "NoSchedule"
+  nodeSelector:
+    "cosmotech.com/tier": "db"
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "2000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+replica:
+  podSecurityContext:
+    enabled: true
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+  replicaCount: 1
+  podLabels:
+    networking/traffic-allowed: "yes"
+  persistence:
+    enabled: true
+    size: "${PERSISTENCE_REPLICA_SIZE}"
+    storageClass: "${PERSISTENCE_REPLICA_STORAGE_CLASS}"
+    existingClaim: "${PERSISTENCE_REPLICA_PVC}"
+  tolerations:
+  - key: "vendor"
+    operator: "Equal"
+    value: "cosmotech"
+    effect: "NoSchedule"
+  nodeSelector:
+    "cosmotech.com/tier": "db"
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "2000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+image:
+  repository: ${REDIS_IMAGE_NAME}
+  tag: "${REDIS_IMAGE_TAG}"
+  pullPolicy: IfNotPresent
+
+sysctl:
+  image:
+    repository: ${GENERIC_SHELL_IMAGE_NAME}
+    tag: "${GENERIC_SHELL_IMAGE_TAG}"
+    pullPolicy: IfNotPresent
+
+volumePermissions:
+  enabled: false
+
+global:
+  imageRegistry: ${REGISTRY}
+  imagePullSecrets:
+    - name: ${REGISTRY_AUTH_SECRET}

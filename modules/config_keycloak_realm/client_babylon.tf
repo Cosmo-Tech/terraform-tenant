@@ -53,12 +53,13 @@ data "kubernetes_secret" "superset" {
 resource "kubernetes_secret" "babylon" {
   metadata {
     name      = "babylon-config"
-    namespace = var.tenant
+    namespace = var.namespace
   }
 
   data = {
-    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.tenant}/api",
-    "keycloak_token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.tenant}/protocol/openid-connect/token",
+    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.namespace}/api",
+    "modeling_api_pf" : "services/cosmotech-modeling-api", # pf = port-forward
+    "keycloak_token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.namespace}/protocol/openid-connect/token",
     "keycloak_client_id" : keycloak_openid_client.cosmotech_babylon.client_id,
     "keycloak_client_secret" : keycloak_openid_client.cosmotech_babylon.client_secret,
     "superset_url" : "https://superset-${var.cluster_domain}",
