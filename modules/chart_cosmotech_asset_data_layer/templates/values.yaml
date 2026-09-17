@@ -95,7 +95,7 @@ postgres:
   database: "${DB_NAME}"
   username: "${DB_ADMIN_USERNAME}"
   password: "${DB_ADMIN_PASSWORD}"
-  schema: "cosmotech_asset_data_layer"
+  schema: "${DB_SCHEMA_NAME}"
 
 keycloak:
   realm: "https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}"

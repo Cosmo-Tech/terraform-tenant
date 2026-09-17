@@ -21,7 +21,6 @@ data "azurerm_kubernetes_cluster" "cluster" {
   resource_group_name = "$TEMPLATE_cluster_name"
 }
 
-
 module "storage" {
   source = "git::https://github.com/cosmo-tech/terraform-azure.git//terraform-cluster/modules/storage?ref=${local.module_storage_azure_tag}"
 
