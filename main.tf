@@ -343,7 +343,8 @@ module "chart_cosmotech_asset_data_layer" {
   chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
   chart_name       = var.cosmotech_asset_data_layer_chart_name
   chart_tag        = var.cosmotech_asset_data_layer_chart_tag
-  chart_release    = "cosmotech-asset-data-layer"
+  # chart_release    = "cosmotech-asset-data-layer"
+  chart_release    = "cosmotech-adl"
 
   cosmotech_asset_data_layer_image_name = "${var.image_prefix_product}${var.cosmotech_asset_data_layer_image_name}"
   cosmotech_asset_data_layer_image_tag  = var.cosmotech_asset_data_layer_image_tag
