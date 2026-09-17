@@ -215,8 +215,6 @@ data "kubernetes_resources" "services" {
   api_version = "v1"
   kind        = "Service"
   namespace   = var.namespace
-  # label_selector = "app.kubernetes.io/instance=${var.chart_release}"
-  # field_selector = "metadata.annotations[].meta.helm.sh/release-name=${var.chart_release}"
   label_selector = "app.kubernetes.io/instance=${local.chart_release_name}"
 
   depends_on = [
