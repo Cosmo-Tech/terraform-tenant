@@ -41,8 +41,8 @@ locals {
       create_pvc = true
     }
     cosmotech-asset-data-layer = {
-      module     = "chart_cosmotech_asset_data_layer"
-      size       = var.cosmotech_asset_data_layer_storage_size
+      module = "chart_cosmotech_asset_data_layer"
+      size   = var.cosmotech_asset_data_layer_storage_size
       # main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
       # pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
       main_name  = "${var.cluster_name}-${local.tenant_namespace}-csm-adl"
@@ -50,8 +50,8 @@ locals {
       create_pvc = true
     }
     cosmotech-modeling-api = {
-      module     = "chart_cosmotech_modeling_api"
-      size       = var.cosmotech_modeling_api_storage_size
+      module = "chart_cosmotech_modeling_api"
+      size   = var.cosmotech_modeling_api_storage_size
       # main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
       # pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
       main_name  = "${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"

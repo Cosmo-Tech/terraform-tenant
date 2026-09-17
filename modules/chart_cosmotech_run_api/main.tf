@@ -43,7 +43,7 @@ locals {
     SIMU_REGISTRY_USERNAME       = data.kubernetes_secret.registry.data["username"]
     SIMU_REGISTRY_PASSWORD       = data.kubernetes_secret.registry.data["password"]
   }
-  chart_release_name="${var.chart_release}-${var.namespace}"
+  chart_release_name = "${var.chart_release}-${var.namespace}"
 
 
   database_role_prefix         = replace(var.namespace, "-", "_")
@@ -212,9 +212,9 @@ resource "random_password" "api_reader_password" {
 
 # List all services to be able retrieving the service name of the cosmotech-run-api
 data "kubernetes_resources" "services" {
-  api_version    = "v1"
-  kind           = "Service"
-  namespace      = var.namespace
+  api_version = "v1"
+  kind        = "Service"
+  namespace   = var.namespace
   # label_selector = "app.kubernetes.io/instance=${var.chart_release}"
   # field_selector = "metadata.annotations[].meta.helm.sh/release-name=${var.chart_release}"
   label_selector = "app.kubernetes.io/instance=${local.chart_release_name}"
