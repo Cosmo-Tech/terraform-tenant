@@ -16,10 +16,10 @@ resource "keycloak_openid_client" "cosmotech_superset" {
   web_origins              = ["https://${var.cluster_domain}", "https://superset-${var.cluster_domain}"]
   root_url                 = "https://superset-${var.cluster_domain}"
   valid_redirect_uris = [
-    "https://${var.cluster_domain}/oauth-authorized/${var.tenant}",
-    "https://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}",
-    "http://${var.cluster_domain}/oauth-authorized/${var.tenant}",
-    "http://superset-${var.cluster_domain}/oauth-authorized/${var.tenant}",
+    "https://${var.cluster_domain}/oauth-authorized/${var.namespace}",
+    "https://superset-${var.cluster_domain}/oauth-authorized/${var.namespace}",
+    "http://${var.cluster_domain}/oauth-authorized/${var.namespace}",
+    "http://superset-${var.cluster_domain}/oauth-authorized/${var.namespace}",
   ]
 
   depends_on = [
@@ -47,7 +47,7 @@ resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_superset" {
 resource "kubernetes_secret" "keycloak_superset_client_secret" {
   metadata {
     name      = "keycloak-superset"
-    namespace = var.tenant
+    namespace = var.namespace
   }
 
   data = {

@@ -70,10 +70,15 @@
     * It instanciates the needed Terraform configuration based on the variable `cloud_provider` from terraform.tfvars
         > `$TEMPLATE_` variables in files stored in `targets/` are automatically replaced with values from `terraform.tfvars`
     * This file is a workaround to avoid having unwanted variables related to cloud providers not targetted in current deployment
-* File **variables_default**
-    * contains all the defaults configurations of the module
-    * all artefacts versions are tagged in this file
-    * everything is this file can be customized from TF_VAR_variable, CLI arguments or terraform.tfvars
+* File **moves.tf**
+    * Contains all needed migrations since the begin to ensure existing production continuity
+    * Based on `moved` Terraform blocs
+* File **variables_default.tf**
+    * Contains all the defaults configurations of the module
+    * All artefacts versions are tagged in this file
+    * Everything is this file can be customized from TF_VAR_variable, CLI arguments or terraform.tfvars
+* File **tenant_recipes.tf**
+    * Allow to deploy a module list mapped on `tenant_type` variable
 
 <br>
 <br>

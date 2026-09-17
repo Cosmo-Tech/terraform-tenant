@@ -1,3 +1,3 @@
 output "tenant_namespace" {
-  value = module.kube_namespace.tenant_namespace
+  value = local.tenant_namespace
 }

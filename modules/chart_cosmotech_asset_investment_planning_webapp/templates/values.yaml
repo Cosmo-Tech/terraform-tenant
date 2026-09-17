@@ -1,0 +1,31 @@
+name: ${NAMESPACE}-webapp
+
+api:
+  baseUrl: https://${CLUSTER_DOMAIN}/${NAMESPACE}/api
+  scope: https://${CLUSTER_DOMAIN}/platform
+  sourceUrl: https://${CLUSTER_DOMAIN}
+
+keycloak:
+  clientId: ${KEYCLOAK_CLIENT_ID}
+  realm: https://${CLUSTER_DOMAIN}/keycloak/realms/${NAMESPACE}
+  rolesClaim: userRoles
+
+webhookRestart:
+  enabled: false
+
+webapp:
+  domainName: ${CLUSTER_DOMAIN}
+  publicUrl: /${NAMESPACE}/webapp
+  server:
+    image:
+      repository: ${REGISTRY}/${COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_NAME}
+      tag: ${COSMOTECH_ASSET_INVESTMENT_PLANNING_WEBAPP_IMAGE_TAG}
+      pullPolicy: IfNotPresent
+      pullSecret: ${REGISTRY_AUTH_SECRET}
+    nodeSelector:
+      cosmotech.com/tier: services
+    tolerations:
+      - effect: NoSchedule
+        key: vendor
+        operator: Equal
+        value: cosmotech

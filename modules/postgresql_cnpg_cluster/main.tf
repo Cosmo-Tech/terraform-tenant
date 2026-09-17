@@ -10,18 +10,18 @@ terraform {
 locals {
   template_file = templatefile("${path.module}/templates/cnpg-cluster.yaml", local.template_values)
   template_values = {
-    PERSISTENCE_SIZE            = var.size
-    PERSISTENCE_PVC             = var.pvc
-    PERSISTENCE_STORAGE_CLASS   = var.pvc_storage_class
-    POSTGRESQL_SECRET_CONFIG    = kubernetes_secret.postgresql-config.metadata[0].name
-    POSTGRESQL_IMAGE_REPOSITORY = var.postgresql_image_repository
-    POSTGRESQL_IMAGE_TAG        = var.postgresql_image_tag
-    IMAGE_REGISTRY              = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET  = var.image_registry_auth_secret
-    NAMESPACE                   = var.tenant
+    NAMESPACE                 = var.namespace
+    REGISTRY                  = var.registry
+    REGISTRY_AUTH_SECRET      = var.registry_auth_secret
+    POSTGRESQL_IMAGE_NAME     = var.postgresql_image_name
+    POSTGRESQL_IMAGE_TAG      = var.postgresql_image_tag
+    PERSISTENCE_SIZE          = var.size
+    PERSISTENCE_PVC           = var.pvc
+    PERSISTENCE_STORAGE_CLASS = var.pvc_storage_class
+    POSTGRESQL_SECRET_CONFIG  = kubernetes_secret.postgresql-config.metadata[0].name
   }
 
-  database_host = "${var.tenant}-postgresql-rw.${var.tenant}.svc.cluster.local"
+  database_host = "${var.namespace}-postgresql-rw.${var.namespace}.svc.cluster.local"
   database_port = "5432"
 }
 
@@ -41,7 +41,7 @@ resource "kubernetes_secret" "postgresql-config" {
   type = "Opaque"
 
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "postgresql-config"
   }
 
@@ -71,7 +71,7 @@ resource "kubectl_manifest" "postgresql" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
     var.pvc,
   ]
 }

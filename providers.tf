@@ -20,7 +20,7 @@ terraform {
     }
     grafana = {
       source  = "grafana/grafana"
-      version = "~> 4.14.0"
+      version = "~> 4.46.0"
     }
     harbor = {
       source  = "goharbor/harbor"
@@ -28,7 +28,7 @@ terraform {
     }
     keycloak = {
       source  = "keycloak/keycloak"
-      version = "~> 5.7.0"
+      version = "~> 5.8.0"
     }
     postgresql = {
       source  = "cyrilgdn/postgresql"
@@ -79,7 +79,7 @@ data "kubernetes_secret" "grafana" {
 
 provider "grafana" {
   url  = "https://${local.cluster_domain}/monitoring"
-  auth = "admin:${data.kubernetes_secret.grafana.data["admin-password"]}"
+  auth = "${data.kubernetes_secret.grafana.data["admin-user"]}:${data.kubernetes_secret.grafana.data["admin-password"]}"
 }
 
 

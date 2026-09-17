@@ -1,6 +1,14 @@
 locals {
   chart_values_file = templatefile("${path.module}/templates/values.yaml", local.chart_values)
   chart_values = {
+    REGISTRY                         = var.registry
+    REGISTRY_AUTH_SECRET             = var.registry_auth_secret
+    SEAWEEDFS_IMAGE_NAME             = var.seaweedfs_image_name
+    SEAWEEDFS_IMAGE_TAG              = var.seaweedfs_image_tag
+    POSTGRESQL_IMAGE_NAME            = var.postgresql_image_name
+    POSTGRESQL_IMAGE_TAG             = var.postgresql_image_tag
+    GENERIC_SHELL_IMAGE_NAME         = var.generic_shell_image_name
+    GENERIC_SHELL_IMAGE_TAG          = var.generic_shell_image_tag
     PERSISTENCE_MASTER_SIZE          = var.size_master
     PERSISTENCE_MASTER_PVC           = var.pvc_master
     PERSISTENCE_MASTER_STORAGE_CLASS = var.pvc_master_storage_class
@@ -17,11 +25,7 @@ locals {
     S3_INIT_BUCKETS                  = [local.s3_argo_workflows_bucket, local.s3_cosmotech_api_bucket]
     S3_SECRET                        = kubernetes_secret.s3_secret.metadata[0].name
     S3_PORT                          = local.s3_port
-    FILER_ENDPOINT                   = "http://${var.chart_release}-filer.${var.tenant}.svc.cluster.local:8888"
-    IMAGE_REGISTRY                   = var.image_registry
-    IMAGE_REGISTRY_AUTH_SECRET       = var.image_registry_auth_secret
-    POSTGRESQL_IMAGE_REPOSITORY      = var.postgresql_image_repository
-    POSTGRESQL_IMAGE_TAG             = var.postgresql_image_tag
+    FILER_ENDPOINT                   = "http://${var.chart_release}-filer.${var.namespace}.svc.cluster.local:8888"
   }
 
   s3_host = "${helm_release.seaweedfs.name}-s3.${helm_release.seaweedfs.namespace}.svc.cluster.local"
@@ -66,7 +70,7 @@ resource "random_password" "s3_cosmotech_api_password" {
 
 resource "kubernetes_secret" "s3_secret" {
   metadata {
-    namespace = var.tenant
+    namespace = var.namespace
     name      = "${var.chart_release}-s3"
   }
 
@@ -88,7 +92,7 @@ resource "kubernetes_secret" "s3_secret" {
 
 
 resource "helm_release" "seaweedfs" {
-  namespace  = var.tenant
+  namespace  = var.namespace
   name       = var.chart_release
   repository = var.chart_repository
   chart      = var.chart_name
@@ -109,7 +113,7 @@ resource "helm_release" "seaweedfs" {
   }
 
   depends_on = [
-    var.tenant,
+    var.namespace,
     var.pvc_master,
     var.pvc_volume,
     kubernetes_secret.postgresql-seaweedfs,

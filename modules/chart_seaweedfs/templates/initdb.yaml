@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgresql-init-seaweedfs
-          image: ${IMAGE_REGISTRY}/${POSTGRESQL_IMAGE_REPOSITORY}:${POSTGRESQL_IMAGE_TAG}
+          image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
@@ -50,4 +50,4 @@ spec:
           effect: "NoSchedule"
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+        - name: ${REGISTRY_AUTH_SECRET}

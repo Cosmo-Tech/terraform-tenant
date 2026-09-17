@@ -92,21 +92,20 @@ replica:
       cpu: "2000m"
 
 image:
-  # imageRegistry: ${IMAGE_REGISTRY}
-  repository: ${REDIS_IMAGE_REPOSITORY}
+  repository: ${REDIS_IMAGE_NAME}
   tag: "${REDIS_IMAGE_TAG}"
   pullPolicy: IfNotPresent
 
 sysctl:
   image:
-    repository: cosmotech/os-shell-iamguarded
-    tag: latest
+    repository: ${GENERIC_SHELL_IMAGE_NAME}
+    tag: "${GENERIC_SHELL_IMAGE_TAG}"
     pullPolicy: IfNotPresent
 
 volumePermissions:
   enabled: false
 
 global:
-  # imageRegistry: ${IMAGE_REGISTRY}
+  imageRegistry: ${REGISTRY}
   imagePullSecrets:
-    - name: ${IMAGE_REGISTRY_AUTH_SECRET}
+    - name: ${REGISTRY_AUTH_SECRET}

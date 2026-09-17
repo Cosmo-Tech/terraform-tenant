@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-init-cosmotech-asset-data-layer
+  namespace: ${NAMESPACE}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: postgresql-init-cosmotech-asset-data-layer
+          image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export PGHOST='${DB_HOST}'
+              export PGPORT='${DB_PORT}'
+              export PGUSER='${DB_POSTGRES_USERNAME}'
+              export PGPASSWORD='${DB_POSTGRES_PASSWORD}'
+
+              DB_NAME='${DB_NAME}'
+              SCHEMA_NAME='${DB_SCHEMA_NAME}'
+              ADMIN_USER='${DB_ADMIN_USERNAME}'
+
+              # Schema
+              if ! psql -U $PGUSER -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name = '$SCHEMA_NAME'" | grep -q 1; then
+                echo "Creating schema $SCHEMA_NAME in database $DB_NAME..."
+                psql -U $PGUSER -d $DB_NAME -c "CREATE SCHEMA IF NOT EXISTS $SCHEMA_NAME AUTHORIZATION $ADMIN_USER;"
+              else
+                echo "Schema $SCHEMA_NAME already exists in database $DB_NAME. Skipping creation."
+              fi
+
+              psql -U $PGUSER -d $DB_NAME -c "GRANT ALL PRIVILEGES ON SCHEMA $SCHEMA_NAME TO $ADMIN_USER;"
+              psql -U $PGUSER -d $DB_NAME -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA $SCHEMA_NAME TO $ADMIN_USER;"
+              psql -U $PGUSER -d $DB_NAME -c "ALTER DEFAULT PRIVILEGES FOR ROLE $PGUSER IN SCHEMA $SCHEMA_NAME GRANT ALL ON TABLES TO $ADMIN_USER;"
+      nodeSelector:
+        "cosmotech.com/tier": services
+      tolerations:
+        - key: "vendor"
+          operator: "Equal"
+          value: "cosmotech"
+          effect: "NoSchedule"
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: ${REGISTRY_AUTH_SECRET}

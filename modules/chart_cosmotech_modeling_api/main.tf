@@ -1,22 +1,24 @@
 locals {
   chart_values = templatefile("${path.module}/templates/values.yaml", local.chart_values_data)
   chart_values_data = {
-    NAMESPACE              = var.tenant
-    IMAGE_TAG              = var.image_tag
-    IMAGE_PULL_SECRET      = var.image_registry_auth_secret
-    PERSISTENCE_PVC        = var.pvc
-    S3_ENDPOINT            = "http://${var.s3_host}:${var.s3_port}"
-    S3_BUCKET              = var.s3_bucket
-    S3_SECRET              = var.s3_secret
-    S3_SECRET_KEY_USERNAME = var.s3_secret_key_username
-    S3_SECRET_KEY_PASSWORD = var.s3_secret_key_password
-    CLUSTER_DOMAIN         = var.cluster_domain
+    NAMESPACE                         = var.namespace
+    REGISTRY                          = var.registry
+    REGISTRY_AUTH_SECRET              = var.registry_auth_secret
+    COSMOTECH_MODELING_API_IMAGE_NAME = var.cosmotech_modeling_api_image_name
+    COSMOTECH_MODELING_API_IMAGE_TAG  = var.cosmotech_modeling_api_image_tag
+    PERSISTENCE_PVC                   = var.pvc
+    S3_ENDPOINT                       = "http://${var.s3_host}:${var.s3_port}"
+    S3_BUCKET                         = var.s3_bucket
+    S3_SECRET                         = var.s3_secret
+    S3_SECRET_KEY_USERNAME            = var.s3_secret_key_username
+    S3_SECRET_KEY_PASSWORD            = var.s3_secret_key_password
+    CLUSTER_DOMAIN                    = var.cluster_domain
   }
   chart_release = "cosmotech-modeling-api"
 }
 
 resource "helm_release" "modeling_api" {
-  namespace  = var.tenant
+  namespace  = var.namespace
   name       = local.chart_release
   repository = var.chart_repository
   chart      = var.chart_name

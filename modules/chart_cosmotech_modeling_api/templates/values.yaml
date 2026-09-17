@@ -1,16 +1,3 @@
-image:
-  tag: "${IMAGE_TAG}"
-  credentials:
-    pullSecret: "${IMAGE_PULL_SECRET}"
-
-nodeSelector:
-  cosmotech.com/tier: services
-
-tolerations:
-  - key: vendor
-    value: cosmotech
-    effect: NoSchedule
-
 serviceMonitor:
   enabled: true
   namespace: monitoring
@@ -38,6 +25,8 @@ config:
         host: "${CLUSTER_DOMAIN}"
         defaultPrefix: "${NAMESPACE}"
         pushSecret: harbor-docker
+      simulatorBaseImage:
+        pullSecret: "${REGISTRY_AUTH_SECRET}"
       argoWorkflows:
         host: http://argo-workflows-server.${NAMESPACE}.svc.cluster.local:2746
         namespace: "${NAMESPACE}"
@@ -45,3 +34,16 @@ config:
       s3:
         host: "${S3_ENDPOINT}"
         bucket: ${S3_BUCKET}
+
+nodeSelector:
+  cosmotech.com/tier: services
+
+tolerations:
+  - key: vendor
+    value: cosmotech
+    effect: NoSchedule
+
+image:
+  tag: "${REGISTRY}/${COSMOTECH_MODELING_API_IMAGE_NAME}/${COSMOTECH_MODELING_API_IMAGE_TAG}"
+  credentials:
+    pullSecret: ${REGISTRY_AUTH_SECRET}

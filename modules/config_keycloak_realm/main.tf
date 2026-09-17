@@ -12,15 +12,16 @@ locals {
   cosmotech_web      = "cosmotech-client-web"
   cosmotech_babylon  = "cosmotech-client-babylon"
   cosmotech_superset = "cosmotech-client-superset"
+  cosmotech_admin    = "cosmotech-client-admin"
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
   standard_flow_enabled = true
   web_origins           = ["+"]
   root_url              = "https://${var.cluster_domain}"
-  base_url              = "/${var.tenant}/api/"
+  base_url              = "/${var.namespace}/api/"
   valid_redirect_uris = [
-    "https://${var.cluster_domain}/${var.tenant}/api/swagger-ui/oauth2-redirect.html",
+    "https://${var.cluster_domain}/${var.namespace}/api/swagger-ui/oauth2-redirect.html",
     "/*"
   ]
 }
@@ -28,7 +29,7 @@ locals {
 
 resource "keycloak_realm" "realm" {
   enabled                     = true
-  realm                       = var.tenant
+  realm                       = var.namespace
   access_code_lifespan        = "30m"
   default_signature_algorithm = "RS256"
 }
