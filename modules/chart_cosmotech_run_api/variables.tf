@@ -109,3 +109,16 @@ variable "keycloak_admin_client_secret" {
 variable "cluster_domain" {
   type = string
 }
+
+variable "mcp_enabled" {
+  type = bool
+}
+
+variable "mcp_dashboard_enabled" {
+  type = bool
+}
+
+variable "mcp_paths_to_exclude" {
+  description = "List formatted: \"/path-to-exclude1,/path-to-exclude2,/path-to-exclude3\""
+  type        = string
+}

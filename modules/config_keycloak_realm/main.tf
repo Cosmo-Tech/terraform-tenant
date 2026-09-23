@@ -9,6 +9,7 @@ terraform {
 
 locals {
   cosmotech_api      = "cosmotech-client-api"
+  cosmotech_api_mcp  = "cosmotech-client-api-mcp"
   cosmotech_web      = "cosmotech-client-web"
   cosmotech_babylon  = "cosmotech-client-babylon"
   cosmotech_superset = "cosmotech-client-superset"
@@ -20,9 +21,15 @@ locals {
   web_origins           = ["+"]
   root_url              = "https://${var.cluster_domain}"
   base_url              = "/${var.namespace}/api/"
+  base_mcp_url          = "/${var.namespace}/api/mcp"
   valid_redirect_uris = [
     "https://${var.cluster_domain}/${var.namespace}/api/swagger-ui/oauth2-redirect.html",
     "/*"
+  ]
+  mcp_valid_redirect_uris = [
+    # "https://vscode.dev/redirect",
+    # "http://127.0.0.1:33418/*",
+    # "https://claude.ai/api/mcp/auth_callback",
   ]
 }
 
