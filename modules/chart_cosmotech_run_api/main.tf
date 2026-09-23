@@ -43,6 +43,9 @@ locals {
     SIMU_REGISTRY_URL            = var.cluster_domain
     SIMU_REGISTRY_USERNAME       = data.kubernetes_secret.registry.data["username"]
     SIMU_REGISTRY_PASSWORD       = data.kubernetes_secret.registry.data["password"]
+    MCP_ENABLED                  = var.mcp_enabled
+    MCP_DASHBOARD_ENABLED        = var.mcp_dashboard_enabled
+    MCP_PATHS_TO_EXCLUDE         = var.mcp_paths_to_exclude
   }
   chart_release_name = "${var.chart_release}-${var.namespace}"
 

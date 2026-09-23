@@ -18,6 +18,11 @@ argo:
 config:
   csm:
     platform:
+      api:
+        mcp:
+          dashboard-enabled: ${MCP_DASHBOARD_ENABLED}
+          enabled: ${MCP_ENABLED}
+          paths-to-exclude: ${MCP_PATHS_TO_EXCLUDE}
       namespace: ${NAMESPACE}
       authorization:
         allowed-tenants: ${NAMESPACE}

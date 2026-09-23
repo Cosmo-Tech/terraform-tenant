@@ -43,6 +43,9 @@ variable "cosmotech_run_api_chart_name" { default = "cosmotech-api" }
 variable "cosmotech_run_api_chart_tag" { default = "5.2.1" }
 variable "cosmotech_run_api_image_name" { default = "cosmotech-api" }
 variable "cosmotech_run_api_image_tag" { default = "5.2.0" }
+variable "mcp_enabled" { default = false }
+variable "mcp_dashboard_enabled" { default = false }
+variable "mcp_paths_to_exclude" { default = "" }
 
 
 ## Cosmo Tech Modeling API
