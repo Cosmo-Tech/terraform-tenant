@@ -44,6 +44,8 @@ tolerations:
     effect: NoSchedule
 
 image:
-  tag: "${REGISTRY}/${COSMOTECH_MODELING_API_IMAGE_NAME}/${COSMOTECH_MODELING_API_IMAGE_TAG}"
+  repository: ${REGISTRY}/${COSMOTECH_MODELING_API_IMAGE_NAME}
+  tag: ${COSMOTECH_MODELING_API_IMAGE_TAG}
+  pullPolicy: IfNotPresent
   credentials:
     pullSecret: ${REGISTRY_AUTH_SECRET}

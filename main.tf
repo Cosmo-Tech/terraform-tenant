@@ -327,8 +327,8 @@ module "chart_cosmotech_modeling_api" {
   s3_port                = try(one(module.chart_seaweedfs[*].s3_port), null)
   s3_bucket              = try(one(module.chart_seaweedfs[*].s3_argo_workflows_bucket), null)
   s3_secret              = try(one(module.chart_seaweedfs[*].s3_secret), null)
-  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
-  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
+  s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_username), null)
+  s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_argo_workflows_password), null)
 
   cluster_domain = local.cluster_domain
 
