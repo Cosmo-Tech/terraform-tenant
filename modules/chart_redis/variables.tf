@@ -1,12 +1,4 @@
-variable "tenant" {
-  type = string
-}
-
-variable "image_registry" {
-  type = string
-}
-
-variable "image_registry_auth_secret" {
+variable "namespace" {
   type = string
 }
 
@@ -23,6 +15,30 @@ variable "chart_tag" {
 }
 
 variable "chart_release" {
+  type = string
+}
+
+variable "registry" {
+  type = string
+}
+
+variable "registry_auth_secret" {
+  type = string
+}
+
+variable "redis_image_name" {
+  type = string
+}
+
+variable "redis_image_tag" {
+  type = string
+}
+
+variable "generic_shell_image_name" {
+  type = string
+}
+
+variable "generic_shell_image_tag" {
   type = string
 }
 
@@ -47,13 +63,5 @@ variable "pvc_replica" {
 }
 
 variable "pvc_replica_storage_class" {
-  type = string
-}
-
-variable "redis_image_repository" {
-  type = string
-}
-
-variable "redis_image_tag" {
   type = string
 }

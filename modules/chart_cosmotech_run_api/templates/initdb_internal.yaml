@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgresql-init-cosmotech-run-api
+  namespace: ${NAMESPACE}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: postgresql-init-cosmotech-run-api
+          image: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export PGHOST='${DB_HOST}'
+              export PGPORT='${DB_PORT}'
+              export PGUSER='${DB_POSTGRES_USERNAME}'
+              export PGPASSWORD='${DB_POSTGRES_PASSWORD}'
+
+              DB_NAME='${DB_NAME}'
+              ADMIN_USER='${DB_ADMIN_USERNAME}'
+              ADMIN_PASS='${DB_ADMIN_PASSWORD}'
+              WRITER_USER='${DB_WRITER_USERNAME}'
+              WRITER_PASS='${DB_WRITER_PASSWORD}'
+              READER_USER='${DB_READER_USERNAME}'
+              READER_PASS='${DB_READER_PASSWORD}'
+
+              if ! psql -U $PGUSER -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
+                echo "Creating database $DB_NAME..."
+                psql -U $PGUSER -c "CREATE ROLE $ADMIN_USER WITH LOGIN PASSWORD '$ADMIN_PASS' CREATEDB;"
+                psql -U $PGUSER -c "CREATE ROLE $WRITER_USER WITH LOGIN PASSWORD '$WRITER_PASS';"
+                psql -U $PGUSER -c "CREATE ROLE $READER_USER WITH LOGIN PASSWORD '$READER_PASS';"
+                psql -U $PGUSER -c "GRANT $WRITER_USER TO $ADMIN_USER;"
+                psql -U $PGUSER -c "GRANT $READER_USER TO $ADMIN_USER;"
+                psql -U $PGUSER -c "CREATE DATABASE $DB_NAME WITH OWNER $ADMIN_USER;"
+
+                export PGPASSWORD="$ADMIN_PASS"
+                psql -U $ADMIN_USER -d $DB_NAME -c "CREATE SCHEMA inputs AUTHORIZATION $WRITER_USER;"
+                psql -U $ADMIN_USER -d $DB_NAME -c "GRANT USAGE ON SCHEMA inputs TO $READER_USER;"
+                psql -U $ADMIN_USER -d $DB_NAME -c "ALTER DEFAULT PRIVILEGES IN SCHEMA inputs GRANT SELECT ON TABLES TO $READER_USER;"
+              else
+                echo "Database $DB_NAME already exists, skipping."
+              fi
+      nodeSelector:
+        "cosmotech.com/tier": services
+      tolerations:
+        - key: "vendor"
+          operator: "Equal"
+          value: "cosmotech"
+          effect: "NoSchedule"
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: ${REGISTRY_AUTH_SECRET}
