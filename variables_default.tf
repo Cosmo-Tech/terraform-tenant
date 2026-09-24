@@ -68,7 +68,7 @@ variable "cosmotech_asset_data_layer_storage_size" { default = 8 }
 variable "cosmotech_asset_investment_planning_api_chart_name" { default = "cosmotech-asset-investment-planning-api" }
 variable "cosmotech_asset_investment_planning_api_chart_tag" { default = "0.2.0" }
 variable "cosmotech_asset_investment_planning_api_image_name" { default = "cosmotech-asset-investment-planning-api" }
-variable "cosmotech_asset_investment_planning_api_image_tag" { default = "main" }
+variable "cosmotech_asset_investment_planning_api_image_tag" { default = "1.0.1" }
 variable "cosmotech_asset_investment_planning_api_storage_size" { default = 8 }
 
 
@@ -76,7 +76,7 @@ variable "cosmotech_asset_investment_planning_api_storage_size" { default = 8 }
 variable "cosmotech_asset_investment_planning_webapp_chart_name" { default = "cosmotech-asset-investment-planning-webapp" }
 variable "cosmotech_asset_investment_planning_webapp_chart_tag" { default = "0.2.0" }
 variable "cosmotech_asset_investment_planning_webapp_image_name" { default = "cosmotech-asset-investment-planning-webapp" }
-variable "cosmotech_asset_investment_planning_webapp_image_tag" { default = "main" }
+variable "cosmotech_asset_investment_planning_webapp_image_tag" { default = "1.0.1" }
 
 
 ## Global
@@ -93,8 +93,8 @@ variable "generic_shell_image_name" { default = "os-shell-iamguarded" }
 variable "generic_shell_image_tag" { default = "latest" }
 
 locals {
-  module_storage_kob_tag   = "main"
-  module_storage_azure_tag = "main"
+  module_storage_kob_tag   = "0.3.0"
+  module_storage_azure_tag = "0.3.0"
   module_storage_aws_tag   = "main"
   module_storage_gcp_tag   = "main"
 }

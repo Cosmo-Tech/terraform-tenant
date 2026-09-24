@@ -8,6 +8,7 @@ spec:
   imageName: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
   imagePullSecrets:
     - name: ${REGISTRY_AUTH_SECRET}
+    - name: registry-auth-cgrdev
   inheritedMetadata:
       labels:
         networking/traffic-allowed: "yes"    
