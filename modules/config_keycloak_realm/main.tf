@@ -26,11 +26,6 @@ locals {
     "https://${var.cluster_domain}/${var.namespace}/api/swagger-ui/oauth2-redirect.html",
     "/*"
   ]
-  mcp_valid_redirect_uris = [
-    # "https://vscode.dev/redirect",
-    # "http://127.0.0.1:33418/*",
-    # "https://claude.ai/api/mcp/auth_callback",
-  ]
 }
 
 
