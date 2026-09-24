@@ -3,7 +3,6 @@ resource "keycloak_openid_client_scope" "mcp_client_scope" {
   name                   = "mcp"
   description            = "When provided, this scope allows MCP endpoint calls"
   include_in_token_scope = true
-  consent_screen_text    = true
 }
 
 resource "keycloak_openid_client" "cosmotech_api_mcp" {
@@ -12,7 +11,7 @@ resource "keycloak_openid_client" "cosmotech_api_mcp" {
   client_id             = local.cosmotech_api_mcp
   name                  = local.cosmotech_api_mcp
   access_type           = "PUBLIC"
-  full_scope_allowed    = false
+  full_scope_allowed    = true
   standard_flow_enabled = true
   web_origins           = local.web_origins
   root_url              = local.root_url
@@ -43,4 +42,21 @@ resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
     "web-origins",
     keycloak_openid_client_scope.mcp_client_scope.name,
   ]
+}
+
+resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_api_mcp" {
+  realm_id        = keycloak_realm.realm.id
+  client_id       = keycloak_openid_client.cosmotech_api_mcp.id
+  name            = "realm roles"
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-usermodel-realm-role-mapper"
+  config = {
+    "id.token.claim" : "true",
+    "access.token.claim" : "true",
+    "claim.name" : "userRoles",
+    "jsonType.label" : "String",
+    "multivalued" : "true",
+    "userinfo.token.claim" : "true",
+    "introspection.token.claim" : "true"
+  }
 }
