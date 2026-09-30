@@ -71,6 +71,10 @@ resource "postgresql_schema" "inputs" {
 
   owner = postgresql_role.writer[0].name
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   depends_on = [
     postgresql_database.cosmotech,
   ]
