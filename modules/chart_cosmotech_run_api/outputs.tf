@@ -7,5 +7,5 @@ output "database_admin_password" {
 }
 
 output "service_address" {
-  value = "${data.kubernetes_resources.services.objects[0].metadata.name}.${var.namespace}.svc.cluster.local:8080/${var.namespace}/${local.cosmotech_run_api_url_suffix}"
+  value = length(data.kubernetes_resources.services.objects) > 0 ? "${data.kubernetes_resources.services.objects[0].metadata.name}.${var.namespace}.svc.cluster.local:8080/${var.namespace}/${local.cosmotech_run_api_url_suffix}" : "known_after_apply"
 }
