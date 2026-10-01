@@ -18,12 +18,12 @@ argo:
 config:
   csm:
     platform:
+      namespace: ${NAMESPACE}
       api:
         mcp:
           dashboard-enabled: ${MCP_DASHBOARD_ENABLED}
           enabled: ${MCP_ENABLED}
           paths-to-exclude: ${MCP_PATHS_TO_EXCLUDE}
-      namespace: ${NAMESPACE}
       authorization:
         allowed-tenants: ${NAMESPACE}
       containerRegistry:
@@ -77,6 +77,10 @@ config:
           admin:
             username: ${DB_ADMIN_USERNAME}
             password: ${DB_ADMIN_PASSWORD}
+      tasks:
+        cleanUpArchivedRunners:
+          delay: 300
+          enabled: true
 
 ingress:
   enabled: true
