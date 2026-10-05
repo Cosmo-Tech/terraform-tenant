@@ -14,10 +14,16 @@ locals {
     ]
 
     modeling = [
+      "chart_cosmotech_run_api",
       "chart_cosmotech_modeling_api",
       "chart_argo_workflows",
+      "chart_redis",
       "chart_seaweedfs",
-      "postgresql_cnpg_cluster", # Required for Argo Workflows & SeaweedFS
+      "postgresql_cnpg_cluster",
+      "config_grafana_dashboard",
+      "config_harbor_project",
+      "config_keycloak_realm",
+      "config_superset_oauth",
     ]
 
     asset = [
