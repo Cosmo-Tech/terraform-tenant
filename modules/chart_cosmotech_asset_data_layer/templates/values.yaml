@@ -14,7 +14,7 @@ ingress:
   hosts:
     - host: "${CLUSTER_DOMAIN}"
       paths:
-        - path: /${NAMESPACE}/asset
+        - path: ${COSMOTECH_ASSET_DATA_LAYER_URL_SUFFIX}
           pathType: ImplementationSpecific
   annotations:
     kubernetes.io/ingress.class: traefik
@@ -25,7 +25,7 @@ ingress:
       - "${CLUSTER_DOMAIN}"
 
 apiConfig:
-  rootUri: "/${NAMESPACE}/api/asset"
+  rootUri: ${COSMOTECH_ASSET_DATA_LAYER_URL_SUFFIX}
   dataDir: "/data"
   corsOrigin:
     - https://${CLUSTER_DOMAIN}/${NAMESPACE}/*
