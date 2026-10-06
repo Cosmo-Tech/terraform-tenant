@@ -122,3 +122,17 @@ variable "mcp_paths_to_exclude" {
   description = "List formatted: \"/path-to-exclude1,/path-to-exclude2,/path-to-exclude3\""
   type        = string
 }
+
+variable "api_compression_response_enabled" {
+  type = bool
+}
+
+variable "api_compression_response_min_size" {
+  description = "can be defined in KB,MB,GB,..."
+  type        = string
+}
+
+variable "api_compression_response_mime_types" {
+  description = "List formatted: \"application/octet-stream,text/csv,text/plain,application/json\""
+  type        = string
+}

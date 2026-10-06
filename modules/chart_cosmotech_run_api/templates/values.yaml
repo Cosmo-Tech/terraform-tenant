@@ -8,6 +8,10 @@ api:
     namespace: ${NAMESPACE_MONITORING}
   tlsTruststore:
     enabled: false
+  compression:
+    enabled: ${API_COMPRESSION_RESPONSE_ENABLED}
+    minResponseSize: ${API_COMPRESSION_RESPONSE_MIN_SIZE}
+    mimeTypes: ${API_COMPRESSION_RESPONSE_MIME_TYPES}
 
 argo:
   imageCredentials:
