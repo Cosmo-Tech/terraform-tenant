@@ -36,6 +36,7 @@ locals {
     S3_PASSWORD                           = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
     KEYCLOAK_CLIENT_ID                    = var.keycloak_client_id
     CLUSTER_DOMAIN                        = var.cluster_domain
+    COSMOTECH_ASSET_DATA_LAYER_URL_SUFFIX = "/${var.namespace}/asset"
   }
 
   database_schema_name = var.use_external_postgresql ? "${var.namespace}_cosmotech_asset_data_layer" : "cosmotech_asset_data_layer"
