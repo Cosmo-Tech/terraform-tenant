@@ -249,13 +249,16 @@ module "chart_cosmotech_run_api" {
   registry             = var.registry
   registry_auth_secret = var.registry_auth_secret
 
-  chart_repository      = "oci://${var.registry}/${var.chart_prefix_product}"
-  chart_name            = var.cosmotech_run_api_chart_name
-  chart_tag             = var.cosmotech_run_api_chart_tag
-  chart_release         = "cosmotech-run-api"
-  mcp_enabled           = var.mcp_enabled
-  mcp_dashboard_enabled = var.mcp_dashboard_enabled
-  mcp_paths_to_exclude  = var.mcp_paths_to_exclude
+  chart_repository                    = "oci://${var.registry}/${var.chart_prefix_product}"
+  chart_name                          = var.cosmotech_run_api_chart_name
+  chart_tag                           = var.cosmotech_run_api_chart_tag
+  chart_release                       = "cosmotech-run-api"
+  mcp_enabled                         = var.mcp_enabled
+  mcp_dashboard_enabled               = var.mcp_dashboard_enabled
+  mcp_paths_to_exclude                = var.mcp_paths_to_exclude
+  api_compression_response_enabled    = var.api_compression_response_enabled
+  api_compression_response_min_size   = var.api_compression_response_min_size
+  api_compression_response_mime_types = var.api_compression_response_mime_types
 
   cosmotech_run_api_image_name = "${var.image_prefix_product}${var.cosmotech_run_api_image_name}"
   cosmotech_run_api_image_tag  = var.cosmotech_run_api_image_tag
