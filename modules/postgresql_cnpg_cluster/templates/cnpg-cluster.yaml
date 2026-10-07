@@ -23,10 +23,10 @@ spec:
     size: "${PERSISTENCE_SIZE}"
   resources:
     requests:
-      memory: "4Gi"
+      memory: "2Gi"
       cpu: "2"
     limits:
-      memory: "2Gi"
+      memory: "4Gi"
       cpu: "2"
   affinity:
     nodeSelector:
