@@ -8,7 +8,6 @@ spec:
   imageName: ${REGISTRY}/${POSTGRESQL_IMAGE_NAME}:${POSTGRESQL_IMAGE_TAG}
   imagePullSecrets:
     - name: ${REGISTRY_AUTH_SECRET}
-    - name: registry-auth-cgrdev
   inheritedMetadata:
       labels:
         networking/traffic-allowed: "yes"    
@@ -24,11 +23,11 @@ spec:
     size: "${PERSISTENCE_SIZE}"
   resources:
     requests:
-      memory: 64Mi
-      cpu: 250m
+      memory: "4Gi"
+      cpu: "2"
     limits:
-      memory: 256Mi
-      cpu: "1"
+      memory: "2Gi"
+      cpu: "2"
   affinity:
     nodeSelector:
       cosmotech.com/tier: db
