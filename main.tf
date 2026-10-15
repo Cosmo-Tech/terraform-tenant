@@ -256,6 +256,7 @@ module "chart_cosmotech_run_api" {
   mcp_enabled                         = var.mcp_enabled
   mcp_dashboard_enabled               = var.mcp_dashboard_enabled
   mcp_paths_to_exclude                = var.mcp_paths_to_exclude
+  mcp_required_approval               = var.mcp_required_approval
   api_compression_response_enabled    = var.api_compression_response_enabled
   api_compression_response_min_size   = var.api_compression_response_min_size
   api_compression_response_mime_types = var.api_compression_response_mime_types

@@ -28,6 +28,7 @@ config:
           dashboard-enabled: ${MCP_DASHBOARD_ENABLED}
           enabled: ${MCP_ENABLED}
           paths-to-exclude: ${MCP_PATHS_TO_EXCLUDE}
+          required-approval: ${MCP_REQUIRED_APPROVAL}
       authorization:
         allowed-tenants: ${NAMESPACE}
       containerRegistry:

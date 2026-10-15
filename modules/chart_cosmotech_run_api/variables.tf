@@ -118,6 +118,10 @@ variable "mcp_dashboard_enabled" {
   type = bool
 }
 
+variable "mcp_required_approval" {
+  type = bool
+}
+
 variable "mcp_paths_to_exclude" {
   description = "List formatted: \"/path-to-exclude1,/path-to-exclude2,/path-to-exclude3\""
   type        = string
