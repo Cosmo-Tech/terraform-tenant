@@ -46,6 +46,7 @@ variable "cosmotech_run_api_image_tag" { default = "5.3.1" }
 variable "mcp_enabled" { default = false }
 variable "mcp_dashboard_enabled" { default = false }
 variable "mcp_paths_to_exclude" { default = "" }
+variable "mcp_required_approval" { default = true }
 variable "api_compression_response_enabled" { default = true }
 variable "api_compression_response_min_size" { default = "1MB" }
 variable "api_compression_response_mime_types" { default = "application/octet-stream,text/csv,text/plain,application/json" }

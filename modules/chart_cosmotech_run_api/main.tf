@@ -46,6 +46,7 @@ locals {
     MCP_ENABLED                         = var.mcp_enabled
     MCP_DASHBOARD_ENABLED               = var.mcp_dashboard_enabled
     MCP_PATHS_TO_EXCLUDE                = var.mcp_paths_to_exclude
+    MCP_REQUIRED_APPROVAL               = var.mcp_required_approval
     API_COMPRESSION_RESPONSE_ENABLED    = var.api_compression_response_enabled
     API_COMPRESSION_RESPONSE_MIN_SIZE   = var.api_compression_response_min_size
     API_COMPRESSION_RESPONSE_MIME_TYPES = var.api_compression_response_mime_types
