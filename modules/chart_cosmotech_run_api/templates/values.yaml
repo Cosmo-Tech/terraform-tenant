@@ -1,4 +1,6 @@
 api:
+  security:
+    debug: ${API_SECURITY_DEBUG}
   servletContextPath: /
   version: ${URL_SUFFIX}
   multiTenant: true

@@ -50,6 +50,7 @@ variable "mcp_required_approval" { default = true }
 variable "api_compression_response_enabled" { default = true }
 variable "api_compression_response_min_size" { default = "1MB" }
 variable "api_compression_response_mime_types" { default = "application/octet-stream,text/csv,text/plain,application/json" }
+variable "api_security_debug" { default = false }
 
 
 ## Cosmo Tech Modeling API

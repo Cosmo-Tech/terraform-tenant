@@ -140,3 +140,7 @@ variable "api_compression_response_mime_types" {
   description = "List formatted: \"application/octet-stream,text/csv,text/plain,application/json\""
   type        = string
 }
+
+variable "api_security_debug" {
+  type = bool
+}
