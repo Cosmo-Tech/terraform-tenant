@@ -260,6 +260,7 @@ module "chart_cosmotech_run_api" {
   api_compression_response_enabled    = var.api_compression_response_enabled
   api_compression_response_min_size   = var.api_compression_response_min_size
   api_compression_response_mime_types = var.api_compression_response_mime_types
+  api_security_debug                  = var.api_security_debug
 
   cosmotech_run_api_image_name = "${var.image_prefix_product}${var.cosmotech_run_api_image_name}"
   cosmotech_run_api_image_tag  = var.cosmotech_run_api_image_tag
