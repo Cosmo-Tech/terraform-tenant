@@ -55,9 +55,9 @@ variable "api_security_debug" { default = false }
 
 ## Cosmo Tech Modeling API
 variable "cosmotech_modeling_api_chart_name" { default = "cosmotech-modeling-api" }
-variable "cosmotech_modeling_api_chart_tag" { default = "0.7.0" }
+variable "cosmotech_modeling_api_chart_tag" { default = "0.8.0" }
 variable "cosmotech_modeling_api_image_name" { default = "cosmotech-modeling-api" }
-variable "cosmotech_modeling_api_image_tag" { default = "12.3.0" }
+variable "cosmotech_modeling_api_image_tag" { default = "12.4.0" }
 variable "cosmotech_modeling_api_storage_size" { default = 8 }
 
 
