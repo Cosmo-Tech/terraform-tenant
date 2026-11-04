@@ -88,6 +88,16 @@ config:
         cleanUpArchivedRunners:
           delay: 300
           enabled: true
+  logging:
+    include-application-name: false
+    level:
+      com.redis: ERROR
+      com.cosmotech: INFO
+      org.hibernate: ERROR
+      org.apache.tomcat: INFO
+      org.springframework: ERROR
+      com.cosmotech.common: ERROR
+      org.springframework.web.servlet.DispatcherServlet: DEBUG
 
 ingress:
   enabled: true
