@@ -10,6 +10,8 @@ commonConfiguration: |-
   ## AOF & RDB persistences can be enabled together without problem.
   ## Only RDB was enabled in previous versions of this Terraform module (it was also Redis 7) -> to ensure data continuity, RDB must remains enabled.
 
+architecture: standalone
+
 auth:
   password: ${REDIS_PASSWORD}
 
@@ -68,7 +70,7 @@ replica:
       type: RuntimeDefault
     capabilities:
       drop: ["ALL"]
-  replicaCount: 1
+  replicaCount: 0
   podLabels:
     networking/traffic-allowed: "yes"
   persistence:
