@@ -33,13 +33,6 @@ locals {
       pvc_name   = "pvc-${local.tenant_namespace}-redis-master"
       create_pvc = true
     }
-    redis-replica = {
-      module     = "chart_redis"
-      size       = var.redis_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-redis-replica"
-      pvc_name   = "pvc-${local.tenant_namespace}-redis-replica"
-      create_pvc = true
-    }
     cosmotech-asset-data-layer = {
       module = "chart_cosmotech_asset_data_layer"
       size   = var.cosmotech_asset_data_layer_storage_size
@@ -229,10 +222,6 @@ module "chart_redis" {
   size_master              = local.persistences.redis-master["size"]
   pvc_master               = local.persistences.redis-master["pvc_name"]
   pvc_master_storage_class = local.storage_class_name
-
-  size_replica              = local.persistences.redis-replica["size"]
-  pvc_replica               = local.persistences.redis-replica["pvc_name"]
-  pvc_replica_storage_class = local.storage_class_name
 
   depends_on = [
     time_sleep.timer,
