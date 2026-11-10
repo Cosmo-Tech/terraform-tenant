@@ -55,44 +55,6 @@ master:
       memory: "4Gi"
       cpu: "2000m"
 
-replica:
-  podSecurityContext:
-    enabled: true
-  containerSecurityContext:
-    enabled: true
-    seLinuxOptions: {}
-    runAsUser: 1001
-    runAsGroup: 1001
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
-    capabilities:
-      drop: ["ALL"]
-  replicaCount: 0
-  podLabels:
-    networking/traffic-allowed: "yes"
-  persistence:
-    enabled: true
-    size: "${PERSISTENCE_REPLICA_SIZE}"
-    storageClass: "${PERSISTENCE_REPLICA_STORAGE_CLASS}"
-    existingClaim: "${PERSISTENCE_REPLICA_PVC}"
-  tolerations:
-  - key: "vendor"
-    operator: "Equal"
-    value: "cosmotech"
-    effect: "NoSchedule"
-  nodeSelector:
-    "cosmotech.com/tier": "db"
-  resources:
-    requests:
-      memory: "4Gi"
-      cpu: "2000m"
-    limits:
-      memory: "4Gi"
-      cpu: "2000m"
-
 image:
   repository: ${REDIS_IMAGE_NAME}
   tag: "${REDIS_IMAGE_TAG}"
