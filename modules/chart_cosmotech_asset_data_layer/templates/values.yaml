@@ -67,10 +67,10 @@ tolerations:
 resources:
   limits:
     cpu: 100m
-    memory: 128Mi
+    memory: 1Gi
   requests:
     cpu: 100m
-    memory: 128Mi
+    memory: 256Mi
 
 nodeSelector:
   cosmotech.com/tier: services
@@ -91,7 +91,7 @@ database:
 postgres:
   enabled: true
   host: "${DB_HOST}"
-  port: "${DB_PORT}"
+  port: ${DB_PORT}
   database: "${DB_NAME}"
   username: "${DB_ADMIN_USERNAME}"
   password: "${DB_ADMIN_PASSWORD}"
