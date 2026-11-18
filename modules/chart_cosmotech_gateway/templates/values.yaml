@@ -1,0 +1,91 @@
+config:
+  csm:
+    platform:
+      gateway:
+        contextPath: /${NAMESPACE}
+        identityProvider:
+          serverBaseUrl: https://${CLUSTER_DOMAIN}/keycloak
+          identity:
+            clientId: ${KEYCLOAK_GATEWAY_CLIENT_ID}
+            tenantId: ${NAMESPACE}
+        authorization:
+          principal: preferred_username
+          cookie-name: SESSION
+        cors:
+          allowed-origins:
+            - "https://${CLUSTER_DOMAIN}"
+          allowed-methods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+          allowed-headers: ["*"]
+          exposed-headers: [Location, WWW-Authenticate]
+          allow-credentials: true
+          max-age: 3600
+        openApiAggregation:
+          enabled: true
+          serverUrls:
+            ${indent(12, trimspace(yamlencode(GATEWAY_OPENAPI_SERVER_URLS)))}
+        configuration:
+          failOnRouteDefinitionError: true
+          routeFilterCacheEnabled: false
+          trustedProxies: ""
+          defaultFilters:
+            - TokenRelay=
+          routes:
+            ${indent(12, trimspace(yamlencode(GATEWAY_ROUTES)))}
+        swagger-ui:
+          path: /swagger-ui.html
+          useRootPath: true
+          persistAuthorization: false
+          urlsPrimaryName: cosmotech-gateway
+          urls:
+            ${indent(12, trimspace(yamlencode(GATEWAY_SWAGGER_URLS)))}
+          oauth:
+            scopes: "openid,email,profile"
+            useBasicAuthenticationWithAccessCodeGrant: false
+            usePkceWithAuthorizationCodeGrant: true
+  logging:
+    level:
+      com.cosmotech: INFO
+      org.springframework.cloud.gateway: INFO
+      org.springframework.security: INFO
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod-${NAMESPACE}
+  hosts:
+    - host: ${CLUSTER_DOMAIN}
+  tls:
+    - secretName: letsencrypt-prod-${NAMESPACE}
+      hosts:
+        - "${CLUSTER_DOMAIN}"
+
+replicaCount: 1
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+nodeSelector:
+  cosmotech.com/tier: services
+
+tolerations:
+- key: vendor
+  operator: Equal
+  value: cosmotech
+  effect: NoSchedule
+
+image:
+  repository: ${REGISTRY}/${COSMOTECH_GATEWAY_IMAGE_NAME}
+  tag: ${COSMOTECH_GATEWAY_IMAGE_TAG}
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: ${REGISTRY_AUTH_SECRET}

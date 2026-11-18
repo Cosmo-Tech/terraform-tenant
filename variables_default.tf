@@ -53,6 +53,13 @@ variable "api_compression_response_mime_types" { default = "application/octet-st
 variable "api_security_debug" { default = false }
 
 
+## Cosmo Tech Gateway
+variable "cosmotech_gateway_chart_name" { default = "cosmotech-gateway" }
+variable "cosmotech_gateway_chart_tag" { default = "0.1.0" }
+variable "cosmotech_gateway_image_name" { default = "cosmotech-gateway" }
+variable "cosmotech_gateway_image_tag" { default = "0.1.0" }
+
+
 ## Cosmo Tech Modeling API
 variable "cosmotech_modeling_api_chart_name" { default = "cosmotech-modeling-api" }
 variable "cosmotech_modeling_api_chart_tag" { default = "0.8.0" }

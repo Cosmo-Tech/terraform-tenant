@@ -314,6 +314,39 @@ module "chart_cosmotech_run_api" {
 }
 
 
+module "chart_cosmotech_gateway" {
+  count  = contains(local.tenant_recipe_modules, "chart_cosmotech_gateway") ? 1 : 0
+  source = "./modules/chart_cosmotech_gateway"
+
+  namespace = local.tenant_namespace
+
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
+  chart_name       = var.cosmotech_gateway_chart_name
+  chart_tag        = var.cosmotech_gateway_chart_tag
+  chart_release    = "cosmotech-gateway"
+
+  cosmotech_gateway_image_name = "${var.image_prefix_product}${var.cosmotech_gateway_image_name}"
+  cosmotech_gateway_image_tag  = var.cosmotech_gateway_image_tag
+
+  cluster_domain = local.cluster_domain
+
+  keycloak_gateway_client_id = try(one(module.config_keycloak_realm[*].keycloak_gateway_client_id), null)
+
+  tenant_recipe_modules = local.tenant_recipe_modules
+
+  cosmotech_run_api_service_address = try(one(module.chart_cosmotech_run_api[*].service_address), null)
+
+  depends_on = [
+    time_sleep.timer,
+    module.chart_cosmotech_run_api,
+    module.config_keycloak_realm,
+  ]
+}
+
+
 module "chart_cosmotech_modeling_api" {
   count  = contains(local.tenant_recipe_modules, "chart_cosmotech_modeling_api") ? 1 : 0
   source = "./modules/chart_cosmotech_modeling_api"
