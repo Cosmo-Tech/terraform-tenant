@@ -3,6 +3,7 @@ locals {
   tenant_recipes = {
     run = [
       "chart_cosmotech_run_api",
+      "chart_cosmotech_gateway",
       "chart_cosmotech_business_webapp",
       "config_powerbi_app", # Only for run business webapp (still requires azure + powerbi_app_deploy = true)
       "chart_argo_workflows",
@@ -17,6 +18,7 @@ locals {
 
     modeling = [
       "chart_cosmotech_run_api",
+      "chart_cosmotech_gateway",
       "chart_cosmotech_modeling_api",
       "chart_argo_workflows",
       "chart_redis",
@@ -31,6 +33,7 @@ locals {
     asset = [
       "chart_cosmotech_asset_data_layer",
       "chart_cosmotech_run_api",
+      "chart_cosmotech_gateway",
       "chart_cosmotech_business_webapp",
       "chart_argo_workflows",
       "chart_redis",

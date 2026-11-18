@@ -14,6 +14,7 @@ locals {
   cosmotech_babylon  = "cosmotech-client-babylon"
   cosmotech_superset = "cosmotech-client-superset"
   cosmotech_admin    = "cosmotech-client-admin"
+  cosmotech_gateway  = "cosmotech-client-gateway"
   cosmotech_webapp   = var.webapp_name != null ? "cosmotech-client-${var.webapp_name}" : null
 
   access_type           = "CONFIDENTIAL"
@@ -23,6 +24,7 @@ locals {
   root_url              = "https://${var.cluster_domain}"
   base_url              = "/${var.namespace}/api/"
   base_mcp_url          = "/${var.namespace}/api/mcp"
+  base_gateway_url      = "/${var.namespace}/"
   valid_redirect_uris = [
     "https://${var.cluster_domain}/${var.namespace}/api/swagger-ui/oauth2-redirect.html",
     "/*"
