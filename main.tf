@@ -292,6 +292,8 @@ module "chart_cosmotech_run_api" {
   s3_secret_key_username = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_username), null)
   s3_secret_key_password = try(one(module.chart_seaweedfs[*].s3_secret_key_cosmotech_api_password), null)
 
+  tenant_recipe_modules = local.tenant_recipe_modules
+
   cluster_domain = local.cluster_domain
 
   keycloak_api_client_id       = try(one(module.config_keycloak_realm[*].keycloak_api_client_id), null)
