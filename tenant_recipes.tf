@@ -3,6 +3,7 @@ locals {
   tenant_recipes = {
     run = [
       "chart_cosmotech_run_api",
+      "chart_cosmotech_gateway",
       "chart_argo_workflows",
       "chart_redis",
       "chart_seaweedfs",
@@ -15,6 +16,7 @@ locals {
 
     modeling = [
       "chart_cosmotech_run_api",
+      "chart_cosmotech_gateway",
       "chart_cosmotech_modeling_api",
       "chart_argo_workflows",
       "chart_redis",
@@ -29,6 +31,7 @@ locals {
     asset = [
       "chart_cosmotech_asset_data_layer",
       "chart_cosmotech_run_api",
+      "chart_cosmotech_gateway",
       "chart_argo_workflows",
       "chart_redis",
       "chart_seaweedfs",
