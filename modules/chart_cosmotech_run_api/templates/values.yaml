@@ -100,7 +100,7 @@ config:
       org.springframework.web.servlet.DispatcherServlet: DEBUG
 
 ingress:
-  enabled: true
+  enabled: ${INGRESS_ENABLED}
   ingressClassName: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod-${NAMESPACE}
