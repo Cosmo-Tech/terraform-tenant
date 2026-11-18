@@ -144,3 +144,7 @@ variable "api_compression_response_mime_types" {
 variable "api_security_debug" {
   type = bool
 }
+
+variable "tenant_recipe_modules" {
+  type = list(string)
+}
