@@ -43,6 +43,7 @@ variable "cosmotech_run_api_chart_name" { default = "cosmotech-api" }
 variable "cosmotech_run_api_chart_tag" { default = "5.4.0" }
 variable "cosmotech_run_api_image_name" { default = "cosmotech-api" }
 variable "cosmotech_run_api_image_tag" { default = "5.4.0" }
+variable "cosmotech_run_api_route_suffix" { default = "run-api" } ## Path segment under which the Run API is exposed (https://<cluster_domain>/<namespace>/<suffix>)
 variable "mcp_enabled" { default = false }
 variable "mcp_dashboard_enabled" { default = false }
 variable "mcp_paths_to_exclude" { default = "" }

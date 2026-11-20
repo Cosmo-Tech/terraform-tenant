@@ -84,8 +84,9 @@ module "config_keycloak_realm" {
   count  = contains(local.tenant_recipe_modules, "config_keycloak_realm") ? 1 : 0
   source = "./modules/config_keycloak_realm"
 
-  namespace      = local.tenant_namespace
-  cluster_domain = local.cluster_domain
+  namespace                      = local.tenant_namespace
+  cluster_domain                 = local.cluster_domain
+  cosmotech_run_api_route_suffix = var.cosmotech_run_api_route_suffix
 }
 
 
@@ -335,6 +336,7 @@ module "chart_cosmotech_gateway" {
   tenant_recipe_modules = local.tenant_recipe_modules
 
   cosmotech_run_api_service_address = try(one(module.chart_cosmotech_run_api[*].service_address), null)
+  cosmotech_run_api_route_suffix    = var.cosmotech_run_api_route_suffix
 
   depends_on = [
     time_sleep.timer,

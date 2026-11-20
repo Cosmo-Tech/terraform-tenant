@@ -14,9 +14,6 @@ locals {
   }
   chart_release_name = "${var.chart_release}-${var.namespace}"
 
-  # Gateway path under which the Cosmo Tech Run API is exposed (https://<cluster_domain>/<namespace>/run-api)
-  cosmotech_run_api_route = "run-api"
-
   # Service address format: "<host>:<port>/<path>"
   cosmotech_run_api_service_host = try(split("/", var.cosmotech_run_api_service_address)[0], "")
   cosmotech_run_api_service_path = try(trimprefix(var.cosmotech_run_api_service_address, local.cosmotech_run_api_service_host), "")
@@ -30,15 +27,15 @@ locals {
         {
           id         = "cosmotech-run-api"
           uri        = "http://${local.cosmotech_run_api_service_host}"
-          predicates = ["Path=/${local.cosmotech_run_api_route}/**"]
-          filters    = ["RewritePath=^/${var.namespace}/${local.cosmotech_run_api_route}/(?<segment>.*), ${local.cosmotech_run_api_service_path}/$\\{segment}"]
+          predicates = ["Path=/${var.cosmotech_run_api_route_suffix}/**"]
+          filters    = ["RewritePath=^/${var.namespace}/${var.cosmotech_run_api_route_suffix}/(?<segment>.*), ${local.cosmotech_run_api_service_path}/$\\{segment}"]
         },
       ]
       openapi = {
         name          = "cosmotech-run-api"
         uri           = "http://${local.cosmotech_run_api_service_host}"
         document_path = "${local.cosmotech_run_api_service_path}/openapi.yaml"
-        server_url    = "/${var.namespace}/${local.cosmotech_run_api_route}"
+        server_url    = "/${var.namespace}/${var.cosmotech_run_api_route_suffix}"
       }
     },
   ]
