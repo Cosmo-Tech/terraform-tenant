@@ -338,9 +338,13 @@ module "chart_cosmotech_gateway" {
   cosmotech_run_api_service_address = try(one(module.chart_cosmotech_run_api[*].service_address), null)
   cosmotech_run_api_route_suffix    = var.cosmotech_run_api_route_suffix
 
+  cosmotech_modeling_api_service_address = try(one(module.chart_cosmotech_modeling_api[*].service_address), null)
+  cosmotech_modeling_api_route_suffix    = var.cosmotech_modeling_api_route_suffix
+
   depends_on = [
     time_sleep.timer,
     module.chart_cosmotech_run_api,
+    module.chart_cosmotech_modeling_api,
     module.config_keycloak_realm,
   ]
 }
