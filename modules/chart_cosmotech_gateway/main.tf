@@ -18,46 +18,54 @@ locals {
   cosmotech_run_api_service_host = try(split("/", var.cosmotech_run_api_service_address)[0], "")
   cosmotech_run_api_service_path = try(trimprefix(var.cosmotech_run_api_service_address, local.cosmotech_run_api_service_host), "")
 
-  # Services exposed through the gateway, each one only enabled when its module is part of the tenant recipe.
-  # "openapi" is optional: omit it (or set it to null) for services without OpenAPI contract.
-  gateway_services = [
+  run_api_enabled      = contains(var.tenant_recipe_modules, "chart_cosmotech_run_api")
+  modeling_api_enabled = contains(var.tenant_recipe_modules, "chart_cosmotech_modeling_api")
+
+  # Each service declares its own routes, OpenAPI route and Swagger entry, only when its module is part of the tenant recipe.
+
+  # Cosmo Tech Run API: API served under /<suffix>/**, OpenAPI contract read from the service path
+  run_api_routes = local.run_api_enabled ? [
     {
-      enabled = contains(var.tenant_recipe_modules, "chart_cosmotech_run_api")
-      routes = [
-        {
-          id         = "cosmotech-run-api"
-          uri        = "http://${local.cosmotech_run_api_service_host}"
-          predicates = ["Path=/${var.cosmotech_run_api_route_suffix}/**"]
-          filters    = ["RewritePath=^/${var.namespace}/${var.cosmotech_run_api_route_suffix}/(?<segment>.*), ${local.cosmotech_run_api_service_path}/$\\{segment}"]
-        },
-      ]
-      openapi = {
-        name          = "cosmotech-run-api"
-        uri           = "http://${local.cosmotech_run_api_service_host}"
-        document_path = "${local.cosmotech_run_api_service_path}/openapi.yaml"
-        server_url    = "/${var.namespace}/${var.cosmotech_run_api_route_suffix}"
-      }
+      id         = "cosmotech-run-api"
+      uri        = "http://${local.cosmotech_run_api_service_host}"
+      predicates = ["Path=/${var.cosmotech_run_api_route_suffix}/**"]
+      filters    = ["RewritePath=^/${var.namespace}/${var.cosmotech_run_api_route_suffix}/(?<segment>.*), ${local.cosmotech_run_api_service_path}/$\\{segment}"]
     },
-  ]
+    {
+      id         = "cosmotech-run-api-openapi"
+      uri        = "http://${local.cosmotech_run_api_service_host}"
+      predicates = ["Path=/openapi/cosmotech-run-api"]
+      filters    = ["RewritePath=^/${var.namespace}/openapi/cosmotech-run-api$, ${local.cosmotech_run_api_service_path}/openapi.yaml"]
+    },
+  ] : []
 
-  gateway_enabled_services = [for service in local.gateway_services : service if service.enabled]
-  gateway_openapi_services = [for service in local.gateway_enabled_services : service.openapi if try(service.openapi, null) != null]
+  # Cosmo Tech Modeling API: API served under /<suffix>/**, prefix stripped before forwarding
+  modeling_api_routes = local.modeling_api_enabled ? [
+    {
+      id         = "cosmotech-modeling-api"
+      uri        = "http://${var.cosmotech_modeling_api_service_address}"
+      predicates = ["Path=/${var.cosmotech_modeling_api_route_suffix}/**"]
+      filters    = ["StripPrefix=2"]
+    },
+    {
+      id         = "cosmotech-modeling-api-openapi"
+      uri        = "http://${var.cosmotech_modeling_api_service_address}"
+      predicates = ["Path=/openapi/cosmotech-modeling-api"]
+      filters    = ["RewritePath=^/${var.namespace}/openapi/cosmotech-modeling-api$, /openapi.yaml"]
+    },
+  ] : []
 
-  # Public route serving each OpenAPI contract under /openapi/<name>
-  gateway_openapi_routes = [
-    for openapi in local.gateway_openapi_services : {
-      id         = "${openapi.name}-openapi"
-      uri        = openapi.uri
-      predicates = ["Path=/openapi/${openapi.name}"]
-      filters    = ["RewritePath=^/${var.namespace}/openapi/${openapi.name}$, ${openapi.document_path}"]
-    }
-  ]
+  gateway_routes = concat(local.run_api_routes, local.modeling_api_routes)
 
-  gateway_routes              = concat(flatten([for service in local.gateway_enabled_services : service.routes]), local.gateway_openapi_routes)
-  gateway_openapi_server_urls = { for openapi in local.gateway_openapi_services : "[/openapi/${openapi.name}]" => openapi.server_url }
+  gateway_openapi_server_urls = merge(
+    local.run_api_enabled ? { "[/openapi/cosmotech-run-api]" = "/${var.namespace}/${var.cosmotech_run_api_route_suffix}" } : {},
+    local.modeling_api_enabled ? { "[/openapi/cosmotech-modeling-api]" = "/${var.namespace}/${var.cosmotech_modeling_api_route_suffix}" } : {},
+  )
+
   gateway_swagger_urls = concat(
     [{ name = "cosmotech-gateway", url = "/v3/api-docs" }],
-    [for openapi in local.gateway_openapi_services : { name = openapi.name, url = "/openapi/${openapi.name}" }],
+    local.run_api_enabled ? [{ name = "cosmotech-run-api", url = "/openapi/cosmotech-run-api" }] : [],
+    local.modeling_api_enabled ? [{ name = "cosmotech-modeling-api", url = "/openapi/cosmotech-modeling-api" }] : [],
   )
 }
 

@@ -67,6 +67,7 @@ variable "cosmotech_modeling_api_chart_tag" { default = "0.8.0" }
 variable "cosmotech_modeling_api_image_name" { default = "cosmotech-modeling-api" }
 variable "cosmotech_modeling_api_image_tag" { default = "12.4.0" }
 variable "cosmotech_modeling_api_storage_size" { default = 8 }
+variable "cosmotech_modeling_api_route_suffix" { default = "mod-api" } ## Path segment under which the Modeling API is exposed (https://<cluster_domain>/<namespace>/<suffix>)
 
 
 ## Cosmo Tech Asset Data Layer
