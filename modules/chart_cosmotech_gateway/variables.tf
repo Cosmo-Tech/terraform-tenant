@@ -50,3 +50,8 @@ variable "cosmotech_run_api_service_address" {
   description = "Formatted: \"<host>:<port>/<path>\""
   type        = string
 }
+
+variable "cosmotech_run_api_route_suffix" {
+  description = "Gateway path segment under which the Run API is exposed"
+  type        = string
+}

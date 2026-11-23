@@ -57,7 +57,7 @@ resource "kubernetes_secret" "babylon" {
   }
 
   data = {
-    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.namespace}/api",
+    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.namespace}/${var.cosmotech_run_api_route_suffix}",
     "modeling_api_pf" : "services/cosmotech-modeling-api", # pf = port-forward
     "keycloak_token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.namespace}/protocol/openid-connect/token",
     "keycloak_client_id" : keycloak_openid_client.cosmotech_babylon.client_id,
