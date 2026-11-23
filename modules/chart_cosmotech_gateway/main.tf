@@ -18,8 +18,13 @@ locals {
   cosmotech_run_api_service_host = try(split("/", var.cosmotech_run_api_service_address)[0], "")
   cosmotech_run_api_service_path = try(trimprefix(var.cosmotech_run_api_service_address, local.cosmotech_run_api_service_host), "")
 
-  run_api_enabled      = contains(var.tenant_recipe_modules, "chart_cosmotech_run_api")
-  modeling_api_enabled = contains(var.tenant_recipe_modules, "chart_cosmotech_modeling_api")
+  # Asset Data Layer service address format is "<host>:<port>/<path>", same as the Run API
+  cosmotech_asset_data_layer_service_host = try(split("/", var.cosmotech_asset_data_layer_service_address)[0], "")
+  cosmotech_asset_data_layer_service_path = try(trimprefix(var.cosmotech_asset_data_layer_service_address, local.cosmotech_asset_data_layer_service_host), "")
+
+  run_api_enabled          = contains(var.tenant_recipe_modules, "chart_cosmotech_run_api")
+  modeling_api_enabled     = contains(var.tenant_recipe_modules, "chart_cosmotech_modeling_api")
+  asset_data_layer_enabled = contains(var.tenant_recipe_modules, "chart_cosmotech_asset_data_layer")
 
   # Each service declares its own routes, OpenAPI route and Swagger entry, only when its module is part of the tenant recipe.
 
@@ -55,17 +60,35 @@ locals {
     },
   ] : []
 
-  gateway_routes = concat(local.run_api_routes, local.modeling_api_routes)
+  # Cosmo Tech Asset Data Layer API: API served under /<suffix>/**, service path /<namespace>/asset, OpenAPI contract at /openapi.json
+  asset_data_layer_routes = local.asset_data_layer_enabled ? [
+    {
+      id         = "cosmotech-asset-data-layer"
+      uri        = "http://${local.cosmotech_asset_data_layer_service_host}"
+      predicates = ["Path=/${var.cosmotech_asset_data_layer_route_suffix}/**"]
+      filters    = ["RewritePath=^/${var.namespace}/${var.cosmotech_asset_data_layer_route_suffix}/(?<segment>.*), ${local.cosmotech_asset_data_layer_service_path}/$\\{segment}"]
+    },
+    {
+      id         = "cosmotech-asset-data-layer-openapi"
+      uri        = "http://${local.cosmotech_asset_data_layer_service_host}"
+      predicates = ["Path=/openapi/cosmotech-asset-data-layer"]
+      filters    = ["RewritePath=^/${var.namespace}/openapi/cosmotech-asset-data-layer$, ${local.cosmotech_asset_data_layer_service_path}/openapi.json"]
+    },
+  ] : []
+
+  gateway_routes = concat(local.run_api_routes, local.modeling_api_routes, local.asset_data_layer_routes)
 
   gateway_openapi_server_urls = merge(
     local.run_api_enabled ? { "[/openapi/cosmotech-run-api]" = "/${var.namespace}/${var.cosmotech_run_api_route_suffix}" } : {},
     local.modeling_api_enabled ? { "[/openapi/cosmotech-modeling-api]" = "/${var.namespace}/${var.cosmotech_modeling_api_route_suffix}" } : {},
+    local.asset_data_layer_enabled ? { "[/openapi/cosmotech-asset-data-layer]" = "/${var.namespace}/${var.cosmotech_asset_data_layer_route_suffix}" } : {},
   )
 
   gateway_swagger_urls = concat(
     [{ name = "cosmotech-gateway", url = "/v3/api-docs" }],
     local.run_api_enabled ? [{ name = "cosmotech-run-api", url = "/openapi/cosmotech-run-api" }] : [],
     local.modeling_api_enabled ? [{ name = "cosmotech-modeling-api", url = "/openapi/cosmotech-modeling-api" }] : [],
+    local.asset_data_layer_enabled ? [{ name = "cosmotech-asset-data-layer", url = "/openapi/cosmotech-asset-data-layer" }] : [],
   )
 }
 

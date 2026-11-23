@@ -129,3 +129,7 @@ variable "cosmotech_run_api_client_secret" {
 variable "cluster_domain" {
   type = string
 }
+
+variable "tenant_recipe_modules" {
+  type = list(string)
+}

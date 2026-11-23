@@ -65,3 +65,13 @@ variable "cosmotech_modeling_api_route_suffix" {
   description = "Gateway path segment under which the Modeling API is exposed"
   type        = string
 }
+
+variable "cosmotech_asset_data_layer_service_address" {
+  description = "Formatted: \"<host>:<port>/<path>\""
+  type        = string
+}
+
+variable "cosmotech_asset_data_layer_route_suffix" {
+  description = "Gateway path segment under which the Asset Data Layer API is exposed"
+  type        = string
+}

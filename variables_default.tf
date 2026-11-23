@@ -76,6 +76,7 @@ variable "cosmotech_asset_data_layer_chart_tag" { default = "0.2.0" }
 variable "cosmotech_asset_data_layer_image_name" { default = "cosmotech-asset-data-layer" }
 variable "cosmotech_asset_data_layer_image_tag" { default = "0.2.0-rc1" }
 variable "cosmotech_asset_data_layer_storage_size" { default = 8 }
+variable "cosmotech_asset_data_layer_route_suffix" { default = "asset-api" } ## Path segment under which the Asset Data Layer API is exposed (https://<cluster_domain>/<namespace>/<suffix>)
 
 
 ## Cosmo Tech Asset Investment Planning API

@@ -346,10 +346,14 @@ module "chart_cosmotech_gateway" {
   cosmotech_modeling_api_service_address = try(one(module.chart_cosmotech_modeling_api[*].service_address), null)
   cosmotech_modeling_api_route_suffix    = var.cosmotech_modeling_api_route_suffix
 
+  cosmotech_asset_data_layer_service_address = try(one(module.chart_cosmotech_asset_data_layer[*].service_address), null)
+  cosmotech_asset_data_layer_route_suffix    = var.cosmotech_asset_data_layer_route_suffix
+
   depends_on = [
     time_sleep.timer,
     module.chart_cosmotech_run_api,
     module.chart_cosmotech_modeling_api,
+    module.chart_cosmotech_asset_data_layer,
     module.config_keycloak_realm,
   ]
 }
@@ -405,6 +409,8 @@ module "chart_cosmotech_asset_data_layer" {
   chart_tag        = var.cosmotech_asset_data_layer_chart_tag
   # chart_release    = "cosmotech-asset-data-layer"
   chart_release = "cosmotech-adl"
+
+  tenant_recipe_modules = local.tenant_recipe_modules
 
   cosmotech_asset_data_layer_image_name = "${var.image_prefix_product}${var.cosmotech_asset_data_layer_image_name}"
   cosmotech_asset_data_layer_image_tag  = var.cosmotech_asset_data_layer_image_tag
