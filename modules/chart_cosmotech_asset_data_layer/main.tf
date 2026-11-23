@@ -36,9 +36,12 @@ locals {
     S3_PASSWORD                           = data.kubernetes_secret.s3.data[var.s3_secret_key_password]
     KEYCLOAK_CLIENT_ID                    = var.keycloak_client_id
     CLUSTER_DOMAIN                        = var.cluster_domain
-    COSMOTECH_ASSET_DATA_LAYER_URL_SUFFIX = "/${var.namespace}/asset"
+    COSMOTECH_ASSET_DATA_LAYER_URL_SUFFIX = local.url_suffix
+    INGRESS_ENABLED                       = !contains(var.tenant_recipe_modules, "chart_cosmotech_gateway")
   }
 
+  chart_release_name   = "${var.chart_release}-${var.namespace}"
+  url_suffix           = "/${var.namespace}/asset"
   database_schema_name = var.use_external_postgresql ? "${var.namespace}_cosmotech_asset_data_layer" : "cosmotech_asset_data_layer"
 }
 
@@ -81,6 +84,17 @@ data "kubernetes_resources" "helm_release_secret" {
   api_version    = "v1"
   kind           = "Secret"
   label_selector = "owner=helm,name=${var.chart_release}"
+}
+
+data "kubernetes_resources" "services" {
+  api_version    = "v1"
+  kind           = "Service"
+  namespace      = var.namespace
+  label_selector = "app.kubernetes.io/instance=${local.chart_release_name}"
+
+  depends_on = [
+    helm_release.cosmotech_asset_data_layer,
+  ]
 }
 
 
