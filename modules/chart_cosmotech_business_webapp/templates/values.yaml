@@ -1,0 +1,77 @@
+name: ${WEBAPP_NAME}
+
+ingress:
+  enabled: true
+
+keycloak:
+  realmUrl: ${KEYCLOAK_REALM_URL}
+
+cosmotech:
+  apiUrl: ${COSMOTECH_API_URL}
+
+powerbi:
+  tenantId: "${POWERBI_TENANT_ID}"
+  # clientId / clientSecret: injected with set_sensitive (see main.tf)
+
+superset:
+  apiUrl: http://superset-web.superset.svc.cluster.local/api/v1
+  superuser:
+    username: admin
+    # password: injected with set_sensitive (see main.tf)
+
+nodeSelector:
+  cosmotech.com/tier: services
+tolerations:
+  - key: vendor
+    operator: Equal
+    value: cosmotech
+    effect: NoSchedule
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 256Mi
+  requests:
+    cpu: 200m
+    memory: 128Mi
+
+webapp:
+  domainName: ${CLUSTER_DOMAIN}
+  publicUrl: ${PUBLIC_URL}
+
+  # Rendered by the chart into the "<name>-server-configmap-config" ConfigMap
+  globalConfiguration: ${GLOBAL_CONFIGURATION}
+  contentSecurityPolicy:
+    connect-src:
+      - https://superset-${CLUSTER_DOMAIN}
+      - https://${CLUSTER_DOMAIN}
+    frame-src:
+      - https://superset-${CLUSTER_DOMAIN}
+
+  server:
+    image:
+      repository: ${REGISTRY}/${IMAGE_NAME_SERVER}
+      tag: ${IMAGE_TAG_SERVER}
+      pullPolicy: Always
+      pullSecret: ${REGISTRY_AUTH_SECRET}
+    nodeSelector:
+      cosmotech.com/tier: services
+    tolerations:
+      - key: vendor
+        operator: Equal
+        value: cosmotech
+        effect: NoSchedule
+
+  functions:
+    image:
+      repository: ${REGISTRY}/${IMAGE_NAME_FUNCTIONS}
+      tag: ${IMAGE_TAG_FUNCTIONS}
+      pullPolicy: Always
+      pullSecret: ${REGISTRY_AUTH_SECRET}
+    nodeSelector:
+      cosmotech.com/tier: services
+    tolerations:
+      - key: vendor
+        operator: Equal
+        value: cosmotech
+        effect: NoSchedule
