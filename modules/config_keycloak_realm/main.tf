@@ -14,6 +14,7 @@ locals {
   cosmotech_babylon  = "cosmotech-client-babylon"
   cosmotech_superset = "cosmotech-client-superset"
   cosmotech_admin    = "cosmotech-client-admin"
+  cosmotech_webapp   = var.webapp_name != null ? "cosmotech-client-${var.webapp_name}" : null
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
