@@ -49,6 +49,12 @@ data "kubernetes_secret" "superset" {
 }
 
 
+locals {
+  # Behind the gateway, the Run API is exposed under the gateway suffix; otherwise it is served directly on "api"
+  babylon_run_api_suffix = contains(var.tenant_recipe_modules, "chart_cosmotech_gateway") ? var.cosmotech_run_api_route_suffix : "api"
+}
+
+
 # Secret that will be used directly from Babylon
 resource "kubernetes_secret" "babylon" {
   metadata {
@@ -57,7 +63,7 @@ resource "kubernetes_secret" "babylon" {
   }
 
   data = {
-    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.namespace}/${var.cosmotech_run_api_route_suffix}",
+    "api_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/${var.namespace}/${local.babylon_run_api_suffix}",
     "modeling_api_pf" : "services/cosmotech-modeling-api", # pf = port-forward
     "keycloak_token_url" : "${keycloak_openid_client.cosmotech_babylon.root_url}/keycloak/realms/${var.namespace}/protocol/openid-connect/token",
     "keycloak_client_id" : keycloak_openid_client.cosmotech_babylon.client_id,
