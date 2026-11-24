@@ -14,12 +14,12 @@ locals {
     S3_SECRET_KEY_PASSWORD            = var.s3_secret_key_password
     CLUSTER_DOMAIN                    = var.cluster_domain
   }
-  chart_release = "cosmotech-modeling-api"
+  chart_release_name = "${var.chart_release}-${var.namespace}"
 }
 
 resource "helm_release" "modeling_api" {
   namespace  = var.namespace
-  name       = local.chart_release
+  name       = local.chart_release_name
   repository = var.chart_repository
   chart      = var.chart_name
   version    = var.chart_tag
@@ -39,7 +39,7 @@ resource "helm_release" "modeling_api" {
 data "kubernetes_resources" "helm_release_secret" {
   api_version    = "v1"
   kind           = "Secret"
-  label_selector = "owner=helm,name=${local.chart_release}"
+  label_selector = "owner=helm,name=${local.chart_release_name}"
 }
 
 resource "terraform_data" "helm_release_trigger" {
@@ -49,4 +49,16 @@ resource "terraform_data" "helm_release_trigger" {
     values_sha1  = sha1(local.chart_values)
     helm_release = data.kubernetes_resources.helm_release_secret
   }
+}
+
+# Get data service to be able retrieving the service name of the cosmotech-modeling-api
+data "kubernetes_resources" "services" {
+  api_version    = "v1"
+  kind           = "Service"
+  namespace      = var.namespace
+  label_selector = "app.kubernetes.io/instance=${local.chart_release_name}"
+
+  depends_on = [
+    helm_release.modeling_api,
+  ]
 }
