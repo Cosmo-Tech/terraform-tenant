@@ -66,11 +66,11 @@ tolerations:
 
 resources:
   limits:
-    cpu: 100m
-    memory: 1Gi
+    cpu: 2
+    memory: 4Gi
   requests:
-    cpu: 100m
-    memory: 256Mi
+    cpu: 1
+    memory: 1Gi
 
 nodeSelector:
   cosmotech.com/tier: services
