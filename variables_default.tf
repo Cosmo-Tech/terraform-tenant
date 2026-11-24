@@ -84,6 +84,19 @@ variable "cosmotech_asset_investment_planning_webapp_image_name" { default = "co
 variable "cosmotech_asset_investment_planning_webapp_image_tag" { default = "1.0.1" }
 
 
+## Cosmo Tech Business Webapp
+variable "cosmotech_business_webapp_name" { default = "business" }
+variable "cosmotech_business_webapp_organization_id" { default = "" }
+variable "cosmotech_business_webapp_extra_global_configuration" { default = {} }
+variable "cosmotech_business_webapp_chart_name" { default = "cosmotech-business-webapp" }
+variable "cosmotech_business_webapp_chart_tag" { default = "0.4.0" }
+variable "cosmotech_business_webapp_image_name_server" { default = "cosmotech-business-webapp-server" }
+variable "cosmotech_business_webapp_image_tag_server" { default = "v7.6.2-vanilla" }
+variable "cosmotech_business_webapp_image_name_functions" { default = "cosmotech-business-webapp-functions" }
+variable "cosmotech_business_webapp_image_tag_functions" { default = "v7.6.2-vanilla" }
+variable "powerbi_app_deploy" { default = false } ## Azure only
+
+
 ## Global
 variable "registry" { default = "registry.cosmotech.com" }
 variable "registry_auth_secret" { default = "registry-auth-cosmotech" }
