@@ -1,10 +1,3 @@
-resource "keycloak_openid_client_scope" "mcp_client_scope" {
-  realm_id               = keycloak_realm.realm.id
-  name                   = "mcp"
-  description            = "When provided, this scope allows MCP endpoint calls"
-  include_in_token_scope = true
-}
-
 resource "keycloak_openid_client" "cosmotech_api_mcp" {
   enabled               = true
   realm_id              = keycloak_realm.realm.id
