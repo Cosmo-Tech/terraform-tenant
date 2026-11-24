@@ -11,6 +11,10 @@ variable "cosmotech_run_api_route_suffix" {
   type        = string
 }
 
+variable "tenant_recipe_modules" {
+  type = list(string)
+}
+
 variable "webapp_name" {
   type = string
 }
