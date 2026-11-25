@@ -29,6 +29,23 @@ resource "keycloak_openid_client" "cosmotech_webapp" {
   ]
 }
 
+resource "keycloak_openid_client_default_scopes" "cosmotech_webapp_default_scopes" {
+  count = var.webapp_name != null ? 1 : 0
+
+  realm_id  = keycloak_realm.realm.id
+  client_id = keycloak_openid_client.cosmotech_webapp[0].id
+
+  default_scopes = [
+    "acr",
+    "basic",
+    "profile",
+    "email",
+    "roles",
+    "web-origins",
+    keycloak_openid_client_scope.mcp_client_scope.name,
+  ]
+}
+
 resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_webapp" {
   count = var.webapp_name != null ? 1 : 0
 
