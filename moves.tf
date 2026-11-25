@@ -89,3 +89,25 @@ moved {
   from = module.chart_seaweedfs.random_password.password[1]
   to   = module.chart_seaweedfs.random_password.s3_cosmotech_api_password
 }
+
+
+## Since 3.0.0 (MCP Keycloak resources are now conditional on var.mcp_enabled)
+moved {
+  from = module.config_keycloak_realm[0].keycloak_openid_client.cosmotech_api_mcp
+  to   = module.config_keycloak_realm[0].keycloak_openid_client.cosmotech_api_mcp[0]
+}
+
+moved {
+  from = module.config_keycloak_realm[0].keycloak_openid_client_default_scopes.client_default_scopes
+  to   = module.config_keycloak_realm[0].keycloak_openid_client_default_scopes.client_default_scopes[0]
+}
+
+moved {
+  from = module.config_keycloak_realm[0].keycloak_generic_protocol_mapper.mapper_cosmotech_api_mcp
+  to   = module.config_keycloak_realm[0].keycloak_generic_protocol_mapper.mapper_cosmotech_api_mcp[0]
+}
+
+moved {
+  from = module.config_keycloak_realm[0].keycloak_openid_client_scope.mcp_client_scope
+  to   = module.config_keycloak_realm[0].keycloak_openid_client_scope.mcp_client_scope[0]
+}
