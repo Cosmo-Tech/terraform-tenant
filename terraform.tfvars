@@ -37,13 +37,6 @@
 # tenant_type = "asset"
 # tenant_type = "asset-investment-planning"
 
-# cosmotech_business_webapp_name = "business"
-# powerbi_app_deploy             = false # Azure only
-# cosmotech_business_webapp_image_repository_server     = "repo_url"  # Used to costomize the image repository for the web app server
-# cosmotech_business_webapp_image_tag_server            = "tag_name"  # Used to costomize the image tag for the web app server
-
-# cosmotech_business_webapp_image_repository_functions  = "repo_url"  # Used to costomize the image repository for the web app functions
-# cosmotech_business_webapp_image_tag_functions         = "tag_name"  # Used to costomize the image tag for the web app functions
 
 # use_external_postgresql                     = false
 # external_postgresql_host                    = "changeme"

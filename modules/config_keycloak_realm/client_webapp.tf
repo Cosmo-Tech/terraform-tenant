@@ -7,18 +7,17 @@ locals {
 resource "keycloak_openid_client" "cosmotech_webapp" {
   count = var.webapp_name != null ? 1 : 0
 
-  enabled               = true
-  realm_id              = keycloak_realm.realm.id
-  client_id             = local.cosmotech_webapp
-  name                  = local.cosmotech_webapp
-  access_type           = "PUBLIC"
-  full_scope_allowed    = true
-  standard_flow_enabled = true
-  root_url              = local.root_url
-  base_url              = local.cosmotech_webapp_base_url
-  web_origins = [
-    local.root_url,
-  ]
+  enabled                    = true
+  realm_id                   = keycloak_realm.realm.id
+  client_id                  = local.cosmotech_webapp
+  name                       = local.cosmotech_webapp
+  access_type                = "PUBLIC"
+  full_scope_allowed         = local.full_scope_allowed
+  standard_flow_enabled      = local.standard_flow_enabled
+  root_url                   = local.root_url
+  base_url                   = local.cosmotech_webapp_base_url
+  pkce_code_challenge_method = "S256"
+  web_origins                = local.web_origins
   valid_redirect_uris = [
     "${local.cosmotech_webapp_base_url}/sign-in",
     "${local.cosmotech_webapp_base_url}/*",
