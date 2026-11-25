@@ -89,6 +89,8 @@ module "config_keycloak_realm" {
 
   # Webapp Keycloak client only when the recipe deploys the business webapp
   webapp_name = contains(local.tenant_recipe_modules, "chart_cosmotech_business_webapp") ? local.business_webapp_name : null
+
+  mcp_enabled = var.mcp_enabled
 }
 
 

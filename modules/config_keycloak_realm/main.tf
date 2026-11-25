@@ -56,8 +56,10 @@ resource "keycloak_openid_group_membership_protocol_mapper" "group_membership_ma
 # --- Mapper for API ACL ---
 
 
-# Shared by cosmotech_api_mcp and cosmotech_webapp clients
+# Shared by cosmotech_api_mcp and cosmotech_webapp clients (only when MCP is enabled)
 resource "keycloak_openid_client_scope" "mcp_client_scope" {
+  count = var.mcp_enabled ? 1 : 0
+
   realm_id               = keycloak_realm.realm.id
   name                   = "mcp"
   description            = "When provided, this scope allows MCP endpoint calls"

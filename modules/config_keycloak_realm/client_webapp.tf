@@ -35,15 +35,19 @@ resource "keycloak_openid_client_default_scopes" "cosmotech_webapp_default_scope
   realm_id  = keycloak_realm.realm.id
   client_id = keycloak_openid_client.cosmotech_webapp[0].id
 
-  default_scopes = [
-    "acr",
-    "basic",
-    "profile",
-    "email",
-    "roles",
-    "web-origins",
-    keycloak_openid_client_scope.mcp_client_scope.name,
-  ]
+  default_scopes = concat(
+    [
+      "acr",
+      "basic",
+      "profile",
+      "email",
+      "roles",
+      "web-origins",
+    ],
+    var.mcp_enabled ? [
+      keycloak_openid_client_scope.mcp_client_scope[0].name,
+    ] : []
+  )
 }
 
 resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_webapp" {

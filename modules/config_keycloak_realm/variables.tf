@@ -9,3 +9,7 @@ variable "cluster_domain" {
 variable "webapp_name" {
   type = string
 }
+
+variable "mcp_enabled" {
+  type = bool
+}
