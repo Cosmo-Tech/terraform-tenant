@@ -3,6 +3,8 @@ locals {
   tenant_recipes = {
     run = [
       "chart_cosmotech_run_api",
+      "chart_cosmotech_business_webapp",
+      "config_powerbi_app", # Only for run business webapp (still requires azure + powerbi_app_deploy = true)
       "chart_argo_workflows",
       "chart_redis",
       "chart_seaweedfs",
@@ -29,6 +31,7 @@ locals {
     asset = [
       "chart_cosmotech_asset_data_layer",
       "chart_cosmotech_run_api",
+      "chart_cosmotech_business_webapp",
       "chart_argo_workflows",
       "chart_redis",
       "chart_seaweedfs",
@@ -49,4 +52,7 @@ locals {
 
   # Get the list of the required modules
   tenant_recipe_modules = local.tenant_recipes[var.tenant_type]
+
+  business_webapp_name                     = "webapp-${var.cosmotech_business_webapp_name}"
+  business_webapp_asset_data_layer_enabled = contains(local.tenant_recipe_modules, "chart_cosmotech_asset_data_layer")
 }

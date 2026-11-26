@@ -1,11 +1,8 @@
-resource "keycloak_openid_client_scope" "mcp_client_scope" {
-  realm_id               = keycloak_realm.realm.id
-  name                   = "mcp"
-  description            = "When provided, this scope allows MCP endpoint calls"
-  include_in_token_scope = true
-}
+## MCP client: all resources are created only when mcp_enabled = true
 
 resource "keycloak_openid_client" "cosmotech_api_mcp" {
+  count = var.mcp_enabled ? 1 : 0
+
   enabled               = true
   realm_id              = keycloak_realm.realm.id
   client_id             = local.cosmotech_api_mcp
@@ -30,8 +27,10 @@ resource "keycloak_openid_client" "cosmotech_api_mcp" {
 }
 
 resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
+  count = var.mcp_enabled ? 1 : 0
+
   realm_id  = keycloak_realm.realm.id
-  client_id = keycloak_openid_client.cosmotech_api_mcp.id
+  client_id = keycloak_openid_client.cosmotech_api_mcp[0].id
 
   default_scopes = [
     "acr",
@@ -40,13 +39,15 @@ resource "keycloak_openid_client_default_scopes" "client_default_scopes" {
     "email",
     "roles",
     "web-origins",
-    keycloak_openid_client_scope.mcp_client_scope.name,
+    keycloak_openid_client_scope.mcp_client_scope[0].name,
   ]
 }
 
 resource "keycloak_generic_protocol_mapper" "mapper_cosmotech_api_mcp" {
+  count = var.mcp_enabled ? 1 : 0
+
   realm_id        = keycloak_realm.realm.id
-  client_id       = keycloak_openid_client.cosmotech_api_mcp.id
+  client_id       = keycloak_openid_client.cosmotech_api_mcp[0].id
   name            = "realm roles"
   protocol        = "openid-connect"
   protocol_mapper = "oidc-usermodel-realm-role-mapper"

@@ -86,6 +86,11 @@ module "config_keycloak_realm" {
 
   namespace      = local.tenant_namespace
   cluster_domain = local.cluster_domain
+
+  # Webapp Keycloak client only when the recipe deploys the business webapp
+  webapp_name = contains(local.tenant_recipe_modules, "chart_cosmotech_business_webapp") ? local.business_webapp_name : null
+
+  mcp_enabled = var.mcp_enabled
 }
 
 
@@ -460,6 +465,58 @@ module "chart_cosmotech_asset_investment_planning_webapp" {
   depends_on = [
     time_sleep.timer,
     module.chart_cosmotech_asset_investment_planning_api,
+  ]
+}
+
+
+## Cosmo Tech PowerBI app registration (optional: "run" recipe only, Azure only, powerbi_app_deploy = true)
+module "config_powerbi_app" {
+  count  = contains(local.tenant_recipe_modules, "config_powerbi_app") && var.cloud_provider == "azure" && var.powerbi_app_deploy ? 1 : 0
+  source = "./modules/config_powerbi_app"
+
+  cluster_name = var.cluster_name
+  namespace    = local.tenant_namespace
+  webapp_name  = local.business_webapp_name
+
+  depends_on = [
+    module.kube_namespace,
+  ]
+}
+
+
+module "chart_cosmotech_business_webapp" {
+  count  = contains(local.tenant_recipe_modules, "chart_cosmotech_business_webapp") ? 1 : 0
+  source = "./modules/chart_cosmotech_business_webapp"
+
+  namespace      = local.tenant_namespace
+  cluster_domain = local.cluster_domain
+
+  webapp_name                = local.business_webapp_name
+  keycloak_client_id         = try(one(module.config_keycloak_realm[*].keycloak_webapp_client_id), null)
+  asset_data_layer_enabled   = local.business_webapp_asset_data_layer_enabled
+  organization_id            = var.cosmotech_business_webapp_organization_id
+  extra_global_configuration = var.cosmotech_business_webapp_extra_global_configuration
+
+  registry             = var.registry
+  registry_auth_secret = var.registry_auth_secret
+
+  chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
+  chart_name       = var.cosmotech_business_webapp_chart_name
+  chart_tag        = var.cosmotech_business_webapp_chart_tag
+
+  image_name_server    = "${var.image_prefix_product}${var.cosmotech_business_webapp_image_name_server}"
+  image_tag_server     = var.cosmotech_business_webapp_image_tag_server
+  image_name_functions = "${var.image_prefix_product}${var.cosmotech_business_webapp_image_name_functions}"
+  image_tag_functions  = var.cosmotech_business_webapp_image_tag_functions
+
+  powerbi_tenant_id = contains(local.tenant_recipe_modules, "config_powerbi_app") ? var.azure_entra_tenant_id : ""
+
+  depends_on = [
+    time_sleep.timer,
+    module.config_keycloak_realm,
+    module.chart_cosmotech_run_api,
+    module.chart_cosmotech_asset_data_layer,
+    module.config_powerbi_app,
   ]
 }
 

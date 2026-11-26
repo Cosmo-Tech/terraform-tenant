@@ -14,6 +14,7 @@ locals {
   cosmotech_babylon  = "cosmotech-client-babylon"
   cosmotech_superset = "cosmotech-client-superset"
   cosmotech_admin    = "cosmotech-client-admin"
+  cosmotech_webapp   = var.webapp_name != null ? "cosmotech-client-${var.webapp_name}" : null
 
   access_type           = "CONFIDENTIAL"
   full_scope_allowed    = true
@@ -53,3 +54,14 @@ resource "keycloak_openid_group_membership_protocol_mapper" "group_membership_ma
   claim_name = "groups"
 }
 # --- Mapper for API ACL ---
+
+
+# Shared by cosmotech_api_mcp and cosmotech_webapp clients (only when MCP is enabled)
+resource "keycloak_openid_client_scope" "mcp_client_scope" {
+  count = var.mcp_enabled ? 1 : 0
+
+  realm_id               = keycloak_realm.realm.id
+  name                   = "mcp"
+  description            = "When provided, this scope allows MCP endpoint calls"
+  include_in_token_scope = true
+}

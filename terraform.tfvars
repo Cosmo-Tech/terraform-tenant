@@ -37,9 +37,10 @@
 # tenant_type = "asset"
 # tenant_type = "asset-investment-planning"
 
-# use_external_postgresql = false
-# external_postgresql_host = "changeme"
-# external_postgresql_port = "changeme"
+
+# use_external_postgresql                     = false
+# external_postgresql_host                    = "changeme"
+# external_postgresql_port                    = "changeme"
 # ## Do not store credentials in current file
-# export TF_VAR_external_postgresql_username="changeme"
-# export TF_VAR_external_postgresql_password="changeme"
+# export TF_VAR_external_postgresql_username  = "changeme"
+# export TF_VAR_external_postgresql_password  = "changeme"
