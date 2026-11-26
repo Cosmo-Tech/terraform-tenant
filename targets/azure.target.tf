@@ -31,7 +31,7 @@ module "storage" {
   pvc_name           = each.value.pvc_name
   size               = each.value.size
   resource_group     = data.azurerm_kubernetes_cluster.cluster.node_resource_group
-  storage_class_name = local.storage_class_name
+  storage_class_name = each.value.storage_class
   region             = var.cluster_region
   cloud_provider     = var.cloud_provider
   create_pvc         = each.value.create_pvc
