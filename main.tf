@@ -3,60 +3,68 @@ locals {
 
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
 
-  storage_class_name = "cosmotech-retain"
+  storage_class_name      = "cosmotech-retain"
+  file_storage_class_name = "cosmotech-file-storage"
   persistences = {
     postgresql = {
-      module     = "postgresql_cnpg_cluster"
-      size       = var.postgresql_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-postgresql"
-      pvc_name   = "${local.tenant_namespace}-postgresql-1"
-      create_pvc = false
+      module        = "postgresql_cnpg_cluster"
+      size          = var.postgresql_storage_size
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-postgresql"
+      pvc_name      = "${local.tenant_namespace}-postgresql-1"
+      storage_class = local.storage_class_name
+      create_pvc    = false
     }
     seaweedfs-master = {
-      module     = "chart_seaweedfs"
-      size       = 32
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-seaweedfs-master"
-      pvc_name   = "pvc-${local.tenant_namespace}-seaweedfs-master"
-      create_pvc = true
+      module        = "chart_seaweedfs"
+      size          = 32
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-seaweedfs-master"
+      pvc_name      = "pvc-${local.tenant_namespace}-seaweedfs-master"
+      storage_class = local.storage_class_name
+      create_pvc    = true
     }
     seaweedfs-volume = {
-      module     = "chart_seaweedfs"
-      size       = var.seaweedfs_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-seaweedfs-volume"
-      pvc_name   = "pvc-${local.tenant_namespace}-seaweedfs-volume"
-      create_pvc = true
+      module        = "chart_seaweedfs"
+      size          = var.seaweedfs_storage_size
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-seaweedfs-volume"
+      pvc_name      = "pvc-${local.tenant_namespace}-seaweedfs-volume"
+      storage_class = local.storage_class_name
+      create_pvc    = true
     }
     redis-master = {
-      module     = "chart_redis"
-      size       = var.redis_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-redis-master"
-      pvc_name   = "pvc-${local.tenant_namespace}-redis-master"
-      create_pvc = true
+      module        = "chart_redis"
+      size          = var.redis_storage_size
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-redis-master"
+      pvc_name      = "pvc-${local.tenant_namespace}-redis-master"
+      storage_class = local.storage_class_name
+      create_pvc    = true
     }
     redis-replica = {
-      module     = "chart_redis"
-      size       = var.redis_storage_size
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-redis-replica"
-      pvc_name   = "pvc-${local.tenant_namespace}-redis-replica"
-      create_pvc = true
+      module        = "chart_redis"
+      size          = var.redis_storage_size
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-redis-replica"
+      pvc_name      = "pvc-${local.tenant_namespace}-redis-replica"
+      storage_class = local.storage_class_name
+      create_pvc    = true
     }
     cosmotech-asset-data-layer = {
       module = "chart_cosmotech_asset_data_layer"
       size   = var.cosmotech_asset_data_layer_storage_size
       # main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
       # pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-asset-data-layer"
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-csm-adl"
-      pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-csm-adl"
-      create_pvc = true
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-csm-adl"
+      pvc_name      = "pvc-${var.cluster_name}-${local.tenant_namespace}-csm-adl"
+      storage_class = local.file_storage_class_name
+      create_pvc    = true
     }
     cosmotech-modeling-api = {
       module = "chart_cosmotech_modeling_api"
       size   = var.cosmotech_modeling_api_storage_size
       # main_name  = "${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
       # pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-cosmotech-modeling-api"
-      main_name  = "${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"
-      pvc_name   = "pvc-${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"
-      create_pvc = true
+      main_name     = "${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"
+      pvc_name      = "pvc-${var.cluster_name}-${local.tenant_namespace}-csm-mod-api"
+      storage_class = local.storage_class_name
+      create_pvc    = true
     }
   }
 
@@ -370,7 +378,7 @@ module "chart_cosmotech_asset_data_layer" {
 
   persistence_size  = local.persistences.cosmotech-asset-data-layer["size"]
   persistence_pvc   = local.persistences.cosmotech-asset-data-layer["pvc_name"]
-  pvc_storage_class = local.storage_class_name
+  pvc_storage_class = local.file_storage_class_name
 
   # Reuse the same database from cosmotech-run-api
   use_external_postgresql        = var.use_external_postgresql
