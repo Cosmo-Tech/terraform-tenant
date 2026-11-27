@@ -73,3 +73,15 @@ variable "keycloak_client_id" {
   description = "Keycloak client id of the webapp (created by config_keycloak_realm)"
   type        = string
 }
+
+variable "tenant_recipe_modules" {
+  type = list(string)
+}
+
+variable "cosmotech_run_api_route_suffix" {
+  type = string
+}
+
+variable "cosmotech_asset_data_layer_route_suffix" {
+  type = string
+}
