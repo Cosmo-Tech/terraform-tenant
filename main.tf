@@ -539,14 +539,17 @@ module "chart_cosmotech_business_webapp" {
   namespace      = local.tenant_namespace
   cluster_domain = local.cluster_domain
 
+  cosmotech_run_api_route_suffix          = var.cosmotech_run_api_route_suffix
+  cosmotech_asset_data_layer_route_suffix = var.cosmotech_asset_data_layer_route_suffix
+
   webapp_name                = local.business_webapp_name
   keycloak_client_id         = try(one(module.config_keycloak_realm[*].keycloak_webapp_client_id), null)
   asset_data_layer_enabled   = local.business_webapp_asset_data_layer_enabled
   organization_id            = var.cosmotech_business_webapp_organization_id
   extra_global_configuration = var.cosmotech_business_webapp_extra_global_configuration
-
-  registry             = var.registry
-  registry_auth_secret = var.registry_auth_secret
+  tenant_recipe_modules      = local.tenant_recipe_modules
+  registry                   = var.registry
+  registry_auth_secret       = var.registry_auth_secret
 
   chart_repository = "oci://${var.registry}/${var.chart_prefix_product}"
   chart_name       = var.cosmotech_business_webapp_chart_name

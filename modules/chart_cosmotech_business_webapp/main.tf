@@ -1,9 +1,11 @@
 locals {
-  public_url         = "/${var.namespace}/${var.webapp_name}"
-  webapp_base_url    = "https://${var.cluster_domain}${local.public_url}"
-  keycloak_client_id = var.keycloak_client_id # created in config_keycloak_realm (client_webapp.tf)
-  keycloak_realm_url = "https://${var.cluster_domain}/keycloak/realms/${var.namespace}"
-  run_api_url        = "https://${var.cluster_domain}/${var.namespace}/api"
+  public_url           = "/${var.namespace}/${var.webapp_name}"
+  webapp_base_url      = "https://${var.cluster_domain}${local.public_url}"
+  keycloak_client_id   = var.keycloak_client_id # created in config_keycloak_realm (client_webapp.tf)
+  keycloak_realm_url   = "https://${var.cluster_domain}/keycloak/realms/${var.namespace}"
+  asset_api_url_suffix = contains(var.tenant_recipe_modules, "chart_cosmotech_gateway") ? var.cosmotech_asset_data_layer_route_suffix : "asset"
+  run_api_url_suffix   = contains(var.tenant_recipe_modules, "chart_cosmotech_gateway") ? var.cosmotech_run_api_route_suffix : "api"
+  run_api_url          = "https://${var.cluster_domain}/${var.namespace}/${local.run_api_url_suffix}"
 
   global_configuration_common = {
     APP_REGISTRATION_CLIENT_ID    = ""
@@ -19,7 +21,7 @@ locals {
 
   global_configuration_api = var.asset_data_layer_enabled ? {
     RUN_API_URL = local.run_api_url
-    ADL_API_URL = "https://${var.cluster_domain}/${var.namespace}/asset"
+    ADL_API_URL = "https://${var.cluster_domain}/${var.namespace}/${local.asset_api_url_suffix}"
     } : {
     DEFAULT_BASE_PATH = local.run_api_url
   }
